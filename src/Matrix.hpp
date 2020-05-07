@@ -36,22 +36,26 @@ private:
     vector<vector<T>> vec;
 public:
     //explicit Matrix() { this->vec = vector<vector<T>>(1, vector<T>(1)); };
-    explicit Matrix() : Matrix(1, 1) {};
+    explicit Matrix() : Matrix(0, 0) {};
 
     explicit Matrix(int64_t rows, int64_t col);
 
     // 拷贝构造函数 Copy Constructor
-    Matrix(const Matrix<T> &s);
+    Matrix(const Matrix<T> &mat);
 
     // 移动构造函数
-    Matrix(Matrix<T> &&s);
+    Matrix(Matrix<T> &&mat) noexcept;
 
     // 拷贝赋值运算符 Copy Assignment operator
-    Matrix<T> &operator=(const Matrix<T> &);
+    Matrix<T> &operator=(const Matrix<T> &mat);
 
     // 移动赋值运算符 Move Assignment operator
-    Matrix &operator=(Matrix<T> &&data);
+    Matrix<T> &operator=(Matrix<T> &&mat) noexcept;
 
+    Matrix<T>(const std::initializer_list<std::initializer_list<T>> &list);
+
+    // only for
+    Matrix<T>(const std::initializer_list<T> &list);
 
     friend std::ostream &operator<<(std::ostream &output, const Matrix<T> &mat) {
         for (const auto &i: mat.vec) {
@@ -63,7 +67,7 @@ public:
         return output;
     }
 
-    ~Matrix() {};
+    ~Matrix() = default;
 
     bool isEmpty();
 };
@@ -77,29 +81,50 @@ Matrix<T>::Matrix(int64_t rows, int64_t cols) {
 
 
 template<class T>
-Matrix<T>::Matrix(const Matrix &m) {
-    this->vec = vector<vector<T>>(m.vec);
+Matrix<T>::Matrix(const Matrix &mat) {
+    this->vec = vector<vector<T>>(mat.vec);
 }
 
 template<class T>
-Matrix<T>::Matrix(Matrix &&m) {
-    this->vec = vector<vector<T>>(std::move(m.vec));
+Matrix<T>::Matrix(Matrix &&mat) noexcept {
+    this->vec = vector<vector<T>>(std::move(mat.vec));
 }
 
 template<class T>
-Matrix<T> &Matrix<T>::operator=(const Matrix<T> &m) {
-    if (this != &m) {
-        this->vec = vector<vector<T>>(m.vec);
+Matrix<T> &Matrix<T>::operator=(const Matrix<T> &mat) {
+    if (this != &mat) {
+        this->vec = vector<vector<T>>(mat.vec);
     }
     return *this;
 }
 
 template<class T>
-Matrix<T> &Matrix<T>::operator=(Matrix &&m) {
-    if (this != &m) {
-        this->vec = std::move(m.vec);
+Matrix<T> &Matrix<T>::operator=(Matrix &&mat) noexcept {
+    if (this != &mat) {
+        this->vec = std::move(mat.vec);
     }
     return *this;
+}
+
+template<class T>
+Matrix<T>::Matrix(const std::initializer_list<T> &list) {
+    this->vec = vector<vector<T>>(1);
+    this->vec[0] = list;
+}
+
+template<class T>
+Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>> &list) {
+    this->vec = vector<vector<T>>(0);
+    for (auto i = list.begin(); i < list.end() - 1; i++) {
+        if ((*i).size() != (*(i + 1)).size()) {
+            return;
+        }
+    }
+    this->vec = vector<vector<T>>(list.size());
+    uint32_t row = 0;
+    for (const auto &i:list) {
+        this->vec[row++] = i;
+    }
 }
 
 template<class T>

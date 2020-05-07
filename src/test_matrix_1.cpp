@@ -97,19 +97,39 @@ TEST_CASE("Move Constructor", "[test 1]") {
 }
 
 TEST_CASE("Copy Assignment operator", "[test 1]") {
-    Matrix<uint64_t> m1;
+    Matrix<uint64_t> m1(3,4);
     Matrix<uint64_t> m2;
+    CHECK(!m1.isEmpty());
+    CHECK(m2.isEmpty());
     m2 = m1;
     CHECK(!m1.isEmpty());
     CHECK(!m2.isEmpty());
 }
 
-TEST_CASE("Move Assignment operator", "[test 2]") {
+TEST_CASE("Move Assignment operator", "[test 1]") {
     Matrix<uint64_t> m1(3, 7);
-    Matrix<uint64_t> m2(7,3);
+    Matrix<uint64_t> m2(7, 3);
     CHECK(!m1.isEmpty());
     CHECK(!m2.isEmpty());
     m2 = std::move(m1);
     CHECK(m1.isEmpty());
     CHECK(!m2.isEmpty());
+}
+
+TEST_CASE("initializer_list", "[test 1]") {
+    Matrix<int64_t> m1{{1,2,3,4,54},{5,2,3,3,41}};
+    CHECK(!m1.isEmpty());
+    cout << m1 <<endl;
+    Matrix<int64_t> m2 = {{1,1,4,5,1,4},{1,9,1,9,8,1,0}};
+    CHECK(m2.isEmpty());
+    Matrix<int64_t> m3{};
+    CHECK(m3.isEmpty());
+    cout << m3;
+    Matrix<int64_t> m4 = {1,2,3,4,5};
+    CHECK(!m4.isEmpty());
+    cout << m4;
+    Matrix<int64_t> m5 = {1};
+    CHECK(!m5.isEmpty());
+    cout << m5;
+    // can not Matrix<int64_t> m6 = {};
 }
