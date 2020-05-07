@@ -9,7 +9,8 @@ CS205_C_CPP_2020S_project_matrix
 details look at project-matrix.md  
 1. All code(in this project,include *.c,*.cpp,*.h,*.hpp,CMakeLists.txt,etc) based on AGPL3.0(or any later version).
 2. All *.md files are based on CC-BY-NC-SA-4.0(or any later version).
-
+3. 确保文件夹所在目录下存在`catch.hpp` `catch_main.cpp`(只需要两行,`#define CATCH_CONFIG_MAIN  #include  "./catch.hpp"`).
+然后添加到`CS205_project_2020S/src`到Cmakelist.txt中即可.
 [![AGPL3.0 Licence](https://img.shields.io/badge/License-AGPL_V3-orange)][agpl_3_0]
 
 [![AGPL_V3](https://www.gnu.org/graphics/agplv3-with-text-162x68.png)][agpl_3_0]
