@@ -31,8 +31,16 @@ using namespace cv;
 
 int main() {
     Mat mat1 = Mat(3, 4, CV_8U);
-    Mat mat2 = Mat(3, 4, CV_16U);
-    Mat mat3 = mat1 + mat2;
+    Mat mat2 = Mat(3, 4, CV_8U);
+    Mat mat3 = Mat().zeros(3,4,CV_8U);
+    Mat mat4 = Mat().ones(3,4,CV_8U);
+    Mat mat5 = Mat().ones(3,4,CV_8UC(2));
     cout << mat1 << endl;
+    cout << mat2 << endl;
+    cout << mat3 << endl;
+    cout << mat4 << endl;
+    cout << mat4+mat4<<endl;
+    cout << mat5.col(0).row(0) <<endl;
+    cout << mat5.cols << " " << mat5.rows;
     return 0;
 }

@@ -57,6 +57,12 @@ public:
     // only for
     Matrix<T>(const std::initializer_list<T> &list);
 
+    static Matrix<T> zeros(int64_t rows, int64_t cols);
+
+    static Matrix<T> ones(int64_t rows, int64_t cols);
+
+    static Matrix<T> values(int64_t rows = 0, int64_t cols = 0, T = static_cast<T>(0));
+
     friend std::ostream &operator<<(std::ostream &output, const Matrix<T> &mat) {
         for (const auto &i: mat.vec) {
             for (const auto &j:i) {
@@ -66,6 +72,8 @@ public:
         }
         return output;
     }
+
+    Matrix<T> operator+(const Matrix<T> &mat1) const;
 
     ~Matrix() = default;
 
@@ -129,7 +137,33 @@ Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>> &list) {
 
 template<class T>
 bool Matrix<T>::isEmpty() {
-    return (vec.empty() || vec[0].empty());
+    return vec.empty() || vec[0].empty();
+}
+
+template<class T>
+Matrix<T> Matrix<T>::operator+(const Matrix<T> &mat1) const {
+    return Matrix<T>();
+}
+
+template<class T>
+Matrix<T> Matrix<T>::zeros(int64_t rows, int64_t cols) {
+    return Matrix<T>::values(rows, cols, static_cast<T>(0));
+}
+
+template<class T>
+Matrix<T> Matrix<T>::ones(int64_t rows, int64_t cols) {
+    return Matrix<T>::values(rows, cols, static_cast<T>(1));
+}
+
+template<class T>
+Matrix<T> Matrix<T>::values(int64_t rows, int64_t cols, T t) {
+    Matrix<T> will_return(rows, cols);
+    for (auto &i:will_return.vec) {
+        for (auto &j:i) {
+            j = t;
+        }
+    }
+    return will_return;
 }
 
 

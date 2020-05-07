@@ -133,3 +133,12 @@ TEST_CASE("initializer_list", "[test 1]") {
     cout << m5;
     // can not Matrix<int64_t> m6 = {};
 }
+
+TEST_CASE("zeros and ones","[test 1]"){
+    Matrix<int16_t> m1 = Matrix<int16_t>::zeros(3,3);
+    cout << m1;
+    Matrix<int32_t> m2 = Matrix<int32_t>::ones(4,4);
+    cout << m2;
+    Matrix<int64_t> m3 = Matrix<int64_t>::values(5,5,114);
+    cout << m3;
+}
