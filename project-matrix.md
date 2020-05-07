@@ -1,10 +1,8 @@
 <!--
- * @Github: https://github.com/Certseeds/CS205_C_CPP
  * @Organization: SUSTech
  * @Author: nanoseeds
  * @Date: 2020-05-07 10:09:50
- * @LastEditors: nanoseeds
- * @LastEditTime: 2020-05-07 10:10:52
+ * @LastEditTime: 2020-05-07 10:39:19
  * @License: CC-BY-NC-SA_V4_0 or any later version 
  -->
 ## Building a library for matrix computation
