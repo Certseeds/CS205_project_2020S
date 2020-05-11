@@ -38,7 +38,7 @@ public:
     //explicit Matrix() { this->vec = vector<vector<T>>(1, vector<T>(1)); };
     explicit Matrix() : Matrix(0, 0) {};
 
-    explicit Matrix(int64_t rows, int64_t col);
+    explicit Matrix(size_t rows, size_t col);
 
     // 拷贝构造函数 Copy Constructor
     Matrix(const Matrix<T> &mat);
@@ -57,11 +57,15 @@ public:
     // only for
     Matrix<T>(const std::initializer_list<T> &list);
 
-    static Matrix<T> zeros(int64_t rows, int64_t cols);
+    static Matrix<T> zeros(size_t rows, size_t cols);
 
-    static Matrix<T> ones(int64_t rows, int64_t cols);
+    static Matrix<T> ones(size_t rows, size_t cols);
 
-    static Matrix<T> values(int64_t rows = 0, int64_t cols = 0, T = static_cast<T>(0));
+    static Matrix<T> values(size_t rows = 0, size_t cols = 0, T = static_cast<T>(0));
+
+    static Matrix<T> eye(size_t s);
+
+    static Matrix<T> eye_value(size_t s, T t);
 
     friend std::ostream &operator<<(std::ostream &output, const Matrix<T> &mat) {
         for (const auto &i: mat.vec) {
@@ -81,7 +85,7 @@ public:
 };
 
 template<class T>
-Matrix<T>::Matrix(int64_t rows, int64_t cols) {
+Matrix<T>::Matrix(size_t rows, size_t cols) {
     rows = rows > 0 ? rows : 0;
     cols = cols > 0 ? cols : 0;
     this->vec = vector<vector<T>>(rows, vector<T>(cols));
@@ -95,7 +99,7 @@ Matrix<T>::Matrix(const Matrix &mat) {
 
 template<class T>
 Matrix<T>::Matrix(Matrix &&mat) noexcept {
-    this->vec = vector<vector<T>>(std::move(mat.vec));
+    this->vec = std::move(mat.vec);
 }
 
 template<class T>
@@ -140,23 +144,24 @@ bool Matrix<T>::isEmpty() {
     return vec.empty() || vec[0].empty();
 }
 
+// TODO
 template<class T>
 Matrix<T> Matrix<T>::operator+(const Matrix<T> &mat1) const {
     return Matrix<T>();
 }
 
 template<class T>
-Matrix<T> Matrix<T>::zeros(int64_t rows, int64_t cols) {
+Matrix<T> Matrix<T>::zeros(size_t rows, size_t cols) {
     return Matrix<T>::values(rows, cols, static_cast<T>(0));
 }
 
 template<class T>
-Matrix<T> Matrix<T>::ones(int64_t rows, int64_t cols) {
+Matrix<T> Matrix<T>::ones(size_t rows, size_t cols) {
     return Matrix<T>::values(rows, cols, static_cast<T>(1));
 }
 
 template<class T>
-Matrix<T> Matrix<T>::values(int64_t rows, int64_t cols, T t) {
+Matrix<T> Matrix<T>::values(size_t rows, size_t cols, T t) {
     Matrix<T> will_return(rows, cols);
     for (auto &i:will_return.vec) {
         for (auto &j:i) {
@@ -164,6 +169,20 @@ Matrix<T> Matrix<T>::values(int64_t rows, int64_t cols, T t) {
         }
     }
     return will_return;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::eye_value(size_t s, T t) {
+    Matrix<T> will_return(s,s);
+    for (size_t i = 0; i < s; ++i) {
+        will_return.vec[i][i] = t;
+    }
+    return will_return;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::eye(size_t s) {
+    return Matrix<T>::eye_value(s, static_cast<T>(1));
 }
 
 

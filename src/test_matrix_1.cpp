@@ -142,3 +142,10 @@ TEST_CASE("zeros and ones","[test 1]"){
     Matrix<int64_t> m3 = Matrix<int64_t>::values(5,5,114);
     cout << m3;
 }
+
+TEST_CASE("eye and eye_value","[test 1]"){
+    Matrix<int16_t> m1 = Matrix<int16_t>::eye(4);
+    cout << m1;
+    Matrix<int32_t> m2 = Matrix<int32_t>::eye_value(4,4);
+    cout << m2;
+}
