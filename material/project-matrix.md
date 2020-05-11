@@ -2,7 +2,7 @@
  * @Organization: SUSTech
  * @Author: nanoseeds
  * @Date: 2020-05-07 10:09:50
- * @LastEditTime: 2020-05-07 10:39:19
+ * @LastEditTime: 2020-05-11 15:12:20
  * @License: CC-BY-NC-SA_V4_0 or any later version 
  -->
 ## Building a library for matrix computation
@@ -17,3 +17,21 @@
     7.  It supports convolutional operations of two matrices.
     8.  It supports to transfer the matrix from OpenCV to the matrix of this library and vice versa.
     9.  It should process likely exceptions as much as possible.
+
+1. 支持所有矩阵大小,(Bonus: 稀疏矩阵).
+
+2. 支持所有标准数字类型,int,double,complex and 自定义类型.
+
+3. 支持矩阵和矢量算数,支持+,-,*,/(前面四个指的是基本数据类型),转置,共轭,阿达玛乘积(两个相同大小矩阵,相同位置的相乘),矩阵-矩阵的乘法(A:m_n,B:n_p,结果m_p),矩阵-向量的乘法(A:m_n,B:n_1,结果m_1,前一个的特化),点乘(要求两者大小一致,似乎就是阿达嘛乘积),叉乘(似乎就是matrix-matrix的普通乘法).
+
+4. 基本的算数规约运算,包括查找最大值,最小值,求和,计算平均值.
+
+5. 可以计算特征向量,特征值,Trace(迹),逆以及行列式.
+
+6. 支持reshape(重整),slice(切片).(此处参考numpy).
+
+7. 支持卷积.
+
+8. 支持和opencv的矩阵之间的双向转换(重点是搞明白opencv里面奇怪的数据类型).
+
+9.  尽可能处理异常.
