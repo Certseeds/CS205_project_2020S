@@ -38,7 +38,7 @@ public:
     //explicit Matrix() { this->vec = vector<vector<T>>(1, vector<T>(1)); };
     explicit Matrix() : Matrix(0, 0) {};
 
-    explicit Matrix(size_t rows, size_t col);
+    explicit Matrix(size_t rows, size_t cols);
 
     // 拷贝构造函数 Copy Constructor
     Matrix(const Matrix<T> &mat);
@@ -77,24 +77,42 @@ public:
         return output;
     }
 
+    inline size_t rows() const;
+
+    inline size_t cols() const;
+
     Matrix<T> operator+(const Matrix<T> &mat1) const;
+
+    Matrix<T> operator-(const Matrix<T> &mat1) const;
+
+    Matrix<T> operator*(T &mat1) const;
+
+    Matrix<T> operator*(const Matrix<T> &mat1) const;
+
+    Matrix<T> mul(const Matrix<T> &mat1) const;
+
+    Matrix<T> operator/(const Matrix<T> &mat1) const;
+
+    inline Matrix<T> operator_table(const Matrix<T> &mat1, const std::function<void()> &) const;
+
+    inline bool Equal(const Matrix<T> &mat1) const;
 
     ~Matrix() = default;
 
-    bool isEmpty();
+    inline bool isEmpty();
 };
+
+
+template<class T>
+Matrix<T>::Matrix(const Matrix &mat) {
+    this->vec = vector<vector<T>>(mat.vec);
+}
 
 template<class T>
 Matrix<T>::Matrix(size_t rows, size_t cols) {
     rows = rows > 0 ? rows : 0;
     cols = cols > 0 ? cols : 0;
     this->vec = vector<vector<T>>(rows, vector<T>(cols));
-}
-
-
-template<class T>
-Matrix<T>::Matrix(const Matrix &mat) {
-    this->vec = vector<vector<T>>(mat.vec);
 }
 
 template<class T>
@@ -139,15 +157,10 @@ Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>> &list) {
     }
 }
 
-template<class T>
-bool Matrix<T>::isEmpty() {
-    return vec.empty() || vec[0].empty();
-}
 
-// TODO
 template<class T>
-Matrix<T> Matrix<T>::operator+(const Matrix<T> &mat1) const {
-    return Matrix<T>();
+inline bool Matrix<T>::isEmpty() {
+    return vec.empty() || vec[0].empty();
 }
 
 template<class T>
@@ -173,7 +186,7 @@ Matrix<T> Matrix<T>::values(size_t rows, size_t cols, T t) {
 
 template<class T>
 Matrix<T> Matrix<T>::eye_value(size_t s, T t) {
-    Matrix<T> will_return(s,s);
+    Matrix<T> will_return(s, s);
     for (size_t i = 0; i < s; ++i) {
         will_return.vec[i][i] = t;
     }
@@ -185,5 +198,65 @@ Matrix<T> Matrix<T>::eye(size_t s) {
     return Matrix<T>::eye_value(s, static_cast<T>(1));
 }
 
+template<class T>
+inline Matrix<T> Matrix<T>::operator_table(const Matrix<T> &mat1, const std::function<void()> &func) const {
+    if (!this->Equal(mat1)) {
+        exit(0);
+    }
+    Matrix<T> will_return(*this);
+    for (size_t i = 0; i < this->vec.size(); ++i) {
+        std::transform(will_return.vec.begin() + i, will_return.vec.end(),
+                       mat1.begin() + i, mat1.vec.end(),
+                       func());
+    }
+    return will_return;
+}
+
+template<class T>
+inline size_t Matrix<T>::rows() const {
+    return this->vec.size();
+}
+
+template<class T>
+inline size_t Matrix<T>::cols() const {
+    return !this->isEmpty() || this->vec[0].size();
+}
+
+// TODO
+template<class T>
+Matrix<T> Matrix<T>::operator+(const Matrix<T> &mat1) const {
+    return operator_table(std::plus<T>());
+}
+
+template<class T>
+Matrix<T> Matrix<T>::operator-(const Matrix<T> &mat1) const {
+    return operator_table(std::minus<T>());
+}
+
+// Matrix_n_m, Matrix_n_m, result is Matrix_N_M
+template<class T>
+Matrix<T> Matrix<T>::mul(const Matrix<T> &mat1) const {
+    return operator_table(std::multiplies<T>());
+}
+
+/**
+ * Equal must use to compare two un_empty matrix,
+ * so, if one of the matrix is empty , it will be false.
+ * only rows and columns both equal can be equal.
+ */
+template<class T>
+inline bool Matrix<T>::Equal(const Matrix<T> &mat1) const {
+    return !this->isEmpty() && !mat1.isEmpty()  \
+ && this->rows() == mat1.vec.rows() \
+ && this->cols() == mat1.cols();
+}
+
+// TODO, choose equal from above and below.
+template<typename T1, typename T2>
+bool Equal(const Matrix<T1> &mat1, const Matrix<T2> &mat2) {
+    return !mat1.isEmpty() && !mat2.isEmpty()  \
+ && mat1.rows() == mat2.rows() \
+ && mat1.cols() == mat2.cols();
+}
 
 #endif //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
