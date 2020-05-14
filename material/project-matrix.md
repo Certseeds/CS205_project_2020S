@@ -7,11 +7,21 @@
  -->
 ## Building a library for matrix computation
 
-1. Matrix is an important concept introduced in linear algebra. Matrix calculation is widely used in many practical applications, such as image processing and machine learning. Programmers can indeed use many different existing libraries, and in certain cases, programmers are required to design their own matrix calculation libraries for specific implementations. This project will build a new library (do not attempt to directly copy codes from other existing library) that can perform the following operations on the matrix:
-    1.  It supports all matrix sizes, from small fixed-size matrices to arbitrarily large dense matrices, and even sparse matrices (Add: try to use efficient ways to store the sparse matrices).
+1. Matrix is an important concept introduced in linear algebra. 
+Matrix calculation is widely used in many practical applications, 
+such as image processing and machine learning. 
+Programmers can indeed use many different existing libraries, and in certain cases, 
+programmers are required to design their own matrix calculation libraries for specific implementations.
+ This project will build a new library (do not attempt to directly copy codes from other existing library) 
+ that can perform the following operations on the matrix:
+    1.  It supports all matrix sizes, from small fixed-size matrices to arbitrarily large dense matrices, 
+    and even sparse matrices (Add: try to use efficient ways to store the sparse matrices).
     2.  It supports all standard numeric types, including std::complex, integers, and is easily extensible to custom numeric types.
-    3.  It supports matrix and vector arithmetic, including addition, subtraction, scalar multiplication, scalar division, transposition, conjugation, element-wise multiplication, matrix-matrix multiplication, matrix-vector multiplication, dot product and cross product.
-    4.  It supports basic arithmetic reduction operations, including finding the maximum value, finding the minimum value, summing all items, calculating the average value (all supporting axis-specific and all items).
+    3.  It supports matrix and vector arithmetic, including addition, subtraction, scalar multiplication, scalar division,
+     transposition, conjugation, element-wise multiplication, matrix-matrix multiplication, matrix-vector multiplication, 
+     dot product and cross product.
+    4.  It supports basic arithmetic reduction operations, including finding the maximum value, finding the minimum value, 
+    summing all items, calculating the average value (all supporting axis-specific and all items).
     5.  It supports computing eigenvalues and eigenvectors, calculating traces, computing inverse and computing determinant.
     6.  It supports the operations of reshape and slicing.
     7.  It supports convolutional operations of two matrices.
@@ -22,7 +32,9 @@
 
 2. 支持所有标准数字类型,int,double,complex and 自定义类型.
 
-3. 支持矩阵和矢量算数,支持+,-,*,/(前面四个指的是基本数据类型),转置,共轭,阿达玛乘积(两个相同大小矩阵,相同位置的相乘),矩阵-矩阵的乘法(A:m_n,B:n_p,结果m_p),矩阵-向量的乘法(A:m_n,B:n_1,结果m_1,前一个的特化),点乘(要求两者大小一致,似乎就是阿达嘛乘积),叉乘(似乎就是matrix-matrix的普通乘法).
+3. 支持矩阵和矢量算数,支持+,-,*,/(前面四个指的是基本数据类型),转置,共轭,阿达玛乘积(两个相同大小矩阵,相同位置的相乘),
+矩阵-矩阵的乘法(A:m_n,B:n_p,结果m_p),矩阵-向量的乘法(A:m_n,B:n_1,结果m_1,前一个的特化),
+点乘(要求两者大小一致,似乎就是阿达嘛乘积),叉乘(似乎就是matrix-matrix的普通乘法).
 
 4. 基本的算数规约运算,包括查找最大值,最小值,求和,计算平均值.(还要对可以指定行,列,或者整个矩阵).
 

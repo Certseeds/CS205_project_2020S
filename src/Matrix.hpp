@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <functional>
 
 using std::vector;
 using std::endl;
@@ -38,7 +39,7 @@ public:
     //explicit Matrix() { this->vec = vector<vector<T>>(1, vector<T>(1)); };
     explicit Matrix() : Matrix(0, 0) {};
 
-    explicit Matrix(size_t rows, size_t cols);
+    explicit Matrix(int32_t rows, int32_t cols);
 
     // 拷贝构造函数 Copy Constructor
     Matrix(const Matrix<T> &mat);
@@ -52,20 +53,28 @@ public:
     // 移动赋值运算符 Move Assignment operator
     Matrix<T> &operator=(Matrix<T> &&mat) noexcept;
 
+    explicit Matrix<T>(const vector<vector<T>> &vec);
+
+    explicit Matrix<T>(vector<vector<T>> &&vec);
+
     Matrix<T>(const std::initializer_list<std::initializer_list<T>> &list);
 
     // only for
     Matrix<T>(const std::initializer_list<T> &list);
 
-    static Matrix<T> zeros(size_t rows, size_t cols);
+    inline T get_inside(int32_t rows, int32_t cols) const;
 
-    static Matrix<T> ones(size_t rows, size_t cols);
+    static Matrix<T> zeros(int32_t rows, int32_t cols);
 
-    static Matrix<T> values(size_t rows = 0, size_t cols = 0, T = static_cast<T>(0));
+    static Matrix<T> ones(int32_t rows, int32_t cols);
 
-    static Matrix<T> eye(size_t s);
+    static Matrix<T> values(int32_t rows = 0, int32_t cols = 0, T = static_cast<T>(0));
 
-    static Matrix<T> eye_value(size_t s, T t);
+    static Matrix<T> eye(int32_t s);
+
+    static Matrix<T> eye_value(int32_t s, T t);
+
+    static bool inside_equal(const Matrix<T> &mat1, const Matrix<T> &mat2);
 
     friend std::ostream &operator<<(std::ostream &output, const Matrix<T> &mat) {
         for (const auto &i: mat.vec) {
@@ -77,29 +86,27 @@ public:
         return output;
     }
 
-    inline size_t rows() const;
+    inline int32_t rows() const;
 
-    inline size_t cols() const;
+    inline int32_t cols() const;
 
-    Matrix<T> operator+(const Matrix<T> &mat1) const;
-
-    Matrix<T> operator-(const Matrix<T> &mat1) const;
-
-    Matrix<T> operator*(T &mat1) const;
-
-    Matrix<T> operator*(const Matrix<T> &mat1) const;
-
-    Matrix<T> mul(const Matrix<T> &mat1) const;
-
-    Matrix<T> operator/(const Matrix<T> &mat1) const;
-
-    inline Matrix<T> operator_table(const Matrix<T> &mat1, const std::function<void()> &) const;
-
-    inline bool Equal(const Matrix<T> &mat1) const;
+    Matrix<T> transpose() const;
 
     ~Matrix() = default;
 
-    inline bool isEmpty();
+    inline bool isEmpty() const;
+
+    inline static Matrix<T>
+    operator_table(const Matrix<T> &mat1, const Matrix<T> &mat2,
+                   const std::function<T(const T &t1, const T &t2)> &func);
+
+    inline static Matrix<T>
+    operator_table(const Matrix<T> &mat1, const std::function<T(const T &t1)> &func);
+
+    T get_type() const;
+
+    // Matrix_n_m, Matrix_n_m, result is Matrix_N_M
+    Matrix<T> mul(const Matrix<T> &mat2);
 };
 
 
@@ -109,7 +116,7 @@ Matrix<T>::Matrix(const Matrix &mat) {
 }
 
 template<class T>
-Matrix<T>::Matrix(size_t rows, size_t cols) {
+Matrix<T>::Matrix(int32_t rows, int32_t cols) {
     rows = rows > 0 ? rows : 0;
     cols = cols > 0 ? cols : 0;
     this->vec = vector<vector<T>>(rows, vector<T>(cols));
@@ -137,6 +144,16 @@ Matrix<T> &Matrix<T>::operator=(Matrix &&mat) noexcept {
 }
 
 template<class T>
+Matrix<T>::Matrix(const vector<vector<T>> &vec) {
+    this->vec = vector<vector<T>>(vec);
+}
+
+template<class T>
+Matrix<T>::Matrix(vector<vector<T>> &&vec) {
+    this->vec = std::move(vec);
+}
+
+template<class T>
 Matrix<T>::Matrix(const std::initializer_list<T> &list) {
     this->vec = vector<vector<T>>(1);
     this->vec[0] = list;
@@ -157,106 +174,206 @@ Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>> &list) {
     }
 }
 
-
 template<class T>
-inline bool Matrix<T>::isEmpty() {
-    return vec.empty() || vec[0].empty();
+T Matrix<T>::get_inside(int32_t rows, int32_t cols) const {
+    return this->vec[rows][cols];
 }
 
 template<class T>
-Matrix<T> Matrix<T>::zeros(size_t rows, size_t cols) {
+inline bool Matrix<T>::isEmpty() const {
+    return vec.empty() || vec.front().empty();
+}
+
+template<class T>
+Matrix<T> Matrix<T>::zeros(int32_t rows, int32_t cols) {
     return Matrix<T>::values(rows, cols, static_cast<T>(0));
 }
 
 template<class T>
-Matrix<T> Matrix<T>::ones(size_t rows, size_t cols) {
+Matrix<T> Matrix<T>::ones(int32_t rows, int32_t cols) {
     return Matrix<T>::values(rows, cols, static_cast<T>(1));
 }
 
 template<class T>
-Matrix<T> Matrix<T>::values(size_t rows, size_t cols, T t) {
+Matrix<T> Matrix<T>::values(int32_t rows, int32_t cols, T t) {
     Matrix<T> will_return(rows, cols);
     for (auto &i:will_return.vec) {
-        for (auto &j:i) {
-            j = t;
-        }
+        i = vector<T>(cols, t);
     }
     return will_return;
 }
 
 template<class T>
-Matrix<T> Matrix<T>::eye_value(size_t s, T t) {
+Matrix<T> Matrix<T>::eye_value(int32_t s, T t) {
     Matrix<T> will_return(s, s);
-    for (size_t i = 0; i < s; ++i) {
+    for (int32_t i = 0; i < s; ++i) {
         will_return.vec[i][i] = t;
     }
     return will_return;
 }
 
 template<class T>
-Matrix<T> Matrix<T>::eye(size_t s) {
+Matrix<T> Matrix<T>::eye(int32_t s) {
     return Matrix<T>::eye_value(s, static_cast<T>(1));
 }
 
 template<class T>
-inline Matrix<T> Matrix<T>::operator_table(const Matrix<T> &mat1, const std::function<void()> &func) const {
-    if (!this->Equal(mat1)) {
+inline Matrix<T>
+Matrix<T>::operator_table(const Matrix<T> &mat1, const Matrix<T> &mat2,
+                          const std::function<T(const T &t1, const T &t2)> &func) {
+    if (!size_equal(mat1, mat2)) {
         exit(0);
     }
-    Matrix<T> will_return(*this);
-    for (size_t i = 0; i < this->vec.size(); ++i) {
-        std::transform(will_return.vec.begin() + i, will_return.vec.end(),
-                       mat1.begin() + i, mat1.vec.end(),
-                       func());
+    Matrix<T> will_return(mat1.rows(), mat1.cols());
+    for (int32_t i = 0; i < mat1.rows(); ++i) {
+        std::transform(mat1.vec[i].begin(), mat1.vec[i].end(),
+                       mat2.vec[i].begin(), will_return.vec[i].begin(), func);
     }
     return will_return;
 }
 
 template<class T>
-inline size_t Matrix<T>::rows() const {
+Matrix<T> Matrix<T>::operator_table(const Matrix<T> &mat1, const std::function<T(const T &t1)> &func) {
+    Matrix<T> will_return(mat1.rows(), mat1.cols());
+    for (int32_t i = 0; i < mat1.rows(); ++i) {
+        std::transform(mat1.vec[i].begin(), mat1.vec[i].end(), will_return.vec[i].begin(), func);
+    }
+    return will_return;
+}
+
+template<class T>
+inline int32_t Matrix<T>::rows() const {
     return this->vec.size();
 }
 
+/**
+ * if the it's empty,then isEmpty is true,
+ * */
 template<class T>
-inline size_t Matrix<T>::cols() const {
-    return !this->isEmpty() || this->vec[0].size();
+inline int32_t Matrix<T>::cols() const {
+    if (this->rows() == 0) {
+        return 0;
+    }
+    return this->vec.front().size();
 }
 
-// TODO
+
 template<class T>
-Matrix<T> Matrix<T>::operator+(const Matrix<T> &mat1) const {
-    return operator_table(std::plus<T>());
+Matrix<T> Matrix<T>::transpose() const {
+    if (this->isEmpty()) {
+        return Matrix<T>();
+    }
+    Matrix<T> will_return(this->cols(), this->rows());
+    for (int32_t i = 0; i < this->rows(); ++i) {
+        for (int32_t j = 0; j < this->cols(); ++j) {
+            will_return.vec[j][i] = this->vec[i][j];
+        }
+    }
+    return will_return;
+}
+
+
+/**
+ * matrix + matrix, must equal.
+ * */
+template<class T>
+Matrix<T> operator+(const Matrix<T> &mat1, const Matrix<T> &mat2) {
+    return Matrix<T>::operator_table(mat1, mat2, std::plus<>());
+    // [](const T &t1, const T &t2) -> T { return t1 + t2; }
+}
+
+/**
+ * matrix - matrix, must equal.
+ * */
+template<class T>
+Matrix<T> operator-(const Matrix<T> &mat1, const Matrix<T> &mat2) {
+    return Matrix<T>::operator_table(mat1, mat2, std::minus<>());
+}
+
+/**
+ * matrix * number, need T1 can * T2
+ * */
+template<typename T1, typename T2>
+auto operator*(const Matrix<T1> &mat1, const T2 &t2) -> Matrix<decltype(mat1.get_type() * t2)> {
+    vector<vector<decltype(mat1.get_type() * t2)>> temp(mat1.rows(),
+                                                        vector<decltype(mat1.get_type() * t2)>(mat1.cols()));
+    for (uint32_t i = 0; i < temp.size(); ++i) {
+        for (uint32_t j = 0; j < temp[i].size(); ++j) {
+            temp[i][j] = mat1.get_inside(i, j) * t2;
+        }
+    }
+    //  Matrix<decltype(mat1.get_type() * t2)> will_return(mat1.rows(), mat1.cols());
+    return Matrix<decltype(mat1.get_type() * t2)>(std::move(temp));
+    //for (int32_t i = 0; i < mat1.rows(); ++i) {
+    //    std::transform(mat1.vec[i].begin(), mat1.vec[i].end(), will_return.vec[i].begin(), func);
+    //}
+    //return Matrix<decltype(mat1.get_type() * t2)>::operator_table(mat1, [&t2](const T1 &t1) { return t1 * t2; });
+    // return Matrix<T1>::operator_table(mat1, [&t2](const T1 &t1) { return t1 * t2; });
+}
+
+/**
+ *  number * matrix , need T1 can * T2
+ * */
+template<typename T1, typename T2>
+auto operator*(const T1 &t1, const Matrix<T2> &mat2) -> Matrix<decltype(mat2.get_type() * t1)> {
+    return mat2 * t1;
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator-(const Matrix<T> &mat1) const {
-    return operator_table(std::minus<T>());
+Matrix<T> operator*(const Matrix<T> &mat1, const Matrix<T> &mat2) {
+    if (mat1.cols() != mat2.rows()) {
+        // TODO
+    }
+    Matrix<T> temp = mat2.transpose();
+    Matrix<T> will_return(mat1.rows(), mat2.cols());
+    for (int32_t i = 0; i < will_return.rows(); ++i) {
+        for (int32_t j = 0; j < will_return.cols(); ++j) {
+            will_return.vec[i][j] = std::inner_product(std::begin(will_return.vec) + i, std::end(will_return.vec),
+                                                       std::begin(temp.vec) + j, std::end(temp.vec), 0);
+        }
+    }
+    return will_return;
 }
 
 // Matrix_n_m, Matrix_n_m, result is Matrix_N_M
 template<class T>
-Matrix<T> Matrix<T>::mul(const Matrix<T> &mat1) const {
-    return operator_table(std::multiplies<T>());
+Matrix<T> Matrix<T>::mul(const Matrix<T> &mat2) {
+    return Matrix<T>::operator_table(*this, mat2, std::multiplies<>());
 }
 
 /**
  * Equal must use to compare two un_empty matrix,
  * so, if one of the matrix is empty , it will be false.
- * only rows and columns both equal can be equal.
+ * only un_empty, rows and columns both equal can be equal.
  */
-template<class T>
-inline bool Matrix<T>::Equal(const Matrix<T> &mat1) const {
-    return !this->isEmpty() && !mat1.isEmpty()  \
- && this->rows() == mat1.vec.rows() \
- && this->cols() == mat1.cols();
-}
-
-// TODO, choose equal from above and below.
 template<typename T1, typename T2>
-bool Equal(const Matrix<T1> &mat1, const Matrix<T2> &mat2) {
+bool size_equal(const Matrix<T1> &mat1, const Matrix<T2> &mat2) {
     return !mat1.isEmpty() && !mat2.isEmpty()  \
  && mat1.rows() == mat2.rows() \
  && mat1.cols() == mat2.cols();
 }
+
+template<typename T>
+bool Matrix<T>::inside_equal(const Matrix<T> &mat1, const Matrix<T> &mat2) {
+    if (!size_equal(mat1, mat2)) {
+        return false;
+    }
+    for (int32_t i = 0; i < mat1.rows(); ++i) {
+        if (!std::equal(mat1.vec[i].begin(), mat1.vec[i].end(),
+                        mat2.vec[i].begin(), mat2.vec[i].end())) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template<class T>
+T Matrix<T>::get_type() const {
+    if (this->isEmpty()) {
+        return static_cast<T>(0);
+    }
+    return this->vec.front().front();
+}
+
 
 #endif //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
