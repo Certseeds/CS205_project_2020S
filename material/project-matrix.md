@@ -32,7 +32,7 @@ programmers are required to design their own matrix calculation libraries for sp
 
 2. 支持所有标准数字类型,int,double,complex and 自定义类型.
 
-3. 支持矩阵和矢量算数,支持+,-,*,/(前面四个指的是基本数据类型),转置,共轭,阿达玛乘积(两个相同大小矩阵,相同位置的相乘),
+3. 支持矩阵和矢量算数,支持+,-,*,/(前面四个指的是基本数据类型),转置,共轭,逐元素乘法(A:m_n,B:m_n,结果m_n),
 矩阵-矩阵的乘法(A:m_n,B:n_p,结果m_p),矩阵-向量的乘法(A:m_n,B:n_1,结果m_1,前一个的特化),
 点乘(要求两者大小一致,似乎就是阿达嘛乘积),叉乘(似乎就是matrix-matrix的普通乘法).
 

@@ -33,13 +33,11 @@ int main() {
     complex temp(1,2);
     cout << temp.real() << endl;
     cout << temp.imag() << endl;
-    cout << static_case<int>(complex(0,0));
     Mat mat1 = Mat(3, 4, CV_8U);
     Mat mat2 = Mat(3, 4, CV_8U);
     Mat mat3 = Mat().zeros(3, 4, CV_8U);
     Mat mat4 = Mat().ones(3, 4, CV_8U);
     Mat mat5 = Mat().ones(3, 5, CV_8UC(2));
-    auto x = mat3.rows();
     cout << mat1 << endl;
     cout << mat2 << endl;
     cout << mat3 << endl;
