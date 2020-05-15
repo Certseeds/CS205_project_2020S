@@ -491,6 +491,12 @@ TEST_CASE("operator multiply_matrix_matrix_same", "[test 1]") {
     vector<int32_t> vec3 = {1, 2, 3, 4};
     vector<int32_t> vec4 = {1, 2, 3, 4};
     cout << std::inner_product(vec1[0].cbegin(), vec1[0].cend(), vec1[0].cbegin(), 0);
+    vector<vector<int32_t>> vec5 = {{1, 2, 3},
+                                    {4, 5, 6}};
+    vector<vector<std::complex<int32_t>>> vec_c6 = {{std::complex<int32_t>(9, 10),  std::complex<int32_t>(11, 12)},
+                                                    {std::complex<int32_t>(13, 14), std::complex<int32_t>(15, 61)}};
+    //cout << Matrix<int32_t>(vec5) * Matrix<std::complex<int32_t>>(vec_c6);
+
 }
 // UNTODO for operator mul
 TEST_CASE("operator mul", "[test 1]") {
@@ -550,4 +556,20 @@ TEST_CASE("Kronecker product", "[test 1]") {
     auto m3 = kron(m1, m2);
     CHECK(Matrix<int32_t>::inside_equal(m3, result));
     cout << m3;
+}
+
+TEST_CASE("vector * matrix", "[test 1]") {
+    Matrix<int32_t> m1 = {{0, 3, 0},
+                          {2, 1, 4}};
+    vector<int32_t> vec1 = {4, 5, 6};
+    vector<int32_t> vec2 = {4, 5};
+    vector<std::complex<int32_t>> vec3 = {std::complex<int64_t>(3, 4), std::complex<int64_t>(5, 6)};
+    vector<std::complex<int32_t>> vec4 = {std::complex<int64_t>(3, 4), std::complex<int64_t>(5, 6),
+                                          std::complex<int64_t>(7, 98)};
+    cout << m1 * vec1;
+    cout << vec2 * m1;
+    cout << m1 * vec4;
+    // decltype(std::declval<std::complex<int64_t>>() * std::declval<int64_t>()) temp2 = {1, 2};
+    shenmi_1(m1, vec4);
+    cout << vec3 * m1;
 }
