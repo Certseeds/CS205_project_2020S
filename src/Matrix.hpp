@@ -125,7 +125,9 @@ public:
 
     ~Matrix() = default;
 
-    inline bool isEmpty() const;
+    inline bool is_empty() const;
+
+    inline bool is_square() const { return this->rows() == this->cols(); };
 
     inline static Matrix<T>
     operator_table(const Matrix<T> &mat1, const Matrix<T> &mat2,
@@ -145,6 +147,11 @@ public:
     Matrix<T> mul(const Matrix<T> &mat2);
 
     T dot(const Matrix<T> &mat2);
+
+    T trace() const;
+
+    T determinant() const;
+
 };
 
 
@@ -234,7 +241,7 @@ typename vector<T>::const_iterator Matrix<T>::get_row_iter_end(int32_t rows) con
 }
 
 template<typename T>
-inline bool Matrix<T>::isEmpty() const {
+inline bool Matrix<T>::is_empty() const {
     return vec.empty() || vec.front().empty();
 }
 
@@ -301,7 +308,7 @@ inline int32_t Matrix<T>::rows() const {
 }
 
 /**
- * if the it's empty,then isEmpty is true,
+ * if the it's empty,then is_empty is true,
  * */
 template<typename T>
 inline int32_t Matrix<T>::cols() const {
@@ -314,7 +321,7 @@ inline int32_t Matrix<T>::cols() const {
 
 template<typename T>
 Matrix<T> Matrix<T>::transpose() const {
-    if (this->isEmpty()) {
+    if (this->is_empty()) {
         return Matrix<T>();
     }
     Matrix<T> will_return(this->cols(), this->rows());
@@ -397,8 +404,7 @@ auto operator*(const Matrix<T1> &mat1, const T2 &t2) -> Matrix<Multiply_Result_t
  * @return: Matrix<decltype(T1*T2)> m_1,(rows is m,cols is 1)
  * */
 template<typename T1, typename T2>
-auto
-operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_Result_t_Macro> {
+auto operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_Result_t_Macro> {
     if (mat1.cols() != t2.size()) {
         // TODO
     }
@@ -507,7 +513,7 @@ auto kron(const Matrix<T1> &mat1, const Matrix<T2> &mat2) -> Matrix<Multiply_Res
  * */
 template<typename T1, typename T2>
 auto cross(const vector<T1> &vec1, const vector<T2> &vec2) -> vector<Multiply_Result_t_Macro> {
-   vector<Multiply_Result_t<T1, T2>> will_return(3);
+    vector<Multiply_Result_t<T1, T2>> will_return(3);
     if (vec1.size() == 3 && vec2.size() == 3) {
         will_return[0] = vec1[1] * vec2[2] - vec1[2] * vec2[1];
         will_return[1] = vec1[0] * vec2[2] - vec1[2] * vec2[0];
@@ -523,7 +529,7 @@ auto cross(const vector<T1> &vec1, const vector<T2> &vec2) -> vector<Multiply_Re
  */
 template<typename T1, typename T2>
 bool size_equal(const Matrix<T1> &mat1, const Matrix<T2> &mat2) {
-    return !mat1.isEmpty() && !mat2.isEmpty()  \
+    return !mat1.is_empty() && !mat2.is_empty()  \
  && mat1.rows() == mat2.rows() \
  && mat1.cols() == mat2.cols();
 }
@@ -546,9 +552,50 @@ bool Matrix<T>::inside_equal(const Matrix<T> &mat1, const Matrix<T> &mat2) {
     return true;
 }
 
+template<typename T>
+T Matrix<T>::trace() const {
+    T will_return(0);
+    if (this->is_square()) {
+        for (int32_t i = 0; i < this->rows(); ++i) {
+            will_return += this->vec[i][i];
+        }
+    }
+    return will_return;
+}
+
+template<typename T>
+T determinant_in(const vector<vector<T>> &matrix) {
+    if (matrix.size() == 1) {
+        return matrix.front().front();
+    }
+    uint32_t size_m = matrix.size();
+    vector<vector<T>> submatrix(size_m - 1, vector<T>(size_m - 1, static_cast<T>(0)));
+    T will_return(0);
+    for (uint32_t i = 0; i < size_m; ++i) {
+        for (uint32_t j = 0; j < size_m - 1; ++j) {
+            for (uint32_t k = 0; k < size_m - 1; ++k) {
+                submatrix[j][k] = matrix[(((i > j) ? 0 : 1) + j)][k + 1];
+            }
+        }
+        will_return += ((i % 2) ? -1 : 1) * matrix[i].front() * determinant_in(submatrix);
+    }
+    return will_return;
+}
+
+template<typename T>
+T Matrix<T>::determinant() const {
+    T will_return(0);
+    if (!this->is_square()) {
+        // TODO
+        return will_return;
+    }
+    return determinant_in(this->vec);
+}
+
+
 //template<typename T>
 //T Matrix<T>::get_type() const {
-//    if (this->isEmpty()) {
+//    if (this->is_empty()) {
 //        return static_cast<T>(0);
 //    }
 //    return this->vec.front().front();

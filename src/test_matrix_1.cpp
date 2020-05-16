@@ -35,7 +35,7 @@ using std::string;
 using Catch::Matchers::Equals;
 
 
-TEST_CASE("test 0", "[test1]") {
+TEST_CASE("test 0", "[test 0]") {
     auto function = [](const std::vector<int32_t> &t1,
                        const std::vector<int32_t> &t2) -> bool {
         assert(t1.size() == t2.size());
@@ -78,23 +78,23 @@ TEST_CASE("Copy Constructor", "[test 1]") {
     cout << m3;
     Matrix<uint32_t> m4 = m2;
     cout << m4;
-    CHECK(!m1.isEmpty());
-    CHECK(!m2.isEmpty());
-    CHECK(!m3.isEmpty());
-    CHECK(!m4.isEmpty());
+    CHECK(!m1.is_empty());
+    CHECK(!m2.is_empty());
+    CHECK(!m3.is_empty());
+    CHECK(!m4.is_empty());
 }
 
 TEST_CASE("Move Constructor", "[test 1]") {
     Matrix<uint32_t> m1(5, 4);
     cout << m1;
-    CHECK(!m1.isEmpty());
+    CHECK(!m1.is_empty());
     Matrix<uint32_t> m2 = std::move(m1);
     cout << m2;
-    CHECK(m1.isEmpty());
-    CHECK(!m2.isEmpty());
+    CHECK(m1.is_empty());
+    CHECK(!m2.is_empty());
     Matrix<int32_t> m3 = std::move(Matrix<int32_t>(2, 3));
     cout << m3;
-    CHECK(!m3.isEmpty());
+    CHECK(!m3.is_empty());
 }
 
 TEST_CASE("test vector<vector<T>> constructor") {
@@ -124,45 +124,65 @@ TEST_CASE("test vector<vector<T>> constructor") {
 TEST_CASE("Copy Assignment operator", "[test 1]") {
     Matrix<uint64_t> m1(3, 4);
     Matrix<uint64_t> m2;
-    CHECK(!m1.isEmpty());
-    CHECK(m2.isEmpty());
+    CHECK(!m1.is_empty());
+    CHECK(m2.is_empty());
     m2 = m1;
-    CHECK(!m1.isEmpty());
-    CHECK(!m2.isEmpty());
+    CHECK(!m1.is_empty());
+    CHECK(!m2.is_empty());
 }
 
 TEST_CASE("Move Assignment operator", "[test 1]") {
     Matrix<uint64_t> m1(3, 7);
     Matrix<uint64_t> m2(7, 3);
-    CHECK(!m1.isEmpty());
-    CHECK(!m2.isEmpty());
+    CHECK(!m1.is_empty());
+    CHECK(!m2.is_empty());
     m2 = std::move(m1);
-    CHECK(m1.isEmpty());
-    CHECK(!m2.isEmpty());
+    CHECK(m1.is_empty());
+    CHECK(!m2.is_empty());
 }
 
 TEST_CASE("initializer_list", "[test 1]") {
     Matrix<int64_t> m1{{1, 2, 3, 4, 54},
                        {5, 2, 3, 3, 41}};
-    CHECK(!m1.isEmpty());
+    CHECK(!m1.is_empty());
     cout << m1 << endl;
     Matrix<int64_t> m2 = {{1, 1, 4, 5, 1, 4},
                           {1, 9, 1, 9, 8, 1, 0}};
-    CHECK(m2.isEmpty());
+    CHECK(m2.is_empty());
     Matrix<int64_t> m3{};
-    CHECK(m3.isEmpty());
+    CHECK(m3.is_empty());
     cout << m3;
     Matrix<int64_t> m4 = {1, 2, 3, 4, 5};
-    CHECK(!m4.isEmpty());
+    CHECK(!m4.is_empty());
     cout << m4;
     Matrix<int64_t> m5 = {1};
-    CHECK(!m5.isEmpty());
+    CHECK(!m5.is_empty());
     cout << m5;
     // can not Matrix<int64_t> m6 = {};
 }
 
+TEST_CASE("no vectors negative", "[test 1]") {
+    Matrix<std::complex<int32_t>> m1(5, 2);
+    Matrix<int32_t> m2(4, 6);
+    Matrix<int_fast16_t> m3(1, 4);
+    Matrix<double> m4(0, -1);
+    Matrix<float> m5(-1, -1);
+    Matrix<int_least32_t> m6(-2, 9);
+    CHECK(m1.rows() >= 0);
+    CHECK(m1.cols() >= 0);
+    CHECK(m2.rows() >= 0);
+    CHECK(m2.cols() >= 0);
+    CHECK(m3.rows() >= 0);
+    CHECK(m3.cols() >= 0);
+    CHECK(m4.rows() >= 0);
+    CHECK(m4.cols() >= 0);
+    CHECK(m5.rows() >= 0);
+    CHECK(m5.cols() >= 0);
+    CHECK(m6.rows() >= 0);
+    CHECK(m6.cols() >= 0);
+}
 
-TEST_CASE("zeros and ones", "[test 1]") {
+TEST_CASE("zeros and ones", "[test 2]") {
     Matrix<int16_t> m1 = Matrix<int16_t>::zeros(3, 3);
     cout << m1;
     Matrix<int32_t> m2 = Matrix<int32_t>::ones(4, 4);
@@ -171,22 +191,22 @@ TEST_CASE("zeros and ones", "[test 1]") {
     cout << m3;
 }
 
-TEST_CASE("eye and eye_value", "[test 1]") {
+TEST_CASE("eye and eye_value", "[test 2]") {
     Matrix<int16_t> m1 = Matrix<int16_t>::eye(4);
     cout << m1;
     Matrix<int32_t> m2 = Matrix<int32_t>::eye_value(4, 4);
     cout << m2;
 }
 
-TEST_CASE("test is empty", "[test 1]") {
-    CHECK(!Matrix<int16_t>::eye(4).isEmpty());
-    CHECK(!Matrix<int32_t>::eye_value(4, 4).isEmpty());
-    CHECK(Matrix<int16_t>::zeros(0, 0).isEmpty());
-    CHECK(Matrix<int32_t>::ones(0, 0).isEmpty());
+TEST_CASE("test is empty", "[test 2]") {
+    CHECK(!Matrix<int16_t>::eye(4).is_empty());
+    CHECK(!Matrix<int32_t>::eye_value(4, 4).is_empty());
+    CHECK(Matrix<int16_t>::zeros(0, 0).is_empty());
+    CHECK(Matrix<int32_t>::ones(0, 0).is_empty());
 }
 
 // UNTODO test the equal function.
-TEST_CASE("size_equal function", "[test 1]") {
+TEST_CASE("size_equal function", "[test 2]") {
     auto m1 = Matrix<std::complex<int32_t>>::eye_value(5, 2);
     auto m2 = Matrix<int32_t>::zeros(5, 5);
     CHECK(size_equal(m1, m2));
@@ -206,7 +226,7 @@ TEST_CASE("size_equal function", "[test 1]") {
     CHECK(!size_equal(m2, empty));
 }
 
-TEST_CASE("inside_equal function", "[test 1]") {
+TEST_CASE("inside_equal function", "[test 2]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -232,7 +252,7 @@ TEST_CASE("inside_equal function", "[test 1]") {
     CHECK(!Matrix<int_fast16_t>::inside_equal(m3, m6));
 }
 // UNTODO and rows functiont
-TEST_CASE("rows function", "[test 1]") {
+TEST_CASE("rows function", "[test 2]") {
     auto m1 = Matrix<std::complex<int32_t>>::eye_value(5, 2);
     auto m2 = Matrix<int32_t>::zeros(5, 5);
     auto m3 = Matrix<int_fast16_t>::ones(3, 4);
@@ -254,7 +274,7 @@ TEST_CASE("rows function", "[test 1]") {
     CHECK(Matrix<int32_t>::ones(5, 0).rows() == 5);
 }
 // UNTODO test for cols funciton
-TEST_CASE("cols function", "[test 1]") {
+TEST_CASE("cols function", "[test 2]") {
     auto m1 = Matrix<std::complex<int32_t>>::eye_value(5, 2);
     auto m2 = Matrix<int32_t>::zeros(5, 5);
     auto m3 = Matrix<int_fast16_t>::ones(3, 4);
@@ -276,28 +296,8 @@ TEST_CASE("cols function", "[test 1]") {
     CHECK(!Matrix<int32_t>::ones(5, 0).cols());
 }
 
-TEST_CASE("no vectors negative", "[test 1]") {
-    Matrix<std::complex<int32_t>> m1(5, 2);
-    Matrix<int32_t> m2(4, 6);
-    Matrix<int_fast16_t> m3(1, 4);
-    Matrix<double> m4(0, -1);
-    Matrix<float> m5(-1, -1);
-    Matrix<int_least32_t> m6(-2, 9);
-    CHECK(m1.rows() >= 0);
-    CHECK(m1.cols() >= 0);
-    CHECK(m2.rows() >= 0);
-    CHECK(m2.cols() >= 0);
-    CHECK(m3.rows() >= 0);
-    CHECK(m3.cols() >= 0);
-    CHECK(m4.rows() >= 0);
-    CHECK(m4.cols() >= 0);
-    CHECK(m5.rows() >= 0);
-    CHECK(m5.cols() >= 0);
-    CHECK(m6.rows() >= 0);
-    CHECK(m6.cols() >= 0);
-}
 // UNTODO test transpose
-TEST_CASE("transpose", "[test 1]") {
+TEST_CASE("transpose", "[test 3]") {
     Matrix<std::complex<int32_t>> m1(5, 2);
     Matrix<int32_t> m2(4, 6);
     Matrix<int_fast16_t> m3(1, 4);
@@ -332,7 +332,7 @@ TEST_CASE("transpose", "[test 1]") {
     CHECK(m6.transpose().rows() == 0);
 }
 
-TEST_CASE("conj test", "[test 1]") {
+TEST_CASE("conj test", "[test 3]") {
     Matrix<std::complex<int32_t>> m1 = {{std::complex(2, 3),  std::complex(3, 5)},
                                         {std::complex(-2, 3), std::complex(-2, -3)},
                                         {std::complex(2, -3), std::complex(2, 3)}};
@@ -358,7 +358,7 @@ TEST_CASE("conj test", "[test 1]") {
     CHECK(Matrix<int32_t>::inside_equal(conj(m3), m3));
 }
 // UNTODO for operator+
-TEST_CASE("operator plus", "[test 1]") {
+TEST_CASE("operator plus", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -394,7 +394,7 @@ TEST_CASE("operator plus", "[test 1]") {
     CHECK(Matrix<int_fast16_t>::inside_equal(m3 + m6, m9));
 }
 // UNTODO for operator-
-TEST_CASE("operator minus", "[test 1]") {
+TEST_CASE("operator minus", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -430,7 +430,7 @@ TEST_CASE("operator minus", "[test 1]") {
     CHECK(Matrix<int_fast16_t>::inside_equal(m3 - m6, m9));
 }
 // UNTODO for operator* (Matrix & number)
-TEST_CASE("operator multiply_matrix_number", "[test 1]") {
+TEST_CASE("operator multiply_matrix_number", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -468,7 +468,7 @@ TEST_CASE("operator multiply_matrix_number", "[test 1]") {
     cout << m12;
 }
 // TODO for operator* (matrix * matrix)
-TEST_CASE("operator multiply_matrix_matrix_same", "[test 1]") {
+TEST_CASE("operator multiply_matrix_matrix_same", "[test 3]") {
     std::uniform_int_distribution<int32_t> range1(3, 6);
     std::random_device r;
     std::default_random_engine e1(r());
@@ -499,7 +499,7 @@ TEST_CASE("operator multiply_matrix_matrix_same", "[test 1]") {
 
 }
 // UNTODO for operator mul
-TEST_CASE("operator mul", "[test 1]") {
+TEST_CASE("operator mul", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -535,7 +535,7 @@ TEST_CASE("operator mul", "[test 1]") {
     CHECK(Matrix<int_fast16_t>::inside_equal(m3.mul(m6), m9));
 }
 // UNTODO for operator dot
-TEST_CASE("operator dot", "[test 1]") {
+TEST_CASE("operator dot", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2, 3},
                           {4, 5, 6}};
     Matrix<int32_t> m2 = {{1, 2, 3},
@@ -544,7 +544,7 @@ TEST_CASE("operator dot", "[test 1]") {
     CHECK(m1.dot(m2) == 91);
 }
 
-TEST_CASE("Kronecker product", "[test 1]") {
+TEST_CASE("Kronecker product", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 1}};
     Matrix<int32_t> m2 = {{0, 3},
@@ -558,7 +558,7 @@ TEST_CASE("Kronecker product", "[test 1]") {
     cout << m3;
 }
 
-TEST_CASE("vector * matrix", "[test 1]") {
+TEST_CASE("vector * matrix", "[test 3]") {
     Matrix<int32_t> m1 = {{0, 3, 0},
                           {2, 1, 4}};
     vector<int32_t> vec1 = {4, 5, 6};
@@ -573,9 +573,26 @@ TEST_CASE("vector * matrix", "[test 1]") {
     cout << vec3 * m1;
 }
 
-TEST_CASE("vector cross vector", "[test 1]") {
+TEST_CASE("vector cross vector", "[test 3]") {
     vector<int32_t> vec1 = {4, 5, 6};
     vector<std::complex<int32_t>> vec2 = {std::complex<int64_t>(3, 4), std::complex<int64_t>(5, 6),
                                           std::complex<int64_t>(7, 98)};
     auto vec3 = cross(vec1, vec2);
+}
+
+TEST_CASE("test for trace", "[test 5]") {
+    Matrix<int32_t> m1 = {{1, 2},
+                          {3, 1}};
+    Matrix<int32_t> m2 = {{0, 3},
+                          {2, 1}};
+    Matrix<int32_t> result = {{0, 3, 0, 6},
+                              {2, 1, 4, 2},
+                              {0, 9, 0, 3},
+                              {6, 3, 2, 1}};
+    cout << m1.trace() << "\n";
+    cout << m1.determinant() << "\n";
+    cout << m2.trace() << "\n";
+    cout << m2.determinant() << "\n";
+    cout << result.trace() << "\n";
+    cout << result.determinant() << "\n";
 }
