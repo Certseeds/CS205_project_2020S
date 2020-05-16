@@ -570,6 +570,5 @@ TEST_CASE("vector * matrix", "[test 1]") {
     cout << vec2 * m1;
     cout << m1 * vec4;
     // decltype(std::declval<std::complex<int64_t>>() * std::declval<int64_t>()) temp2 = {1, 2};
-    shenmi_1(m1, vec4);
     cout << vec3 * m1;
 }

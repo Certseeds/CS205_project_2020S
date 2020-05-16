@@ -32,7 +32,15 @@
 #include <complex>
 #include <utility>
 
-#define T1_T2_Multiply_type decltype(std::declval<T1>() * std::declval<T2>())
+#define Multiply_Result_t_Macro decltype(std::declval<T1>() * std::declval<T2>())
+
+template<typename T1, typename T2>
+struct Multiply_Result {
+    using Type = decltype(std::declval<T1>() * std::declval<T2>());
+};
+
+template<typename T1, typename T2>
+using Multiply_Result_t = typename Multiply_Result<T1, T2>::Type;
 
 using std::vector;
 using std::endl;
@@ -132,7 +140,7 @@ public:
     typename vector<T>::const_iterator get_row_iter_end(int32_t rows) const;
 
 
-    T get_type() const;
+    // T get_type() const;
 
     // Matrix_n_m, Matrix_n_m, result is Matrix_N_M
     Matrix<T> mul(const Matrix<T> &mat2);
@@ -367,29 +375,22 @@ Matrix<T> operator/(const Matrix<T> &mat1, const T &t2) {
  * matrix * number, need T1 can * T2
  * */
 template<typename T1, typename T2>
-auto operator*(const Matrix<T1> &mat1, const T2 &t2) -> Matrix<T1_T2_Multiply_type> {
-    vector<vector<T1_T2_Multiply_type> > temp(mat1.rows(), vector<T1_T2_Multiply_type>(mat1.cols()));
+auto operator*(const Matrix<T1> &mat1, const T2 &t2) -> Matrix<Multiply_Result_t_Macro> {
+    vector<vector<Multiply_Result_t<T1, T2>>> temp(mat1.rows(), vector<Multiply_Result_t<T1, T2>>(mat1.cols()));
     for (uint32_t i = 0; i < temp.size(); ++i) {
         for (uint32_t j = 0; j < temp[i].size(); ++j) {
             temp[i][j] = mat1.get_inside(i, j) * t2;
         }
     }
     //  Matrix<decltype(mat1.get_type() * t2)> will_return(mat1.rows(), mat1.cols());
-    return Matrix<T1_T2_Multiply_type>(std::move(temp));
+    return Matrix<Multiply_Result_t<T1, T2>>(std::move(temp));
     //for (int32_t i = 0; i < mat1.rows(); ++i) {
     //    std::transform(mat1.vec[i].begin(), mat1.vec[i].end(), will_return.vec[i].begin(), func);
     //}
     //return Matrix<decltype(mat1.get_type() * t2)>::operator_table(mat1, [&t2](const T1 &t1) { return t1 * t2; });
     // return Matrix<T1>::operator_table(mat1, [&t2](const T1 &t1) { return t1 * t2; });
 }
-template<typename T1, typename T2>
-auto shenmi_1(const Matrix<T1> &mat1, const vector<T2> &t2) {
-    decltype(std::declval<T1>()) tt1{};
-    decltype(std::declval<T2>()) tt2{};
-    decltype(tt1*tt2) tt4{};
-    // T1_T2_Multiply_type tt3{};
-    return nullptr;
-}
+
 /**
  * matrix * vector
  * @param1: Matrix<T1> m_n
@@ -399,16 +400,13 @@ auto shenmi_1(const Matrix<T1> &mat1, const vector<T2> &t2) {
  * */
 template<typename T1, typename T2>
 auto
-operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<T1_T2_Multiply_type> {
-    vector<vector<T1_T2_Multiply_type>> temp(1,
-                                             vector<decltype(std::declval<T1>() *
-                                                             std::declval<T2>())>(
-                                                     mat1.rows()));
+operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_Result_t_Macro> {
+    vector<vector<Multiply_Result_t<T1, T2>>> temp(1, vector<Multiply_Result_t<T1, T2>>(mat1.rows()));
     for (uint32_t i = 0; i < temp.size(); ++i) {
         temp[0][i] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i), t2.cbegin(),
-                                        static_cast<T1_T2_Multiply_type>(0));
+                                        static_cast<Multiply_Result_t<T1, T2>>(0));
     }
-    return Matrix<T1_T2_Multiply_type>(std::move(temp));
+    return Matrix<Multiply_Result_t<T1, T2>>(std::move(temp));
 }
 
 /**
@@ -420,22 +418,21 @@ operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<T1_T2_Multiply
  * */
 template<typename T1, typename T2>
 auto
-operator*(const vector<T1> &t1, const Matrix<T2> &mat2) -> Matrix<T1_T2_Multiply_type> {
-    vector<vector<T1_T2_Multiply_type>> temp(
-            mat2.cols(), vector<T1_T2_Multiply_type>(1));
+operator*(const vector<T1> &t1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t_Macro> {
+    vector<vector<Multiply_Result_t<T1, T2>>> temp(mat2.cols(), vector<Multiply_Result_t<T1, T2>>(1));
     auto transfor = mat2.transpose();
-    for (uint32_t i = 0; i < transfor.rows(); ++i) {
+    for (int32_t i = 0; i < transfor.rows(); ++i) {
         temp[i][0] = std::inner_product(transfor.get_row_iter_begin(i), transfor.get_row_iter_end(i), t1.cbegin(),
-                                        static_cast<T1_T2_Multiply_type>(0));
+                                        static_cast<Multiply_Result_t<T1, T2>>(0));
     }
-    return Matrix<T1_T2_Multiply_type>(std::move(temp));
+    return Matrix<Multiply_Result_t<T1, T2>>(std::move(temp));
 }
 
 /**
  *  number * matrix , need T1 can * T2
  * */
 template<typename T1, typename T2>
-auto operator*(const T1 &t1, const Matrix<T2> &mat2) -> Matrix<T1_T2_Multiply_type> {
+auto operator*(const T1 &t1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t_Macro> {
     return mat2 * t1;
 }
 
@@ -483,10 +480,9 @@ T Matrix<T>::dot(const Matrix<T> &mat2) {
  * @return: Matrix_(mk)_(np) decltype(T1*T2)
  * */
 template<typename T1, typename T2>
-auto kron(const Matrix<T1> &mat1, const Matrix<T2> &mat2) -> Matrix<T1_T2_Multiply_type> {
-    vector<vector<T1_T2_Multiply_type>> will_return(
-            mat1.rows() * mat2.rows(),
-            vector<T1_T2_Multiply_type>(mat1.cols() * mat2.cols()));
+auto kron(const Matrix<T1> &mat1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t_Macro> {
+    vector<vector<Multiply_Result_t<T1, T2>>> will_return(
+            mat1.rows() * mat2.rows(), vector<Multiply_Result_t<T1, T2>>(mat1.cols() * mat2.cols()));
     for (int32_t i = 0; i < mat1.rows(); ++i) {
         for (int32_t j = 0; j < mat1.cols(); ++j) {
             for (int32_t k = 0; k < mat2.rows(); ++k) {
@@ -497,7 +493,7 @@ auto kron(const Matrix<T1> &mat1, const Matrix<T2> &mat2) -> Matrix<T1_T2_Multip
             }
         }
     }
-    return Matrix<T1_T2_Multiply_type>(std::move(will_return));
+    return Matrix<Multiply_Result_t<T1, T2>>(std::move(will_return));
 }
 // UNTODO dot.
 /**
@@ -530,13 +526,13 @@ bool Matrix<T>::inside_equal(const Matrix<T> &mat1, const Matrix<T> &mat2) {
     return true;
 }
 
-template<typename T>
-T Matrix<T>::get_type() const {
-    if (this->isEmpty()) {
-        return static_cast<T>(0);
-    }
-    return this->vec.front().front();
-}
-
+//template<typename T>
+//T Matrix<T>::get_type() const {
+//    if (this->isEmpty()) {
+//        return static_cast<T>(0);
+//    }
+//    return this->vec.front().front();
+//}
+//
 
 #endif //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
