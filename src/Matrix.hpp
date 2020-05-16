@@ -105,7 +105,6 @@ public:
 
     static Matrix<T> eye_value(int32_t s, T t);
 
-    // TODO unmember function;
     static bool inside_equal(const Matrix<T> &mat1, const Matrix<T> &mat2);
 
     friend std::ostream &operator<<(std::ostream &output, const Matrix<T> &mat) {
@@ -396,11 +395,13 @@ auto operator*(const Matrix<T1> &mat1, const T2 &t2) -> Matrix<Multiply_Result_t
  * @param1: Matrix<T1> m_n
  * @Param2; vector<T2> length is n
  * @return: Matrix<decltype(T1*T2)> m_1,(rows is m,cols is 1)
- * TODO judge equal
  * */
 template<typename T1, typename T2>
 auto
 operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_Result_t_Macro> {
+    if (mat1.cols() != t2.size()) {
+        // TODO
+    }
     vector<vector<Multiply_Result_t<T1, T2>>> temp(1, vector<Multiply_Result_t<T1, T2>>(mat1.rows()));
     for (uint32_t i = 0; i < temp.size(); ++i) {
         temp[0][i] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i), t2.cbegin(),
@@ -414,11 +415,13 @@ operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_Resul
  * @Param1; vector<T1> length is m
  * @param2: Matrix<T2> m_n
  * @return: Matrix<decltype(T1*T2)> 1_n,(rows is 1,cols is n)
- * TODO ,judge equal
  * */
 template<typename T1, typename T2>
 auto
 operator*(const vector<T1> &t1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t_Macro> {
+    if (t1.size() != mat2.rows()) {
+        // TODO
+    }
     vector<vector<Multiply_Result_t<T1, T2>>> temp(mat2.cols(), vector<Multiply_Result_t<T1, T2>>(1));
     auto transfor = mat2.transpose();
     for (int32_t i = 0; i < transfor.rows(); ++i) {
@@ -495,7 +498,24 @@ auto kron(const Matrix<T1> &mat1, const Matrix<T2> &mat2) -> Matrix<Multiply_Res
     }
     return Matrix<Multiply_Result_t<T1, T2>>(std::move(will_return));
 }
-// UNTODO dot.
+
+/**
+ * kron
+ * @param1: vector_1_3 T1
+ * @param2: vector_1_3 T2
+ * @return: vector_1_3 decltype(T1*T2)
+ * */
+template<typename T1, typename T2>
+auto cross(const vector<T1> &vec1, const vector<T2> &vec2) -> vector<Multiply_Result_t_Macro> {
+   vector<Multiply_Result_t<T1, T2>> will_return(3);
+    if (vec1.size() == 3 && vec2.size() == 3) {
+        will_return[0] = vec1[1] * vec2[2] - vec1[2] * vec2[1];
+        will_return[1] = vec1[0] * vec2[2] - vec1[2] * vec2[0];
+        will_return[2] = vec1[0] * vec2[1] - vec1[1] * vec2[0];
+    }
+    return std::move(will_return);
+}
+
 /**
  * Equal must use to compare two un_empty matrix,
  * so, if one of the matrix is empty , it will be false.

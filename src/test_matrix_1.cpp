@@ -572,3 +572,10 @@ TEST_CASE("vector * matrix", "[test 1]") {
     // decltype(std::declval<std::complex<int64_t>>() * std::declval<int64_t>()) temp2 = {1, 2};
     cout << vec3 * m1;
 }
+
+TEST_CASE("vector cross vector", "[test 1]") {
+    vector<int32_t> vec1 = {4, 5, 6};
+    vector<std::complex<int32_t>> vec2 = {std::complex<int64_t>(3, 4), std::complex<int64_t>(5, 6),
+                                          std::complex<int64_t>(7, 98)};
+    auto vec3 = cross(vec1, vec2);
+}
