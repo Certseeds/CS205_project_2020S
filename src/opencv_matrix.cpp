@@ -30,7 +30,7 @@ using namespace std;
 using namespace cv;
 
 int main() {
-    complex temp(1,2);
+    complex temp(1, 2);
     cout << temp.real() << endl;
     cout << temp.imag() << endl;
     Mat mat1 = Mat(3, 4, CV_8U);
@@ -44,10 +44,9 @@ int main() {
     cout << mat4 << endl;
     cout << mat4.rows;
     cout << mat4.cols;
-    cout << mat4 + mat4 << endl;
-    cout << mat4+mat5 <<endl;
-    cout << mat5.col(0).row(0) << endl;
-    cout << mat5.cols << " " << mat5.rows;
-    cout << cv::eigen
+    cout << mat5.cols << " " << mat5.rows << "\n";
+    double temp3 = 3.0f;
+    cout << std::complex<double>(2.0f, 3.0f) / temp3 << "\n";
+    cout << std::complex<int32_t>(2, 3) * 3 << "\n";
     return 0;
 }

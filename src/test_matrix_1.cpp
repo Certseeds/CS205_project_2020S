@@ -350,12 +350,13 @@ TEST_CASE("conj test", "[test 3]") {
                           {10, 12},
                           {14, 16},
                           {18, 20}};
-    cout << conj(m1);
-    cout << conj(m2);
-    cout << conj(m3);
-    CHECK(Matrix<std::complex<int32_t>>::inside_equal(conj(m1), m1_conj));
-    CHECK(Matrix<std::complex<double>>::inside_equal(conj(m2), m2_conj));
-    CHECK(Matrix<int32_t>::inside_equal(conj(m3), m3));
+    cout << m1.conj();
+    cout << m2.conj();
+    // do not have
+    // cout << conj(m3);
+    CHECK(Matrix<std::complex<int32_t>>::inside_equal(m1.conj(), m1_conj));
+    CHECK(Matrix<std::complex<double>>::inside_equal(m2.conj(), m2_conj));
+    //CHECK(Matrix<int32_t>::inside_equal(conj(m3), m3));
 }
 // UNTODO for operator+
 TEST_CASE("operator plus", "[test 3]") {
@@ -534,7 +535,6 @@ TEST_CASE("operator mul", "[test 3]") {
     CHECK(Matrix<int32_t>::inside_equal(m2.mul(m5), m8));
     CHECK(Matrix<int_fast16_t>::inside_equal(m3.mul(m6), m9));
 }
-<<<<<<< HEAD
 // UNTODO for operator dot
 TEST_CASE("operator dot", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2, 3},
@@ -597,9 +597,8 @@ TEST_CASE("test for trace", "[test 5]") {
     cout << result.trace() << "\n";
     cout << result.determinant() << "\n";
 }
-=======
 
-TEST_CASE("max & min","[test 1]"){
+TEST_CASE("max & min", "[test 1]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -614,7 +613,7 @@ TEST_CASE("max & min","[test 1]"){
     Matrix<int64_t> m2 = {{1, 1, 4},
                           {5, 1, 4}};
     Matrix<int_least32_t> m5 = {{2,  2, 8},
-                          {10, 2, 8}};
+                                {10, 2, 8}};
     Matrix<int_fast16_t> m3 = {{1, 1, 9},
                                {1, 2, 5},
                                {1, 1, 4}};
@@ -651,7 +650,7 @@ TEST_CASE("max & min","[test 1]"){
     CHECK(m5.col_min(2) == 2);
 }
 
-TEST_CASE("sum & avg","[test 1]"){
+TEST_CASE("sum & avg", "[test 1]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -703,23 +702,22 @@ TEST_CASE("sum & avg","[test 1]"){
 
     Matrix<std::complex<int32_t>> mc1 = Matrix<std::complex<int32_t>>::ones(5, 4);
     Matrix<double_t> m10 = Matrix<double_t>::ones(5, 4);
-    mc1 = mc1*std::complex<int32_t>(3,4);
-    auto m11 = m10*std::complex<double_t>(3.5,4.5);
+    mc1 = mc1 * std::complex<int32_t>(3, 4);
+    auto m11 = m10 * std::complex<double_t>(3.5, 4.5);
     cout << mc1;
     cout << "sum: " << mc1.sum() << endl;
-    cout << "average: " << mc1.complex_avg() << endl;
+    cout << "average: " << mc1.avg() << endl;
     cout << "sum of row1: " << mc1.row_sum(1) << endl;
-    cout << "average of row1: " << mc1.complex_row_avg(1) << endl;
+    cout << "average of row1: " << mc1.row_avg(1) << endl;
     cout << "sum of column1: " << mc1.col_sum(1) << endl;
-    cout << "average of column1: " << mc1.complex_col_avg(1) << endl;
+    cout << "average of column1: " << mc1.col_avg(1) << endl;
     cout << m11;
     cout << "sum: " << m11.sum() << endl;
-    cout << "average: " << m11.complex_avg() << endl;
+    cout << "average: " << m11.avg() << endl;
     cout << "sum of row5: " << m11.row_sum(5) << endl;
-    cout << "average of row5: " << m11.complex_row_avg(5) << endl;
+    cout << "average of row5: " << m11.row_avg(5) << endl;
     cout << "sum of column4: " << m11.col_sum(4) << endl;
-    cout << "average of column4: " << m11.complex_col_avg(4) << endl;
+    cout << "average of column4: " << m11.col_avg(4) << endl;
 
 }
 // TODO vector<vector<T>> test
->>>>>>> wjia

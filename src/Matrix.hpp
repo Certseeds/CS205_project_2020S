@@ -31,8 +31,25 @@
 #include <functional>
 #include <complex>
 #include <utility>
+#include <type_traits>
+
 
 #define Multiply_Result_t_Macro decltype(std::declval<T1>() * std::declval<T2>())
+
+template<typename T1, typename T2>
+constexpr bool is_same() { return std::is_same<T1, T2>::value; }
+
+template<typename T>
+struct is_complex_imp : std::false_type {
+};
+template<typename T>
+struct is_complex_imp<std::complex<T>> : std::true_type {
+};
+
+template<typename T>
+constexpr bool is_complex() {
+    return is_complex_imp<T>();
+}
 
 template<typename T1, typename T2>
 struct Multiply_Result {
@@ -42,47 +59,38 @@ struct Multiply_Result {
 template<typename T1, typename T2>
 using Multiply_Result_t = typename Multiply_Result<T1, T2>::Type;
 
+#define MY_IF0(...) typename std::enable_if<(bool)(__VA_ARGS__), int >::type
+#define MY_IF(...) MY_IF0(__VA_ARGS__) = 0
+
 using std::vector;
 using std::endl;
 
 /** @related: get from https://blog.csdn.net/qq_31175231/article/details/77479692
  */
-//template<typename T>
-//struct has_member_conj {
-//private:
-//    template<typename U>
-//    static auto Check(int) -> decltype(std::declval<U>().conj(), std::true_type());
-//
-//    template<typename U>
-//    static std::false_type Check(...);
-//
-//public:
-//    enum {
-//        value = std::is_same<decltype(Check<T>(0)), std::true_type>::value
-//    };
-//};
 
 template<typename T>
 class Matrix {
 private:
     vector<vector<T>> vec;
 public:
-    //explicit Matrix() { this->vec = vector<vector<T>>(1, vector<T>(1)); };
+
+//explicit Matrix() { this->vec = vector<vector<T>>(1, vector<T>(1)); };
     explicit Matrix() : Matrix(0, 0) {};
 
     explicit Matrix(int32_t rows, int32_t cols);
 
-    // 拷贝构造函数 Copy Constructor
+// 拷贝构造函数 Copy Constructor
     Matrix(const Matrix<T> &mat);
 
-    // 移动构造函数
+// 移动构造函数
     Matrix(Matrix<T> &&mat) noexcept;
 
-    // 拷贝赋值运算符 Copy Assignment operator
+// 拷贝赋值运算符 Copy Assignment operator
     Matrix<T> &operator=(const Matrix<T> &mat);
 
-    // 移动赋值运算符 Move Assignment operator
-    Matrix<T> &operator=(Matrix<T> &&mat) noexcept;
+// 移动赋值运算符 Move Assignment operator
+    Matrix<T> &operator=(Matrix<T> &&mat)
+    noexcept;
 
     Matrix<T>(const vector<vector<T>> &vec);
 
@@ -90,7 +98,7 @@ public:
 
     Matrix<T>(const std::initializer_list<std::initializer_list<T>> &list);
 
-    // only for
+// only for
     Matrix<T>(const std::initializer_list<T> &list);
 
     inline T get_inside(int32_t rows, int32_t cols) const;
@@ -140,8 +148,18 @@ public:
 
     typename vector<T>::const_iterator get_row_iter_end(int32_t rows) const;
 
-
-    // T get_type() const;
+    /**@related: https://stackoverflow.com/questions/30736951/templated-class-check-if-complex-at-compile-time
+     * */
+    template<typename T1 = T, MY_IF(is_complex<T1>())>
+    Matrix<T1> conj() const {
+        vector<vector<T1>> vvc(this->rows(), vector<T1>(this->cols()));
+        for (int i = 0; i < this->rows(); ++i) {
+            for (int j = 0; j < this->cols(); ++j) {
+                vvc[i][j] = std::conj(this->vec[i][j]);
+            }
+        }
+        return Matrix<T1>(std::move(vvc));
+    }
 
     T max() const;
 
@@ -149,9 +167,19 @@ public:
 
     T sum() const;
 
-    double_t avg() const;
+    template<typename T1 = T, MY_IF(!is_complex<T1>())>
+    auto avg() -> decltype(std::declval<T1>() / std::declval<double>()) const {
+        T sums = this->sum();
+        return sums / static_cast<double_t>(this->rows() * this->cols());
+    }
 
-    std::complex<double_t> complex_avg() const;
+    //template< class T1 = T ,typename std::enable_if<is_complex<T1>(),int>::type = 0>
+    template<typename T1 = T, MY_IF(is_complex<T1>())>
+    T1 avg() const {
+        T1 sums = this->sum();
+        double_t size = static_cast<double_t>(this->rows() * this->cols());
+        return (T1) (sums.imag() / size, sums.real() / size);
+    }
 
     T row_max(int32_t row) const;
 
@@ -165,15 +193,45 @@ public:
 
     T col_sum(int32_t col) const;
 
-    double_t row_avg(int32_t row) const;
+    template<typename T1 = T, MY_IF(!is_complex<T1>())>
+    auto row_avg(int32_t row) -> decltype(std::declval<T1>() / std::declval<double>()) const {
+        if (row > this->rows()) {
+            return -1;
+        }
+        return this->row_sum(row) / static_cast<double_t>(this->cols());
+//        return 1;
+    }
 
-    std::complex<double_t> complex_row_avg(int32_t row) const;
+    template<typename T1 = T, MY_IF(is_complex<T1>())>
+    T1 row_avg(int32_t row) const {
+        if (row > this->rows()) {
+            return static_cast<T1>(-1);
+        }
+        T1 sums = this->row_sum(row);
+        double_t size = static_cast<double_t>(this->cols());
+        return (T1) (sums.imag() / size, sums.real() / size);
+        // return std::complex(static_cast<double>(2), static_cast<double >(3));
+    }
 
-    std::complex<double_t> complex_col_avg(int32_t col) const;
+    template<typename T1 = T, MY_IF(!is_complex<T1>())>
+    auto col_avg(int32_t col) -> decltype(std::declval<T1>() / std::declval<double>()) const {
+        if (col <= 0 || col > vec[0].size()) {
+            return -1;
+        }
+        return this->col_sum(col) / static_cast<double>(this->rows());
+    }
 
-    double_t col_avg(int32_t col) const;
+    template<typename T1 = T, MY_IF(is_complex<T1>())>
+    T1 col_avg(int32_t col) const {
+        if (col <= 0 || col > vec[0].size()) {
+            return -1;
+        }
+        T1 sums = this->col_sum(col);
+        double_t size = static_cast<double_t>(this->rows());
+        return (T1) (sums.imag() / size, sums.real() / size);
+    }
 
-    // Matrix_n_m, Matrix_n_m, result is Matrix_N_M
+// Matrix_n_m, Matrix_n_m, result is Matrix_N_M
     Matrix<T> mul(const Matrix<T> &mat2);
 
     T dot(const Matrix<T> &mat2);
@@ -187,40 +245,44 @@ public:
 
 template<typename T>
 Matrix<T>::Matrix(const Matrix &mat) {
-    this->vec = vector<vector<T>>(mat.vec);
+    this->vec = vector<vector<T >>(mat.vec);
 }
 
 template<typename T>
 Matrix<T>::Matrix(int32_t rows, int32_t cols) {
     rows = rows > 0 ? rows : 0;
     cols = cols > 0 ? cols : 0;
-    this->vec = vector<vector<T>>(rows, vector<T>(cols));
+    this->vec = vector<vector<T >>(rows, vector<T>(cols));
 }
 
 template<typename T>
-Matrix<T>::Matrix(Matrix &&mat) noexcept {
-    this->vec = std::move(mat.vec);
+Matrix<T>::Matrix(Matrix &&mat)
+noexcept {
+    this->
+            vec = std::move(mat.vec);
 }
 
 template<typename T>
 Matrix<T> &Matrix<T>::operator=(const Matrix<T> &mat) {
     if (this != &mat) {
-        this->vec = vector<vector<T>>(mat.vec);
+        this->vec = vector<vector<T >>(mat.vec);
     }
     return *this;
 }
 
 template<typename T>
-Matrix<T> &Matrix<T>::operator=(Matrix &&mat) noexcept {
+Matrix<T> &Matrix<T>::operator=(Matrix &&mat)
+noexcept {
     if (this != &mat) {
-        this->vec = std::move(mat.vec);
+        this->
+                vec = std::move(mat.vec);
     }
     return *this;
 }
 
 template<typename T>
 Matrix<T>::Matrix(const vector<vector<T>> &vec) {
-    this->vec = vector<vector<T>>(vec);
+    this->vec = vector<vector<T >>(vec);
 }
 
 template<typename T>
@@ -230,19 +292,19 @@ Matrix<T>::Matrix(vector<vector<T>> &&vec) {
 
 template<typename T>
 Matrix<T>::Matrix(const std::initializer_list<T> &list) {
-    this->vec = vector<vector<T>>(1);
+    this->vec = vector<vector<T >>(1);
     this->vec[0] = list;
 }
 
 template<typename T>
 Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>> &list) {
-    this->vec = vector<vector<T>>(0);
+    this->vec = vector<vector<T >>(0);
     for (auto i = list.begin(); i < list.end() - 1; i++) {
         if ((*i).size() != (*(i + 1)).size()) {
             return;
         }
     }
-    this->vec = vector<vector<T>>(list.size());
+    this->vec = vector<vector<T >>(list.size());
     uint32_t row = 0;
     for (const auto &i:list) {
         this->vec[row++] = i;
@@ -363,22 +425,6 @@ Matrix<T> Matrix<T>::transpose() const {
     return will_return;
 }
 
-template<typename T>
-Matrix<T> conj(const Matrix<T> &mat_cp) {
-    return mat_cp;
-}
-
-template<typename T>
-Matrix<std::complex<T>> conj(const Matrix<std::complex<T>> &mat_cp) {
-    vector<vector<std::complex<T>>> vvc(mat_cp.rows(), vector<std::complex<T>>(mat_cp.cols()));
-    for (int i = 0; i < mat_cp.rows(); ++i) {
-        for (int j = 0; j < mat_cp.cols(); ++j) {
-            vvc[i][j] = std::conj(mat_cp.get_inside(i, j));
-        }
-    }
-    return Matrix<std::complex<T>>(std::move(vvc));
-}
-
 /**
  * matrix + matrix, must equal.
  *  * input mat1,mat2 and will_return's type is same.
@@ -412,7 +458,8 @@ Matrix<T> operator/(const Matrix<T> &mat1, const T &t2) {
  * */
 template<typename T1, typename T2>
 auto operator*(const Matrix<T1> &mat1, const T2 &t2) -> Matrix<Multiply_Result_t_Macro> {
-    vector<vector<Multiply_Result_t<T1, T2>>> temp(mat1.rows(), vector<Multiply_Result_t<T1, T2>>(mat1.cols()));
+    vector<vector<Multiply_Result_t<T1, T2>>> temp(mat1.rows(), vector<Multiply_Result_t<T1, T2>>
+            (mat1.cols()));
     for (uint32_t i = 0; i < temp.size(); ++i) {
         for (uint32_t j = 0; j < temp[i].size(); ++j) {
             temp[i][j] = mat1.get_inside(i, j) * t2;
@@ -438,7 +485,8 @@ auto operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_
     if (mat1.cols() != t2.size()) {
         // TODO
     }
-    vector<vector<Multiply_Result_t<T1, T2>>> temp(1, vector<Multiply_Result_t<T1, T2>>(mat1.rows()));
+    vector<vector<Multiply_Result_t<T1, T2>>> temp(1, vector<Multiply_Result_t<T1, T2>>
+            (mat1.rows()));
     for (uint32_t i = 0; i < temp.size(); ++i) {
         temp[0][i] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i), t2.cbegin(),
                                         static_cast<Multiply_Result_t<T1, T2>>(0));
@@ -458,7 +506,8 @@ operator*(const vector<T1> &t1, const Matrix<T2> &mat2) -> Matrix<Multiply_Resul
     if (t1.size() != mat2.rows()) {
         // TODO
     }
-    vector<vector<Multiply_Result_t<T1, T2>>> temp(mat2.cols(), vector<Multiply_Result_t<T1, T2>>(1));
+    vector<vector<Multiply_Result_t<T1, T2>>> temp(mat2.cols(), vector<Multiply_Result_t<T1, T2>>
+            (1));
     auto transfor = mat2.transpose();
     for (int32_t i = 0; i < transfor.rows(); ++i) {
         temp[i][0] = std::inner_product(transfor.get_row_iter_begin(i), transfor.get_row_iter_end(i), t1.cbegin(),
@@ -481,7 +530,7 @@ Matrix<T> operator*(const Matrix<T> &mat1, const Matrix<T> &mat2) {
         // TODO
     }
     Matrix<T> temp = mat2.transpose();
-    vector<vector<T>> will_return(mat1.rows(), vector<T>(mat1.cols()));
+    vector<vector<T >> will_return(mat1.rows(), vector<T>(mat1.cols()));
     for (int32_t i = 0; i < mat1.rows(); ++i) {
         for (int32_t j = 0; j < mat1.cols(); ++j) {
             will_return[i][j] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i),
@@ -521,7 +570,8 @@ T Matrix<T>::dot(const Matrix<T> &mat2) {
 template<typename T1, typename T2>
 auto kron(const Matrix<T1> &mat1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t_Macro> {
     vector<vector<Multiply_Result_t<T1, T2>>> will_return(
-            mat1.rows() * mat2.rows(), vector<Multiply_Result_t<T1, T2>>(mat1.cols() * mat2.cols()));
+            mat1.rows() * mat2.rows(), vector<Multiply_Result_t<T1, T2>>
+                    (mat1.cols() * mat2.cols()));
     for (int32_t i = 0; i < mat1.rows(); ++i) {
         for (int32_t j = 0; j < mat1.cols(); ++j) {
             for (int32_t k = 0; k < mat2.rows(); ++k) {
@@ -599,7 +649,7 @@ T determinant_in(const vector<vector<T>> &matrix) {
         return matrix.front().front();
     }
     uint32_t size_m = matrix.size();
-    vector<vector<T>> submatrix(size_m - 1, vector<T>(size_m - 1, static_cast<T>(0)));
+    vector<vector<T >> submatrix(size_m - 1, vector<T>(size_m - 1, static_cast<T>(0)));
     T will_return(0);
     for (uint32_t i = 0; i < size_m; ++i) {
         for (uint32_t j = 0; j < size_m - 1; ++j) {
@@ -622,177 +672,106 @@ T Matrix<T>::determinant() const {
     return determinant_in(this->vec);
 }
 
-template<class T>
+template<typename T>
 T Matrix<T>::max() const {
-    T Max = vec[0][0];
-    for (int i = 0; i < vec.size(); ++i) {
-        auto max = *std::max_element(std::begin(vec[i]),std::end(vec[i]));
-        if(max > Max)
-            Max = max;
-    }
-    return Max;
-}
-
-template<class T>
-T Matrix<T>::min() const {
-    T Min = vec[0][0];
-    for (int i = 0; i < vec.size(); ++i) {
-        auto min = *std::min_element(std::begin(vec[i]),std::end(vec[i]));
-        if(min < Min)
-            Min = min;
-    }
-    return Min;
-}
-
-template<class T>
-T Matrix<T>::sum() const {
-    T sum = 0;
-    for (int i = 0; i < vec.size(); ++i) {
-        for (int j = 0; j < vec[i].size(); ++j) {
-            sum += vec[i][j];
+    if (!this->is_empty()) {
+        T will_return = this->vec.front().front();
+        for (const auto &iter:this->vec) {
+            auto max_v = *std::max_element(std::begin(iter), std::end(iter));
+            will_return = std::max(max_v, will_return);
         }
+        return will_return;
     }
-    return sum;
+    // TODO False;
+    return static_cast<T>(0);
 }
 
-template<class T>
-double_t Matrix<T>::avg() const {
-    int size = vec.size()*vec[0].size();
-    double_t avg = (double_t)this->sum()/size;
-    return avg;
+template<typename T>
+T Matrix<T>::min() const {
+    if (!this->is_empty()) {
+        T will_return = this->vec.front().front();
+        for (const auto &iter:this->vec) {
+            auto min_v = *std::min_element(std::begin(iter), std::end(iter));
+            will_return = std::min(min_v, will_return);
+        }
+        return will_return;
+    }
+    // TODO False;
+    return static_cast<T>(0);
 }
 
-template<class T>
-std::complex<double_t> Matrix<T>::complex_avg() const {
-    int size = vec.size()*vec[0].size();
-    double_t img = (double_t)this->sum().imag()/size;
-    double_t real = (double_t)this->sum().real()/size;
-    std::complex<double_t> avg;
-    avg.imag(img);
-    avg.real(real);
-    return avg;
+template<typename T>
+T Matrix<T>::sum() const {
+    T will_return = static_cast<T>(0);
+    for (const auto &item : this->vec) {
+        will_return += std::accumulate(std::begin(item), std::end(item), static_cast<T>(0));
+    }
+    return will_return;
 }
 
-template<class T>
+template<typename T>
 T Matrix<T>::row_max(int32_t row) const {
-    if(row <= 0 || row > vec.size()){
+    if (row <= 0 || row > this->rows()) {
+        // TODO;
         return -1;
     }
-    T max = vec[row-1][0];
-    for (int i = 0; i < vec[row-1].size(); ++i) {
-        if(max < vec[row-1][i])
-            max = vec[row-1][i];
-    }
-    return max;
+    return (*std::max_element(this->get_row_iter_begin(row - 1),
+                              this->get_row_iter_end(row - 1)));
 }
 
-template<class T>
+template<typename T>
 T Matrix<T>::row_min(int32_t row) const {
-    if(row <= 0 || row > vec.size()){
+    if (row <= 0 || row > this->rows()) {
+        // TODO;
         return -1;
     }
-    T min = vec[row-1][0];
-    for (int i = 0; i < vec[row-1].size(); ++i) {
-        if(min > vec[row-1][i])
-            min = vec[row-1][i];
-    }
-    return min;
+    return (*std::min_element(this->get_row_iter_begin(row - 1),
+                              this->get_row_iter_end(row - 1)));
 }
 
-template<class T>
+template<typename T>
 T Matrix<T>::row_sum(int32_t row) const {
-    if(row <= 0 || row > vec.size()){
+    if (row <= 0 || row > vec.size()) {
         return -1;
     }
-    T sum = 0;
-    for (int i = 0; i < vec[row-1].size(); ++i) {
-        sum += vec[row-1][i];
-    }
-    return sum;
+    return std::accumulate(this->get_row_iter_begin(row - 1), this->get_row_iter_end(row - 1), static_cast<T>(0));
 }
 
-template<class T>
-double_t Matrix<T>::row_avg(int32_t row) const {
-    if(row <= 0 || row > vec.size()){
-        return -1;
-    }
-    double_t avg = (double_t)this->row_sum(row)/vec[row-1].size();
-    return avg;
-}
-
-template<class T>
-std::complex<double_t> Matrix<T>::complex_row_avg(int32_t row) const {
-    if(row <= 0 || row > vec.size()){
-        return -1;
-    }
-    int size = vec[row-1].size();
-    double_t img = (double_t)this->row_sum(row).imag()/size;
-    double_t real = (double_t)this->row_sum(row).real()/size;
-    std::complex<double_t> avg;
-    avg.imag(img);
-    avg.real(real);
-    return avg;
-}
-
-template<class T>
+template<typename T>
 T Matrix<T>::col_max(int32_t col) const {
-    if(col <= 0 || col > vec[0].size()){
+    if (col <= 0 || col > vec[0].size()) {
         return -1;
     }
-    T max = vec[0][col-1];
-    for (int i = 0; i < vec.size(); ++i) {
-        if(max < vec[i][col-1])
-            max = vec[i][col-1];
+    T max_v = vec.front()[col - 1];
+    for (int i = 0; i < this->rows(); ++i) {
+        max_v = std::max(max_v, vec[i][col - 1]);
     }
-    return max;
+    return max_v;
 }
 
-template<class T>
+template<typename T>
 T Matrix<T>::col_min(int32_t col) const {
-    if(col <= 0 || col > vec[0].size()){
+    if (col <= 0 || col > vec[0].size()) {
         return -1;
     }
-    T min = vec[0][col-1];
-    for (int i = 0; i < vec.size(); ++i) {
-        if(min > vec[i][col-1])
-            min = vec[i][col-1];
+    T min_v = vec.front()[col - 1];
+    for (int i = 0; i < this->rows(); ++i) {
+        min_v = std::min(min_v, vec[i][col - 1]);
     }
-    return min;
+    return min_v;
 }
 
-template<class T>
+template<typename T>
 T Matrix<T>::col_sum(int32_t col) const {
-    if(col <= 0 || col > vec[0].size()){
+    if (col <= 0 || col > vec[0].size()) {
         return -1;
     }
-    T sum = 0;
-    for (int i = 0; i < vec.size(); ++i) {
-        sum += vec[i][col-1];
+    T sum(0);
+    for (int32_t i = 0; i < this->rows(); ++i) {
+        sum += vec[i][col - 1];
     }
     return sum;
 }
 
-template<class T>
-double_t Matrix<T>::col_avg(int32_t col) const {
-    if(col <= 0 || col > vec[0].size()){
-        return -1;
-    }
-    double_t avg = (double_t)this->col_sum(col)/vec.size();
-    return avg;
-}
-
-template<class T>
-std::complex<double_t> Matrix<T>::complex_col_avg(int32_t col) const {
-    if(col <= 0 || col > vec[0].size()){
-        return -1;
-    }
-    int size = vec.size();
-    double_t img = (double_t)this->col_sum(col).imag()/size;
-    double_t real = (double_t)this->col_sum(col).real()/size;
-    std::complex<double_t> avg;
-    avg.imag(img);
-    avg.real(real);
-    return avg;
-}
 
 #endif //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
