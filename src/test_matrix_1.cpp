@@ -455,4 +455,127 @@ TEST_CASE("operator mul", "[test 1]") {
     CHECK(Matrix<int32_t>::inside_equal(m2.mul(m5), m8));
     CHECK(Matrix<int_fast16_t>::inside_equal(m3.mul(m6), m9));
 }
+
+TEST_CASE("max & min","[test 1]"){
+    Matrix<int32_t> m1 = {{1, 2},
+                          {3, 4},
+                          {5, 6},
+                          {7, 8},
+                          {9, 10}};
+    Matrix<uint32_t> m4 =
+            {{2,  4},
+             {6,  8},
+             {10, 12},
+             {14, 16},
+             {18, 20}};
+    Matrix<int64_t> m2 = {{1, 1, 4},
+                          {5, 1, 4}};
+    Matrix<int_least32_t> m5 = {{2,  2, 8},
+                          {10, 2, 8}};
+    Matrix<int_fast16_t> m3 = {{1, 1, 9},
+                               {1, 2, 5},
+                               {1, 1, 4}};
+
+    CHECK(m1.max() == 10);
+    CHECK(m1.min() == 1);
+    CHECK(m4.max() == 20);
+    CHECK(m4.min() == 2);
+    CHECK(m2.max() == 5);
+    CHECK(m2.min() == 1);
+    CHECK(m3.max() == 9);
+    CHECK(m3.min() == 1);
+    CHECK(m5.max() == 10);
+    CHECK(m5.min() == 2);
+    CHECK(m1.row_max(3) == 6);
+    CHECK(m1.row_min(2) == 3);
+    CHECK(m4.row_max(5) == 20);
+    CHECK(m4.row_min(1) == 2);
+    CHECK(m2.row_max(2) == 5);
+    CHECK(m2.row_min(0) == -1);
+    CHECK(m3.row_max(3) == 4);
+    CHECK(m3.row_min(1) == 1);
+    CHECK(m5.row_max(2) == 10);
+    CHECK(m5.row_min(1) == 2);
+    CHECK(m1.col_max(1) == 9);
+    CHECK(m1.col_min(2) == 2);
+    CHECK(m4.col_max(0) == -1);
+    CHECK(m4.col_min(2) == 4);
+    CHECK(m2.col_max(1) == 5);
+    CHECK(m2.col_min(3) == 4);
+    CHECK(m3.col_max(3) == 9);
+    CHECK(m3.col_min(1) == 1);
+    CHECK(m5.col_max(1) == 10);
+    CHECK(m5.col_min(2) == 2);
+}
+
+TEST_CASE("sum & avg","[test 1]"){
+    Matrix<int32_t> m1 = {{1, 2},
+                          {3, 4},
+                          {5, 6},
+                          {7, 8},
+                          {9, 10}};
+    Matrix<uint32_t> m4 =
+            {{2,  4},
+             {6,  8},
+             {10, 12},
+             {14, 16},
+             {18, 20}};
+    Matrix<int64_t> m2 = {{1, 1, 4},
+                          {5, 1, 6}};
+    Matrix<int_least32_t> m5 = {{2,  2, 8},
+                                {10, 2, 6}};
+    Matrix<int_fast16_t> m3 = {{1, 3, 9},
+                               {1, 2, 5},
+                               {1, 1, 4}};
+    CHECK(m1.sum() == 55);
+    CHECK(m1.avg() == 5.5);
+    CHECK(m4.sum() == 110);
+    CHECK(m4.avg() == 11);
+    CHECK(m2.sum() == 18);
+    CHECK(m2.avg() == 3);
+    CHECK(m3.sum() == 27);
+    CHECK(m3.avg() == 3);
+    CHECK(m5.sum() == 30);
+    CHECK(m5.avg() == 5);
+    CHECK(m1.row_sum(1) == 3);
+    CHECK(m1.row_avg(5) == 9.5);
+    CHECK(m4.row_sum(2) == 14);
+    CHECK(m4.row_avg(3) == 11);
+    CHECK(m2.row_sum(1) == 6);
+    CHECK(m2.row_avg(6) == -1);
+    CHECK(m3.row_sum(1) == 13);
+    CHECK(m3.row_avg(3) == 2);
+    CHECK(m5.row_sum(1) == 12);
+    CHECK(m5.row_avg(1) == 4);
+    CHECK(m1.col_sum(1) == 25);
+    CHECK(m1.col_avg(5) == -1);
+    CHECK(m4.col_sum(2) == 60);
+    CHECK(m4.col_avg(1) == 10);
+    CHECK(m2.col_sum(1) == 6);
+    CHECK(m2.col_avg(1) == 3);
+    CHECK(m3.col_sum(1) == 3);
+    CHECK(m3.col_avg(3) == 6);
+    CHECK(m5.col_sum(1) == 12);
+    CHECK(m5.col_avg(1) == 6);
+
+    Matrix<std::complex<int32_t>> mc1 = Matrix<std::complex<int32_t>>::ones(5, 4);
+    Matrix<double_t> m10 = Matrix<double_t>::ones(5, 4);
+    mc1 = mc1*std::complex<int32_t>(3,4);
+    auto m11 = m10*std::complex<double_t>(3.5,4.5);
+    cout << mc1;
+    cout << "sum: " << mc1.sum() << endl;
+    cout << "average: " << mc1.complex_avg() << endl;
+    cout << "sum of row1: " << mc1.row_sum(1) << endl;
+    cout << "average of row1: " << mc1.complex_row_avg(1) << endl;
+    cout << "sum of column1: " << mc1.col_sum(1) << endl;
+    cout << "average of column1: " << mc1.complex_col_avg(1) << endl;
+    cout << m11;
+    cout << "sum: " << m11.sum() << endl;
+    cout << "average: " << m11.complex_avg() << endl;
+    cout << "sum of row5: " << m11.row_sum(5) << endl;
+    cout << "average of row5: " << m11.complex_row_avg(5) << endl;
+    cout << "sum of column4: " << m11.col_sum(4) << endl;
+    cout << "average of column4: " << m11.complex_col_avg(4) << endl;
+
+}
 // TODO vector<vector<T>> test
