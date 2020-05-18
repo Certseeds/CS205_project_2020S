@@ -59,6 +59,14 @@ struct Multiply_Result {
 template<typename T1, typename T2>
 using Multiply_Result_t = typename Multiply_Result<T1, T2>::Type;
 
+template<typename T1, typename T2>
+struct Divide_Result {
+    using Type = decltype(std::declval<T1>() / std::declval<T2>());
+};
+
+template<typename T1, typename T2>
+using Divide_Result_t = typename Divide_Result<T1, T2>::Type;
+
 #define MY_IF0(...) typename std::enable_if<(bool)(__VA_ARGS__), int >::type
 #define MY_IF(...) MY_IF0(__VA_ARGS__) = 0
 
@@ -168,7 +176,7 @@ public:
     T sum() const;
 
     template<typename T1 = T, MY_IF(!is_complex<T1>())>
-    auto avg() -> decltype(std::declval<T1>() / std::declval<double>()) const {
+    auto avg() -> Divide_Result_t<T1, double_t> const {
         T sums = this->sum();
         return sums / static_cast<double_t>(this->rows() * this->cols());
     }
@@ -178,7 +186,7 @@ public:
     T1 avg() const {
         T1 sums = this->sum();
         double_t size = static_cast<double_t>(this->rows() * this->cols());
-        return (T1) (sums.imag() / size, sums.real() / size);
+        return T1{sums.real() / size, sums.imag() / size};
     }
 
     T row_max(int32_t row) const;
@@ -194,7 +202,7 @@ public:
     T col_sum(int32_t col) const;
 
     template<typename T1 = T, MY_IF(!is_complex<T1>())>
-    auto row_avg(int32_t row) -> decltype(std::declval<T1>() / std::declval<double>()) const {
+    auto row_avg(int32_t row) -> Divide_Result_t<T1, double_t> const {
         if (row > this->rows()) {
             return -1;
         }
@@ -209,12 +217,12 @@ public:
         }
         T1 sums = this->row_sum(row);
         double_t size = static_cast<double_t>(this->cols());
-        return (T1) (sums.imag() / size, sums.real() / size);
+        return T1{sums.real() / size, sums.imag() / size};
         // return std::complex(static_cast<double>(2), static_cast<double >(3));
     }
 
     template<typename T1 = T, MY_IF(!is_complex<T1>())>
-    auto col_avg(int32_t col) -> decltype(std::declval<T1>() / std::declval<double>()) const {
+    auto col_avg(int32_t col) -> Divide_Result_t<T1, double_t> const {
         if (col <= 0 || col > vec[0].size()) {
             return -1;
         }
@@ -228,7 +236,7 @@ public:
         }
         T1 sums = this->col_sum(col);
         double_t size = static_cast<double_t>(this->rows());
-        return (T1) (sums.imag() / size, sums.real() / size);
+        return T1{sums.real() / size, sums.imag() / size};
     }
 
 // Matrix_n_m, Matrix_n_m, result is Matrix_N_M
