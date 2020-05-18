@@ -143,6 +143,36 @@ public:
 
     // T get_type() const;
 
+    T max() const;
+
+    T min() const;
+
+    T sum() const;
+
+    double_t avg() const;
+
+    std::complex<double_t> complex_avg() const;
+
+    T row_max(int32_t row) const;
+
+    T col_max(int32_t col) const;
+
+    T row_min(int32_t row) const;
+
+    T col_min(int32_t col) const;
+
+    T row_sum(int32_t row) const;
+
+    T col_sum(int32_t col) const;
+
+    double_t row_avg(int32_t row) const;
+
+    std::complex<double_t> complex_row_avg(int32_t row) const;
+
+    std::complex<double_t> complex_col_avg(int32_t col) const;
+
+    double_t col_avg(int32_t col) const;
+
     // Matrix_n_m, Matrix_n_m, result is Matrix_N_M
     Matrix<T> mul(const Matrix<T> &mat2);
 
@@ -592,14 +622,177 @@ T Matrix<T>::determinant() const {
     return determinant_in(this->vec);
 }
 
+template<class T>
+T Matrix<T>::max() const {
+    T Max = vec[0][0];
+    for (int i = 0; i < vec.size(); ++i) {
+        auto max = *std::max_element(std::begin(vec[i]),std::end(vec[i]));
+        if(max > Max)
+            Max = max;
+    }
+    return Max;
+}
 
-//template<typename T>
-//T Matrix<T>::get_type() const {
-//    if (this->is_empty()) {
-//        return static_cast<T>(0);
-//    }
-//    return this->vec.front().front();
-//}
-//
+template<class T>
+T Matrix<T>::min() const {
+    T Min = vec[0][0];
+    for (int i = 0; i < vec.size(); ++i) {
+        auto min = *std::min_element(std::begin(vec[i]),std::end(vec[i]));
+        if(min < Min)
+            Min = min;
+    }
+    return Min;
+}
+
+template<class T>
+T Matrix<T>::sum() const {
+    T sum = 0;
+    for (int i = 0; i < vec.size(); ++i) {
+        for (int j = 0; j < vec[i].size(); ++j) {
+            sum += vec[i][j];
+        }
+    }
+    return sum;
+}
+
+template<class T>
+double_t Matrix<T>::avg() const {
+    int size = vec.size()*vec[0].size();
+    double_t avg = (double_t)this->sum()/size;
+    return avg;
+}
+
+template<class T>
+std::complex<double_t> Matrix<T>::complex_avg() const {
+    int size = vec.size()*vec[0].size();
+    double_t img = (double_t)this->sum().imag()/size;
+    double_t real = (double_t)this->sum().real()/size;
+    std::complex<double_t> avg;
+    avg.imag(img);
+    avg.real(real);
+    return avg;
+}
+
+template<class T>
+T Matrix<T>::row_max(int32_t row) const {
+    if(row <= 0 || row > vec.size()){
+        return -1;
+    }
+    T max = vec[row-1][0];
+    for (int i = 0; i < vec[row-1].size(); ++i) {
+        if(max < vec[row-1][i])
+            max = vec[row-1][i];
+    }
+    return max;
+}
+
+template<class T>
+T Matrix<T>::row_min(int32_t row) const {
+    if(row <= 0 || row > vec.size()){
+        return -1;
+    }
+    T min = vec[row-1][0];
+    for (int i = 0; i < vec[row-1].size(); ++i) {
+        if(min > vec[row-1][i])
+            min = vec[row-1][i];
+    }
+    return min;
+}
+
+template<class T>
+T Matrix<T>::row_sum(int32_t row) const {
+    if(row <= 0 || row > vec.size()){
+        return -1;
+    }
+    T sum = 0;
+    for (int i = 0; i < vec[row-1].size(); ++i) {
+        sum += vec[row-1][i];
+    }
+    return sum;
+}
+
+template<class T>
+double_t Matrix<T>::row_avg(int32_t row) const {
+    if(row <= 0 || row > vec.size()){
+        return -1;
+    }
+    double_t avg = (double_t)this->row_sum(row)/vec[row-1].size();
+    return avg;
+}
+
+template<class T>
+std::complex<double_t> Matrix<T>::complex_row_avg(int32_t row) const {
+    if(row <= 0 || row > vec.size()){
+        return -1;
+    }
+    int size = vec[row-1].size();
+    double_t img = (double_t)this->row_sum(row).imag()/size;
+    double_t real = (double_t)this->row_sum(row).real()/size;
+    std::complex<double_t> avg;
+    avg.imag(img);
+    avg.real(real);
+    return avg;
+}
+
+template<class T>
+T Matrix<T>::col_max(int32_t col) const {
+    if(col <= 0 || col > vec[0].size()){
+        return -1;
+    }
+    T max = vec[0][col-1];
+    for (int i = 0; i < vec.size(); ++i) {
+        if(max < vec[i][col-1])
+            max = vec[i][col-1];
+    }
+    return max;
+}
+
+template<class T>
+T Matrix<T>::col_min(int32_t col) const {
+    if(col <= 0 || col > vec[0].size()){
+        return -1;
+    }
+    T min = vec[0][col-1];
+    for (int i = 0; i < vec.size(); ++i) {
+        if(min > vec[i][col-1])
+            min = vec[i][col-1];
+    }
+    return min;
+}
+
+template<class T>
+T Matrix<T>::col_sum(int32_t col) const {
+    if(col <= 0 || col > vec[0].size()){
+        return -1;
+    }
+    T sum = 0;
+    for (int i = 0; i < vec.size(); ++i) {
+        sum += vec[i][col-1];
+    }
+    return sum;
+}
+
+template<class T>
+double_t Matrix<T>::col_avg(int32_t col) const {
+    if(col <= 0 || col > vec[0].size()){
+        return -1;
+    }
+    double_t avg = (double_t)this->col_sum(col)/vec.size();
+    return avg;
+}
+
+template<class T>
+std::complex<double_t> Matrix<T>::complex_col_avg(int32_t col) const {
+    if(col <= 0 || col > vec[0].size()){
+        return -1;
+    }
+    int size = vec.size();
+    double_t img = (double_t)this->col_sum(col).imag()/size;
+    double_t real = (double_t)this->col_sum(col).real()/size;
+    std::complex<double_t> avg;
+    avg.imag(img);
+    avg.real(real);
+    return avg;
+}
 
 #endif //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
