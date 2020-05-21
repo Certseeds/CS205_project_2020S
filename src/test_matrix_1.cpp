@@ -490,13 +490,12 @@ TEST_CASE("operator multiply_matrix_matrix_same", "[test 3]") {
     cout << Matrix<int32_t>(vec1) * Matrix<int32_t>(vec2);
     vector<int32_t> vec3 = {1, 2, 3, 4};
     vector<int32_t> vec4 = {1, 2, 3, 4};
-    cout << std::inner_product(vec1[0].cbegin(), vec1[0].cend(), vec1[0].cbegin(), 0);
+    cout << std::inner_product(vec1[0].cbegin(), vec1[0].cend(), vec1[0].cbegin(), 0) << "\n";
     vector<vector<int32_t>> vec5 = {{1, 2, 3},
                                     {4, 5, 6}};
     vector<vector<std::complex<int32_t>>> vec_c6 = {{std::complex<int32_t>(9, 10),  std::complex<int32_t>(11, 12)},
                                                     {std::complex<int32_t>(13, 14), std::complex<int32_t>(15, 61)}};
     //cout << Matrix<int32_t>(vec5) * Matrix<std::complex<int32_t>>(vec_c6);
-
 }
 // UNTODO for operator mul
 TEST_CASE("operator mul", "[test 3]") {

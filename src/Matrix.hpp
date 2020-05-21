@@ -501,7 +501,7 @@ auto operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_
             (mat1.rows()));
     for (uint32_t i = 0; i < temp.size(); ++i) {
         temp[0][i] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i), t2.cbegin(),
-                                        static_cast<Multiply_Result_t<T1, T2>>(0));
+                                             static_cast<Multiply_Result_t<T1, T2>>(0));
     }
     return Matrix<Multiply_Result_t<T1, T2>>(std::move(temp));
 }
@@ -513,13 +513,11 @@ auto operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_
  * @return: Matrix<decltype(T1*T2)> 1_n,(rows is 1,cols is n)
  * */
 template<typename T1, typename T2>
-auto
-operator*(const vector<T1> &t1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t_Macro> {
+auto operator*(const vector<T1> &t1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t_Macro> {
     if (t1.size() != mat2.rows()) {
         // TODO
     }
-    vector<vector<Multiply_Result_t<T1, T2>>> temp(mat2.cols(), vector<Multiply_Result_t<T1, T2>>
-            (1));
+    vector<vector<Multiply_Result_t<T1, T2>>> temp(mat2.cols(), vector<Multiply_Result_t<T1, T2>>(1));
     auto transfor = mat2.transpose();
     for (int32_t i = 0; i < transfor.rows(); ++i) {
         temp[i][0] = std::inner_product(transfor.get_row_iter_begin(i), transfor.get_row_iter_end(i), t1.cbegin(),
@@ -542,9 +540,9 @@ Matrix<T> operator*(const Matrix<T> &mat1, const Matrix<T> &mat2) {
         // TODO
     }
     Matrix<T> temp = mat2.transpose();
-    vector<vector<T >> will_return(mat1.rows(), vector<T>(mat1.cols()));
+    vector<vector<T >> will_return(mat1.rows(), vector<T>(mat2.cols()));
     for (int32_t i = 0; i < mat1.rows(); ++i) {
-        for (int32_t j = 0; j < mat1.cols(); ++j) {
+        for (int32_t j = 0; j < mat2.cols(); ++j) {
             will_return[i][j] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i),
                                                    temp.get_row_iter_begin(j), static_cast<T>(0));
             // transform_reduce can not use.
