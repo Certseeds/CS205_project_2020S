@@ -67,6 +67,18 @@ struct Divide_Result {
 template<typename T1, typename T2>
 using Divide_Result_t = typename Divide_Result<T1, T2>::Type;
 
+template<typename T, typename = void>
+struct has_conj_imp : std::false_type {
+};
+template<typename T>
+struct has_conj_imp<T, std::void_t<decltype(std::declval<T>().conj())>> : std::true_type {
+};
+
+template<typename T>
+constexpr bool has_conj() {
+    return has_conj_imp<T>();
+}
+
 #define MY_IF0(...) typename std::enable_if<(bool)(__VA_ARGS__), int >::type
 #define MY_IF(...) MY_IF0(__VA_ARGS__) = 0
 
@@ -156,18 +168,10 @@ public:
 
     typename vector<T>::const_iterator get_row_iter_end(int32_t rows) const;
 
+
     /**@related: https://stackoverflow.com/questions/30736951/templated-class-check-if-complex-at-compile-time
      * */
-    template<typename T1 = T, MY_IF(is_complex<T1>())>
-    Matrix<T1> conj() const {
-        vector<vector<T1>> vvc(this->rows(), vector<T1>(this->cols()));
-        for (int i = 0; i < this->rows(); ++i) {
-            for (int j = 0; j < this->cols(); ++j) {
-                vvc[i][j] = std::conj(this->vec[i][j]);
-            }
-        }
-        return Matrix<T1>(std::move(vvc));
-    }
+    Matrix<T> conj() const;
 
     T max() const;
 
@@ -678,6 +682,27 @@ T Matrix<T>::determinant() const {
         return will_return;
     }
     return determinant_in(this->vec);
+}
+
+template<typename T>
+Matrix<T> Matrix<T>::conj() const {
+    vector<vector<T>> vvc(this->rows(), vector<T>(this->cols()));
+    if constexpr(is_complex<T>()) {
+        for (int32_t i = 0; i < this->rows(); ++i) {
+            for (int32_t j = 0; j < this->cols(); ++j) {
+                vvc[i][j] = std::conj(this->vec[i][j]);
+            }
+        }
+    } else if constexpr(has_conj<T>()) {
+        for (int32_t i = 0; i < this->rows(); ++i) {
+            for (int32_t j = 0; j < this->cols(); ++j) {
+                vvc[i][j] = this->vec[i][j].conj();
+            }
+        }
+    } else if constexpr(!is_complex<T>() && !has_conj<T>()) {
+        vvc = this->vec;
+    }
+    return Matrix<T>(std::move(vvc));
 }
 
 template<typename T>

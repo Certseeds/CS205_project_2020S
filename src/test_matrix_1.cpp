@@ -353,7 +353,6 @@ TEST_CASE("conj test", "[test 3]") {
     cout << m1.conj();
     cout << m2.conj();
     // do not have
-    // cout << conj(m3);
     CHECK(Matrix<std::complex<int32_t>>::inside_equal(m1.conj(), m1_conj));
     CHECK(Matrix<std::complex<double>>::inside_equal(m2.conj(), m2_conj));
     //CHECK(Matrix<int32_t>::inside_equal(conj(m3), m3));
@@ -662,6 +661,7 @@ TEST_CASE("sum & avg", "[test 1]") {
              {10, 12},
              {14, 16},
              {18, 20}};
+    //cout << m4.conj();
     Matrix<int64_t> m2 = {{1, 1, 4},
                           {5, 1, 6}};
     Matrix<int_least32_t> m5 = {{2,  2, 8},
