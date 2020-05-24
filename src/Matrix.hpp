@@ -31,56 +31,7 @@
 #include <functional>
 #include <complex>
 #include <utility>
-#include <type_traits>
-
-
-#define Multiply_Result_t_Macro decltype(std::declval<T1>() * std::declval<T2>())
-
-template<typename T1, typename T2>
-constexpr bool is_same() { return std::is_same<T1, T2>::value; }
-
-template<typename T>
-struct is_complex_imp : std::false_type {
-};
-template<typename T>
-struct is_complex_imp<std::complex<T>> : std::true_type {
-};
-
-template<typename T>
-constexpr bool is_complex() {
-    return is_complex_imp<T>();
-}
-
-template<typename T1, typename T2>
-struct Multiply_Result {
-    using Type = decltype(std::declval<T1>() * std::declval<T2>());
-};
-
-template<typename T1, typename T2>
-using Multiply_Result_t = typename Multiply_Result<T1, T2>::Type;
-
-template<typename T1, typename T2>
-struct Divide_Result {
-    using Type = decltype(std::declval<T1>() / std::declval<T2>());
-};
-
-template<typename T1, typename T2>
-using Divide_Result_t = typename Divide_Result<T1, T2>::Type;
-
-template<typename T, typename = void>
-struct has_conj_imp : std::false_type {
-};
-template<typename T>
-struct has_conj_imp<T, std::void_t<decltype(std::declval<T>().conj())>> : std::true_type {
-};
-
-template<typename T>
-constexpr bool has_conj() {
-    return has_conj_imp<T>();
-}
-
-#define MY_IF0(...) typename std::enable_if<(bool)(__VA_ARGS__), int >::type
-#define MY_IF(...) MY_IF0(__VA_ARGS__) = 0
+#include "./template_helper.h"
 
 using std::vector;
 using std::endl;
@@ -252,6 +203,7 @@ public:
 
     T determinant() const;
 
+    Matrix<T> convolution(const Matrix<T> &mat, int32_t padding = 0, int32_t stride = 1) const;
 };
 
 
@@ -294,7 +246,7 @@ noexcept {
 
 template<typename T>
 Matrix<T>::Matrix(const vector<vector<T>> &vec) {
-    this->vec = vector<vector<T >>(vec);
+    this->vec = vector<vector<T>>(vec);
 }
 
 template<typename T>
@@ -470,20 +422,13 @@ Matrix<T> operator/(const Matrix<T> &mat1, const T &t2) {
  * */
 template<typename T1, typename T2>
 auto operator*(const Matrix<T1> &mat1, const T2 &t2) -> Matrix<Multiply_Result_t_Macro> {
-    vector<vector<Multiply_Result_t<T1, T2>>> temp(mat1.rows(), vector<Multiply_Result_t<T1, T2>>
-            (mat1.cols()));
+    vector<vector<Multiply_Result_t<T1, T2>>> temp(mat1.rows(), vector<Multiply_Result_t<T1, T2>>(mat1.cols()));
     for (uint32_t i = 0; i < temp.size(); ++i) {
         for (uint32_t j = 0; j < temp[i].size(); ++j) {
             temp[i][j] = mat1.get_inside(i, j) * t2;
         }
     }
-    //  Matrix<decltype(mat1.get_type() * t2)> will_return(mat1.rows(), mat1.cols());
     return Matrix<Multiply_Result_t<T1, T2>>(std::move(temp));
-    //for (int32_t i = 0; i < mat1.rows(); ++i) {
-    //    std::transform(mat1.vec[i].begin(), mat1.vec[i].end(), will_return.vec[i].begin(), func);
-    //}
-    //return Matrix<decltype(mat1.get_type() * t2)>::operator_table(mat1, [&t2](const T1 &t1) { return t1 * t2; });
-    // return Matrix<T1>::operator_table(mat1, [&t2](const T1 &t1) { return t1 * t2; });
 }
 
 /**
@@ -493,7 +438,7 @@ auto operator*(const Matrix<T1> &mat1, const T2 &t2) -> Matrix<Multiply_Result_t
  * @return: Matrix<decltype(T1*T2)> m_1,(rows is m,cols is 1)
  * */
 template<typename T1, typename T2>
-auto operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_Result_t_Macro> {
+auto operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_Result_t<T1, T2>> {
     if (mat1.cols() != t2.size()) {
         // TODO
     }
@@ -501,7 +446,7 @@ auto operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_
             (mat1.rows()));
     for (uint32_t i = 0; i < temp.size(); ++i) {
         temp[0][i] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i), t2.cbegin(),
-                                             static_cast<Multiply_Result_t<T1, T2>>(0));
+                                        static_cast<Multiply_Result_t<T1, T2>>(0));
     }
     return Matrix<Multiply_Result_t<T1, T2>>(std::move(temp));
 }
@@ -513,7 +458,7 @@ auto operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_
  * @return: Matrix<decltype(T1*T2)> 1_n,(rows is 1,cols is n)
  * */
 template<typename T1, typename T2>
-auto operator*(const vector<T1> &t1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t_Macro> {
+auto operator*(const vector<T1> &t1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t<T1, T2>> {
     if (t1.size() != mat2.rows()) {
         // TODO
     }
@@ -578,7 +523,7 @@ T Matrix<T>::dot(const Matrix<T> &mat2) {
  * @return: Matrix_(mk)_(np) decltype(T1*T2)
  * */
 template<typename T1, typename T2>
-auto kron(const Matrix<T1> &mat1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t_Macro> {
+auto kron(const Matrix<T1> &mat1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t<T1, T2>> {
     vector<vector<Multiply_Result_t<T1, T2>>> will_return(
             mat1.rows() * mat2.rows(), vector<Multiply_Result_t<T1, T2>>
                     (mat1.cols() * mat2.cols()));
@@ -602,7 +547,7 @@ auto kron(const Matrix<T1> &mat1, const Matrix<T2> &mat2) -> Matrix<Multiply_Res
  * @return: vector_1_3 decltype(T1*T2)
  * */
 template<typename T1, typename T2>
-auto cross(const vector<T1> &vec1, const vector<T2> &vec2) -> vector<Multiply_Result_t_Macro> {
+auto cross(const vector<T1> &vec1, const vector<T2> &vec2) -> vector<Multiply_Result_t<T1, T2>> {
     vector<Multiply_Result_t<T1, T2>> will_return(3);
     if (vec1.size() == 3 && vec2.size() == 3) {
         will_return[0] = vec1[1] * vec2[2] - vec1[2] * vec2[1];
@@ -708,8 +653,7 @@ T Matrix<T>::max() const {
     if (!this->is_empty()) {
         T will_return = this->vec.front().front();
         for (const auto &iter:this->vec) {
-            auto max_v = *std::max_element(std::begin(iter), std::end(iter));
-            will_return = std::max(max_v, will_return);
+            will_return = std::max(*std::max_element(std::begin(iter), std::end(iter)), will_return);
         }
         return will_return;
     }
@@ -722,8 +666,7 @@ T Matrix<T>::min() const {
     if (!this->is_empty()) {
         T will_return = this->vec.front().front();
         for (const auto &iter:this->vec) {
-            auto min_v = *std::min_element(std::begin(iter), std::end(iter));
-            will_return = std::min(min_v, will_return);
+            will_return = std::min(*std::min_element(std::begin(iter), std::end(iter)), will_return);
         }
         return will_return;
     }
@@ -746,8 +689,8 @@ T Matrix<T>::row_max(int32_t row) const {
         // TODO;
         return -1;
     }
-    return (*std::max_element(this->get_row_iter_begin(row - 1),
-                              this->get_row_iter_end(row - 1)));
+    return *std::max_element(this->get_row_iter_begin(row - 1),
+                             this->get_row_iter_end(row - 1));
 }
 
 template<typename T>
@@ -756,8 +699,8 @@ T Matrix<T>::row_min(int32_t row) const {
         // TODO;
         return -1;
     }
-    return (*std::min_element(this->get_row_iter_begin(row - 1),
-                              this->get_row_iter_end(row - 1)));
+    return *std::min_element(this->get_row_iter_begin(row - 1),
+                             this->get_row_iter_end(row - 1));
 }
 
 template<typename T>
@@ -802,6 +745,43 @@ T Matrix<T>::col_sum(int32_t col) const {
         sum += vec[i][col - 1];
     }
     return sum;
+}
+
+/**get convolution of Matrix and kernel
+ * @param1: this: Matrix: m_n T
+ * @param2: mat2: Matrix: f1_f2 T, addvise f1=f2 and they are odd.
+ * @param3: padding: int32_t the size of padding.<br> default = 0
+ * @param4: stride: int32_t the stride of each step.<br> default = 1
+ * @return: Matrix: x1_x2 T</br>
+ * <br>x1 = ⌊(m+2p-f_1)/s⌋+1</br>
+ * <br>x2 = ⌊(n+2p-f_2)/s⌋+1</br>
+ * */
+template<typename T>
+Matrix<T> Matrix<T>::convolution(const Matrix<T> &kernel, int32_t padding, int32_t stride) const {
+    if (padding <= 0 || stride <= 0
+        || this->rows() + 2 * padding > kernel.rows()
+        || this->cols() + 2 * padding > kernel.cols()) {
+        // TODO
+    }
+    //padding = std::max(padding, std::max(kernel.rows(), kernel.cols()));
+    int32_t new_row = floor((this->rows() + 2 * padding - kernel.rows()) / stride) + 1;
+    int32_t new_col = floor((this->cols() + 2 * padding - kernel.cols()) / stride) + 1;
+    vector<vector<T>> will_return(new_row, vector<T>(new_col, static_cast<T>(0)));
+    vector<vector<T>> big_vec(this->rows() + padding * 2, vector<T>(this->cols() + padding * 2, static_cast<T>(0)));
+    for (int i = padding; i < this->rows() + padding; ++i) {
+        for (int j = padding; j < this->cols() + padding; ++j) {
+            big_vec[i][j] = this->vec[i - padding][j - padding];
+        }
+    }
+    for (int k = 0; k < new_row; k++) {
+        for (int i = 0; i < new_col; i++) {
+            for (int j = 0; j < kernel.rows(); ++j) {
+                will_return[k][i] += std::inner_product(std::begin(kernel.vec[j]), std::end(kernel.vec[j]),
+                                           std::begin(big_vec[k * stride + j]) + i * stride, static_cast<T>(0));
+            }
+        }
+    }
+    return Matrix<T>(std::move(will_return));
 }
 
 

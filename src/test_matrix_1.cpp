@@ -720,3 +720,20 @@ TEST_CASE("sum & avg", "[test 1]") {
 
 }
 // TODO vector<vector<T>> test
+TEST_CASE("test for convolution", "[test 7]") {
+    Matrix<int32_t> m1 = {{1, 1, 1, 0, 0},
+                          {0, 1, 1, 1, 0},
+                          {0, 0, 1, 1, 1},
+                          {0, 0, 1, 1, 0},
+                          {0, 1, 1, 0, 0}};
+    Matrix<int32_t> m2 = {{1, 0, 1},
+                          {0, 1, 0},
+                          {1, 0, 1}};
+    cout << m1.convolution(m2);
+    cout << m1.convolution(m2,0,2);
+    cout << m1.convolution(m2,1);
+    cout << m1.convolution(m2,1,2);
+    cout << m1.convolution(m2,2);
+    cout << m1.convolution(m2,2,2);
+    cout << m1.convolution(m2,2,3);
+}
