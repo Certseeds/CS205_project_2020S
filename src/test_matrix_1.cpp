@@ -21,20 +21,21 @@
  * @Date: 2020-05-07 11:30:27 
  * @LastEditors  : nanoseeds
  */
-#include "./../../catch.hpp"
-#include "./Matrix.hpp"
+#include <complex>
 #include <iostream>
+#include <random>
 #include <string>
 #include <vector>
-#include <complex>
 
+#include "./../../catch.hpp"
+#include "./Matrix.hpp"
+
+using Catch::Matchers::Equals;
 using std::cout;
 using std::endl;
 using std::string;
-using Catch::Matchers::Equals;
 
-
-TEST_CASE("test 0", "[test1]") {
+TEST_CASE("test 0", "[test 0]") {
     auto function = [](const std::vector<int32_t> &t1,
                        const std::vector<int32_t> &t2) -> bool {
         assert(t1.size() == t2.size());
@@ -77,67 +78,111 @@ TEST_CASE("Copy Constructor", "[test 1]") {
     cout << m3;
     Matrix<uint32_t> m4 = m2;
     cout << m4;
-    CHECK(!m1.isEmpty());
-    CHECK(!m2.isEmpty());
-    CHECK(!m3.isEmpty());
-    CHECK(!m4.isEmpty());
+    CHECK(!m1.is_empty());
+    CHECK(!m2.is_empty());
+    CHECK(!m3.is_empty());
+    CHECK(!m4.is_empty());
 }
 
 TEST_CASE("Move Constructor", "[test 1]") {
     Matrix<uint32_t> m1(5, 4);
     cout << m1;
-    CHECK(!m1.isEmpty());
+    CHECK(!m1.is_empty());
     Matrix<uint32_t> m2 = std::move(m1);
     cout << m2;
-    CHECK(m1.isEmpty());
-    CHECK(!m2.isEmpty());
+    CHECK(m1.is_empty());
+    CHECK(!m2.is_empty());
     Matrix<int32_t> m3 = std::move(Matrix<int32_t>(2, 3));
     cout << m3;
-    CHECK(!m3.isEmpty());
+    CHECK(!m3.is_empty());
+}
+
+TEST_CASE("test vector<vector<T>> constructor") {
+    vector<vector<int32_t>> v1 = {{1, 2},
+                                  {3, 4},
+                                  {5, 6},
+                                  {7, 8},
+                                  {9, 10}};
+    vector<vector<int32_t>> v2 = {{1, 1, 4},
+                                  {5, 1, 4}};
+    vector<vector<int32_t>> v3 = {{1, 1, 9},
+                                  {1, 2, 0},
+                                  {1, 1, 4}};
+    vector<vector<int32_t>> v4 = {{1, 10},
+                                  {3, 4},
+                                  {5, 6},
+                                  {7, 8},
+                                  {9, 10}};
+    auto vci = v4[1].begin();
+    Matrix<int32_t> m1(v1);
+    Matrix<int32_t> m2 = Matrix<int32_t>(v2);
+    auto m3 = Matrix<int32_t>(v3);
+    auto m4((Matrix<int32_t>(v4)));
+    cout << m4;
 }
 
 TEST_CASE("Copy Assignment operator", "[test 1]") {
     Matrix<uint64_t> m1(3, 4);
     Matrix<uint64_t> m2;
-    CHECK(!m1.isEmpty());
-    CHECK(m2.isEmpty());
+    CHECK(!m1.is_empty());
+    CHECK(m2.is_empty());
     m2 = m1;
-    CHECK(!m1.isEmpty());
-    CHECK(!m2.isEmpty());
+    CHECK(!m1.is_empty());
+    CHECK(!m2.is_empty());
 }
 
 TEST_CASE("Move Assignment operator", "[test 1]") {
     Matrix<uint64_t> m1(3, 7);
     Matrix<uint64_t> m2(7, 3);
-    CHECK(!m1.isEmpty());
-    CHECK(!m2.isEmpty());
+    CHECK(!m1.is_empty());
+    CHECK(!m2.is_empty());
     m2 = std::move(m1);
-    CHECK(m1.isEmpty());
-    CHECK(!m2.isEmpty());
+    CHECK(m1.is_empty());
+    CHECK(!m2.is_empty());
 }
 
 TEST_CASE("initializer_list", "[test 1]") {
     Matrix<int64_t> m1{{1, 2, 3, 4, 54},
                        {5, 2, 3, 3, 41}};
-    CHECK(!m1.isEmpty());
+    CHECK(!m1.is_empty());
     cout << m1 << endl;
     Matrix<int64_t> m2 = {{1, 1, 4, 5, 1, 4},
                           {1, 9, 1, 9, 8, 1, 0}};
-    CHECK(m2.isEmpty());
+    CHECK(m2.is_empty());
     Matrix<int64_t> m3{};
-    CHECK(m3.isEmpty());
+    CHECK(m3.is_empty());
     cout << m3;
     Matrix<int64_t> m4 = {1, 2, 3, 4, 5};
-    CHECK(!m4.isEmpty());
+    CHECK(!m4.is_empty());
     cout << m4;
     Matrix<int64_t> m5 = {1};
-    CHECK(!m5.isEmpty());
+    CHECK(!m5.is_empty());
     cout << m5;
     // can not Matrix<int64_t> m6 = {};
 }
 
+TEST_CASE("no vectors negative", "[test 1]") {
+    Matrix<std::complex<int32_t>> m1(5, 2);
+    Matrix<int32_t> m2(4, 6);
+    Matrix<int_fast16_t> m3(1, 4);
+    Matrix<double> m4(0, -1);
+    Matrix<float> m5(-1, -1);
+    Matrix<int_least32_t> m6(-2, 9);
+    CHECK(m1.rows() >= 0);
+    CHECK(m1.cols() >= 0);
+    CHECK(m2.rows() >= 0);
+    CHECK(m2.cols() >= 0);
+    CHECK(m3.rows() >= 0);
+    CHECK(m3.cols() >= 0);
+    CHECK(m4.rows() >= 0);
+    CHECK(m4.cols() >= 0);
+    CHECK(m5.rows() >= 0);
+    CHECK(m5.cols() >= 0);
+    CHECK(m6.rows() >= 0);
+    CHECK(m6.cols() >= 0);
+}
 
-TEST_CASE("zeros and ones", "[test 1]") {
+TEST_CASE("zeros and ones", "[test 2]") {
     Matrix<int16_t> m1 = Matrix<int16_t>::zeros(3, 3);
     cout << m1;
     Matrix<int32_t> m2 = Matrix<int32_t>::ones(4, 4);
@@ -146,22 +191,22 @@ TEST_CASE("zeros and ones", "[test 1]") {
     cout << m3;
 }
 
-TEST_CASE("eye and eye_value", "[test 1]") {
+TEST_CASE("eye and eye_value", "[test 2]") {
     Matrix<int16_t> m1 = Matrix<int16_t>::eye(4);
     cout << m1;
     Matrix<int32_t> m2 = Matrix<int32_t>::eye_value(4, 4);
     cout << m2;
 }
 
-TEST_CASE("test is empty", "[test 1]") {
-    CHECK(!Matrix<int16_t>::eye(4).isEmpty());
-    CHECK(!Matrix<int32_t>::eye_value(4, 4).isEmpty());
-    CHECK(Matrix<int16_t>::zeros(0, 0).isEmpty());
-    CHECK(Matrix<int32_t>::ones(0, 0).isEmpty());
+TEST_CASE("test is empty", "[test 2]") {
+    CHECK(!Matrix<int16_t>::eye(4).is_empty());
+    CHECK(!Matrix<int32_t>::eye_value(4, 4).is_empty());
+    CHECK(Matrix<int16_t>::zeros(0, 0).is_empty());
+    CHECK(Matrix<int32_t>::ones(0, 0).is_empty());
 }
 
 // UNTODO test the equal function.
-TEST_CASE("size_equal function", "[test 1]") {
+TEST_CASE("size_equal function", "[test 2]") {
     auto m1 = Matrix<std::complex<int32_t>>::eye_value(5, 2);
     auto m2 = Matrix<int32_t>::zeros(5, 5);
     CHECK(size_equal(m1, m2));
@@ -181,7 +226,7 @@ TEST_CASE("size_equal function", "[test 1]") {
     CHECK(!size_equal(m2, empty));
 }
 
-TEST_CASE("inside_equal function", "[test 1]") {
+TEST_CASE("inside_equal function", "[test 2]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -207,7 +252,7 @@ TEST_CASE("inside_equal function", "[test 1]") {
     CHECK(!Matrix<int_fast16_t>::inside_equal(m3, m6));
 }
 // UNTODO and rows functiont
-TEST_CASE("rows function", "[test 1]") {
+TEST_CASE("rows function", "[test 2]") {
     auto m1 = Matrix<std::complex<int32_t>>::eye_value(5, 2);
     auto m2 = Matrix<int32_t>::zeros(5, 5);
     auto m3 = Matrix<int_fast16_t>::ones(3, 4);
@@ -229,7 +274,7 @@ TEST_CASE("rows function", "[test 1]") {
     CHECK(Matrix<int32_t>::ones(5, 0).rows() == 5);
 }
 // UNTODO test for cols funciton
-TEST_CASE("cols function", "[test 1]") {
+TEST_CASE("cols function", "[test 2]") {
     auto m1 = Matrix<std::complex<int32_t>>::eye_value(5, 2);
     auto m2 = Matrix<int32_t>::zeros(5, 5);
     auto m3 = Matrix<int_fast16_t>::ones(3, 4);
@@ -251,28 +296,8 @@ TEST_CASE("cols function", "[test 1]") {
     CHECK(!Matrix<int32_t>::ones(5, 0).cols());
 }
 
-TEST_CASE("no vectors negative", "[test 1]") {
-    Matrix<std::complex<int32_t>> m1(5, 2);
-    Matrix<int32_t> m2(4, 6);
-    Matrix<int_fast16_t> m3(1, 4);
-    Matrix<double> m4(0, -1);
-    Matrix<float> m5(-1, -1);
-    Matrix<int_least32_t> m6(-2, 9);
-    CHECK(m1.rows() >= 0);
-    CHECK(m1.cols() >= 0);
-    CHECK(m2.rows() >= 0);
-    CHECK(m2.cols() >= 0);
-    CHECK(m3.rows() >= 0);
-    CHECK(m3.cols() >= 0);
-    CHECK(m4.rows() >= 0);
-    CHECK(m4.cols() >= 0);
-    CHECK(m5.rows() >= 0);
-    CHECK(m5.cols() >= 0);
-    CHECK(m6.rows() >= 0);
-    CHECK(m6.cols() >= 0);
-}
 // UNTODO test transpose
-TEST_CASE("transpose", "[test 1]") {
+TEST_CASE("transpose", "[test 3]") {
     Matrix<std::complex<int32_t>> m1(5, 2);
     Matrix<int32_t> m2(4, 6);
     Matrix<int_fast16_t> m3(1, 4);
@@ -307,8 +332,33 @@ TEST_CASE("transpose", "[test 1]") {
     CHECK(m6.transpose().rows() == 0);
 }
 
+TEST_CASE("conj test", "[test 3]") {
+    Matrix<std::complex<int32_t>> m1 = {{std::complex(2, 3), std::complex(3, 5)},
+                                        {std::complex(-2, 3), std::complex(-2, -3)},
+                                        {std::complex(2, -3), std::complex(2, 3)}};
+    Matrix<std::complex<double>> m2 = {{std::complex(2.5f, -3.0f), std::complex(3.0f, 5.0f)},
+                                       {std::complex(-2.3f, 3.2f), std::complex(-2.0f, -3.0f)},
+                                       {std::complex(2.0f, -3.0f), std::complex(2.5f, 3.0f)}};
+    Matrix<std::complex<int32_t>> m1_conj = {{std::complex(2, -3), std::complex(3, -5)},
+                                             {std::complex(-2, -3), std::complex(-2, 3)},
+                                             {std::complex(2, 3), std::complex(2, -3)}};
+    Matrix<std::complex<double>> m2_conj = {{std::complex(2.5f, 3.0f), std::complex(3.0f, -5.0f)},
+                                            {std::complex(-2.3f, -3.2f), std::complex(-2.0f, 3.0f)},
+                                            {std::complex(2.0f, 3.0f), std::complex(2.5f, -3.0f)}};
+    Matrix<int32_t> m3 = {{2, 12},
+                          {6, 8},
+                          {10, 12},
+                          {14, 16},
+                          {18, 20}};
+    cout << m1.conj();
+    cout << m2.conj();
+    // do not have
+    CHECK(Matrix<std::complex<int32_t>>::inside_equal(m1.conj(), m1_conj));
+    CHECK(Matrix<std::complex<double>>::inside_equal(m2.conj(), m2_conj));
+    //CHECK(Matrix<int32_t>::inside_equal(conj(m3), m3));
+}
 // UNTODO for operator+
-TEST_CASE("operator plus", "[test 1]") {
+TEST_CASE("operator plus", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -319,8 +369,8 @@ TEST_CASE("operator plus", "[test 1]") {
                           {5, 6},
                           {7, 8},
                           {9, 10}};
-    Matrix<int32_t> m7 = {{2,  12},
-                          {6,  8},
+    Matrix<int32_t> m7 = {{2, 12},
+                          {6, 8},
                           {10, 12},
                           {14, 16},
                           {18, 20}};
@@ -328,7 +378,7 @@ TEST_CASE("operator plus", "[test 1]") {
                           {5, 1, 4}};
     Matrix<int32_t> m5 = {{1, 3, 4},
                           {5, 1, 4}};
-    Matrix<int32_t> m8 = {{2,  4, 8},
+    Matrix<int32_t> m8 = {{2, 4, 8},
                           {10, 2, 8}};
     Matrix<int_fast16_t> m3 = {{1, 1, 9},
                                {1, 2, 0},
@@ -344,7 +394,7 @@ TEST_CASE("operator plus", "[test 1]") {
     CHECK(Matrix<int_fast16_t>::inside_equal(m3 + m6, m9));
 }
 // UNTODO for operator-
-TEST_CASE("operator minus", "[test 1]") {
+TEST_CASE("operator minus", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -365,36 +415,36 @@ TEST_CASE("operator minus", "[test 1]") {
     Matrix<int32_t> m5 = {{1, 3, 4},
                           {5, 1, 4}};
     Matrix<int32_t> m8 = {{0, -2, 0},
-                          {0, 0,  0}};
+                          {0, 0, 0}};
     Matrix<int_fast16_t> m3 = {{1, 1, 9},
                                {1, 2, 0},
                                {1, 1, 4}};
     Matrix<int_fast16_t> m6 = {{1, 1, 9},
                                {1, 1, 0},
                                {2, 1, 6}};
-    Matrix<int_fast16_t> m9 = {{0,  0, 0},
-                               {0,  1, 0},
+    Matrix<int_fast16_t> m9 = {{0, 0, 0},
+                               {0, 1, 0},
                                {-1, 0, -2}};
     CHECK(Matrix<int32_t>::inside_equal(m1 - m4, m7));
     CHECK(Matrix<int32_t>::inside_equal(m2 - m5, m8));
     CHECK(Matrix<int_fast16_t>::inside_equal(m3 - m6, m9));
 }
 // UNTODO for operator* (Matrix & number)
-TEST_CASE("operator multiply_matrix_number", "[test 1]") {
+TEST_CASE("operator multiply_matrix_number", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
                           {7, 8},
                           {9, 10}};
     Matrix<int32_t> m4 =
-            {{2,  4},
-             {6,  8},
-             {10, 12},
-             {14, 16},
-             {18, 20}};
+        {{2, 4},
+         {6, 8},
+         {10, 12},
+         {14, 16},
+         {18, 20}};
     Matrix<int32_t> m2 = {{1, 1, 4},
                           {5, 1, 4}};
-    Matrix<int32_t> m5 = {{2,  2, 8},
+    Matrix<int32_t> m5 = {{2, 2, 8},
                           {10, 2, 8}};
     Matrix<int_fast16_t> m3 = {{1, 1, 9},
                                {1, 2, 0},
@@ -410,17 +460,45 @@ TEST_CASE("operator multiply_matrix_number", "[test 1]") {
     CHECK(Matrix<int_fast16_t>::inside_equal(0 * m3, m6));
     Matrix<std::complex<int32_t>> mc1 = Matrix<std::complex<int32_t>>::ones(5, 4);
     Matrix<int32_t> m10 = Matrix<int32_t>::ones(5, 4);
-    mc1 = mc1*std::complex<int32_t>(3,4);
-    auto m11 = m10*std::complex<int32_t>(3,4);
-    auto m12 = std::complex<int32_t>(3,4)*m10;
+    mc1 = mc1 * std::complex<int32_t>(3, 4);
+    auto m11 = m10 * std::complex<int32_t>(3, 4);
+    auto m12 = std::complex<int32_t>(3, 4) * m10;
     cout << mc1;
     cout << m11;
     cout << m12;
 }
 // TODO for operator* (matrix * matrix)
-
+TEST_CASE("operator multiply_matrix_matrix_same", "[test 3]") {
+    std::uniform_int_distribution<int32_t> range1(3, 6);
+    std::random_device r;
+    std::default_random_engine e1(r());
+    int32_t t1 = range1(e1);
+    int32_t t2 = range1(e1);
+    int32_t t3 = range1(e1);
+    vector<vector<int32_t>> vec1(t1, vector<int32_t>(t2));
+    vector<vector<int32_t>> vec2(t2, vector<int32_t>(t3));
+    for (auto &item : vec1) {
+        for (auto &item2 : item) {
+            item2 = range1(e1);
+        }
+    }
+    for (auto &item : vec2) {
+        for (auto &item2 : item) {
+            item2 = range1(e1);
+        }
+    }
+    cout << Matrix<int32_t>(vec1) * Matrix<int32_t>(vec2);
+    vector<int32_t> vec3 = {1, 2, 3, 4};
+    vector<int32_t> vec4 = {1, 2, 3, 4};
+    cout << std::inner_product(vec1[0].cbegin(), vec1[0].cend(), vec1[0].cbegin(), 0) << "\n";
+    vector<vector<int32_t>> vec5 = {{1, 2, 3},
+                                    {4, 5, 6}};
+    vector<vector<std::complex<int32_t>>> vec_c6 = {{std::complex<int32_t>(9, 10), std::complex<int32_t>(11, 12)},
+                                                    {std::complex<int32_t>(13, 14), std::complex<int32_t>(15, 61)}};
+    //cout << Matrix<int32_t>(vec5) * Matrix<std::complex<int32_t>>(vec_c6);
+}
 // UNTODO for operator mul
-TEST_CASE("operator mul", "[test 1]") {
+TEST_CASE("operator mul", "[test 3]") {
     Matrix<int32_t> m1 = {{1, 2},
                           {3, 4},
                           {5, 6},
@@ -431,8 +509,8 @@ TEST_CASE("operator mul", "[test 1]") {
                           {5, 6},
                           {7, 8},
                           {9, 10}};
-    Matrix<int32_t> m7 = {{1,  20},
-                          {9,  16},
+    Matrix<int32_t> m7 = {{1, 20},
+                          {9, 16},
                           {25, 36},
                           {49, 64},
                           {81, 100}};
@@ -440,7 +518,7 @@ TEST_CASE("operator mul", "[test 1]") {
                           {5, 1, 4}};
     Matrix<int32_t> m5 = {{1, 3, 4},
                           {5, 1, 4}};
-    Matrix<int32_t> m8 = {{1,  3, 16},
+    Matrix<int32_t> m8 = {{1, 3, 16},
                           {25, 1, 16}};
     Matrix<int_fast16_t> m3 = {{1, 1, 9},
                                {1, 2, 0},
@@ -455,4 +533,294 @@ TEST_CASE("operator mul", "[test 1]") {
     CHECK(Matrix<int32_t>::inside_equal(m2.mul(m5), m8));
     CHECK(Matrix<int_fast16_t>::inside_equal(m3.mul(m6), m9));
 }
+// UNTODO for operator dot
+TEST_CASE("operator dot", "[test 3]") {
+    Matrix<int32_t> m1 = {{1, 2, 3},
+                          {4, 5, 6}};
+    Matrix<int32_t> m2 = {{1, 2, 3},
+                          {4, 5, 6}};
+    cout << m1.dot(m2);
+    CHECK(m1.dot(m2) == 91);
+}
+
+TEST_CASE("Kronecker product", "[test 3]") {
+    Matrix<int32_t> m1 = {{1, 2},
+                          {3, 1}};
+    Matrix<int32_t> m2 = {{0, 3},
+                          {2, 1}};
+    Matrix<int32_t> result = {{0, 3, 0, 6},
+                              {2, 1, 4, 2},
+                              {0, 9, 0, 3},
+                              {6, 3, 2, 1}};
+    auto m3 = kron(m1, m2);
+    CHECK(Matrix<int32_t>::inside_equal(m3, result));
+    cout << m3;
+}
+
+TEST_CASE("vector * matrix", "[test 3]") {
+    Matrix<int32_t> m1 = {{0, 3, 0},
+                          {2, 1, 4}};
+    vector<int32_t> vec1 = {4, 5, 6};
+    vector<int32_t> vec2 = {4, 5};
+    vector<std::complex<int32_t>> vec3 = {std::complex<int64_t>(3, 4), std::complex<int64_t>(5, 6)};
+    vector<std::complex<int32_t>> vec4 = {std::complex<int64_t>(3, 4), std::complex<int64_t>(5, 6),
+                                          std::complex<int64_t>(7, 98)};
+    cout << m1 * vec1;
+    cout << vec2 * m1;
+    cout << m1 * vec4;
+    // decltype(std::declval<std::complex<int64_t>>() * std::declval<int64_t>()) temp2 = {1, 2};
+    cout << vec3 * m1;
+}
+
+TEST_CASE("vector cross vector", "[test 3]") {
+    vector<int32_t> vec1 = {4, 5, 6};
+    vector<std::complex<int32_t>> vec2 = {std::complex<int64_t>(3, 4), std::complex<int64_t>(5, 6),
+                                          std::complex<int64_t>(7, 98)};
+    auto vec3 = cross(vec1, vec2);
+}
+
+TEST_CASE("test for trace", "[test 5]") {
+    Matrix<int32_t> m1 = {{1, 2},
+                          {3, 1}};
+    Matrix<int32_t> m2 = {{0, 3},
+                          {2, 1}};
+    Matrix<int32_t> result = {{0, 3, 0, 6},
+                              {2, 1, 4, 2},
+                              {0, 9, 0, 3},
+                              {6, 3, 2, 1}};
+    cout << m1.trace() << "\n";
+    cout << m1.determinant() << "\n";
+    cout << m2.trace() << "\n";
+    cout << m2.determinant() << "\n";
+    cout << result.trace() << "\n";
+    cout << result.determinant() << "\n";
+}
+
+TEST_CASE("max & min", "[test 1]") {
+    Matrix<int32_t> m1 = {{1, 2},
+                          {3, 4},
+                          {5, 6},
+                          {7, 8},
+                          {9, 10}};
+    Matrix<uint32_t> m4 =
+        {{2, 4},
+         {6, 8},
+         {10, 12},
+         {14, 16},
+         {18, 20}};
+    Matrix<int64_t> m2 = {{1, 1, 4},
+                          {5, 1, 4}};
+    Matrix<int_least32_t> m5 = {{2, 2, 8},
+                                {10, 2, 8}};
+    Matrix<int_fast16_t> m3 = {{1, 1, 9},
+                               {1, 2, 5},
+                               {1, 1, 4}};
+
+    CHECK(m1.max() == 10);
+    CHECK(m1.min() == 1);
+    CHECK(m4.max() == 20);
+    CHECK(m4.min() == 2);
+    CHECK(m2.max() == 5);
+    CHECK(m2.min() == 1);
+    CHECK(m3.max() == 9);
+    CHECK(m3.min() == 1);
+    CHECK(m5.max() == 10);
+    CHECK(m5.min() == 2);
+    CHECK(m1.row_max(3) == 6);
+    CHECK(m1.row_min(2) == 3);
+    CHECK(m4.row_max(5) == 20);
+    CHECK(m4.row_min(1) == 2);
+    CHECK(m2.row_max(2) == 5);
+    CHECK(m2.row_min(0) == -1);
+    CHECK(m3.row_max(3) == 4);
+    CHECK(m3.row_min(1) == 1);
+    CHECK(m5.row_max(2) == 10);
+    CHECK(m5.row_min(1) == 2);
+    CHECK(m1.col_max(1) == 9);
+    CHECK(m1.col_min(2) == 2);
+    CHECK(m4.col_max(0) == -1);
+    CHECK(m4.col_min(2) == 4);
+    CHECK(m2.col_max(1) == 5);
+    CHECK(m2.col_min(3) == 4);
+    CHECK(m3.col_max(3) == 9);
+    CHECK(m3.col_min(1) == 1);
+    CHECK(m5.col_max(1) == 10);
+    CHECK(m5.col_min(2) == 2);
+}
+
+TEST_CASE("sum & avg", "[test 1]") {
+    Matrix<int32_t> m1 = {{1, 2},
+                          {3, 4},
+                          {5, 6},
+                          {7, 8},
+                          {9, 10}};
+    Matrix<uint32_t> m4 =
+        {{2, 4},
+         {6, 8},
+         {10, 12},
+         {14, 16},
+         {18, 20}};
+    //cout << m4.conj();
+    Matrix<int64_t> m2 = {{1, 1, 4},
+                          {5, 1, 6}};
+    Matrix<int_least32_t> m5 = {{2, 2, 8},
+                                {10, 2, 6}};
+    Matrix<int_fast16_t> m3 = {{1, 3, 9},
+                               {1, 2, 5},
+                               {1, 1, 4}};
+    CHECK(m1.sum() == 55);
+    CHECK(m1.avg() == 5.5);
+    CHECK(m4.sum() == 110);
+    CHECK(m4.avg() == 11);
+    CHECK(m2.sum() == 18);
+    CHECK(m2.avg() == 3);
+    CHECK(m3.sum() == 27);
+    CHECK(m3.avg() == 3);
+    CHECK(m5.sum() == 30);
+    CHECK(m5.avg() == 5);
+    CHECK(m1.row_sum(1) == 3);
+    CHECK(m1.row_avg(5) == 9.5);
+    CHECK(m4.row_sum(2) == 14);
+    CHECK(m4.row_avg(3) == 11);
+    CHECK(m2.row_sum(1) == 6);
+    CHECK(m2.row_avg(6) == -1);
+    CHECK(m3.row_sum(1) == 13);
+    CHECK(m3.row_avg(3) == 2);
+    CHECK(m5.row_sum(1) == 12);
+    CHECK(m5.row_avg(1) == 4);
+    CHECK(m1.col_sum(1) == 25);
+    CHECK(m1.col_avg(5) == -1);
+    CHECK(m4.col_sum(2) == 60);
+    CHECK(m4.col_avg(1) == 10);
+    CHECK(m2.col_sum(1) == 6);
+    CHECK(m2.col_avg(1) == 3);
+    CHECK(m3.col_sum(1) == 3);
+    CHECK(m3.col_avg(3) == 6);
+    CHECK(m5.col_sum(1) == 12);
+    CHECK(m5.col_avg(1) == 6);
+
+    Matrix<std::complex<int32_t>> mc1 = Matrix<std::complex<int32_t>>::ones(5, 4);
+    Matrix<double_t> m10 = Matrix<double_t>::ones(5, 4);
+    mc1 = mc1 * std::complex<int32_t>(3, 4);
+    auto m11 = m10 * std::complex<double_t>(3.5, 4.5);
+    cout << mc1;
+    cout << "sum: " << mc1.sum() << endl;
+    cout << "average: " << mc1.avg() << endl;
+    cout << "sum of row1: " << mc1.row_sum(1) << endl;
+    cout << "average of row1: " << mc1.row_avg(1) << endl;
+    cout << "sum of column1: " << mc1.col_sum(1) << endl;
+    cout << "average of column1: " << mc1.col_avg(1) << endl;
+    cout << m11;
+    cout << "sum: " << m11.sum() << endl;
+    cout << "average: " << m11.avg() << endl;
+    cout << "sum of row5: " << m11.row_sum(5) << endl;
+    cout << "average of row5: " << m11.row_avg(5) << endl;
+    cout << "sum of column4: " << m11.col_sum(4) << endl;
+    cout << "average of column4: " << m11.col_avg(4) << endl;
+}
 // TODO vector<vector<T>> test
+TEST_CASE("test for convolution", "[test 7]") {
+    Matrix<int32_t> m1 = {{1, 1, 1, 0, 0},
+                          {0, 1, 1, 1, 0},
+                          {0, 0, 1, 1, 1},
+                          {0, 0, 1, 1, 0},
+                          {0, 1, 1, 0, 0}};
+    Matrix<int32_t> m2 = {{1, 0, 1},
+                          {0, 1, 0},
+                          {1, 0, 1}};
+    cout << m1.convolution(m2);
+    cout << m1.convolution(m2, 0, 2);
+    cout << m1.convolution(m2, 1);
+    cout << m1.convolution(m2, 1, 2);
+    cout << m1.convolution(m2, 2);
+    cout << m1.convolution(m2, 2, 2);
+    cout << m1.convolution(m2, 2, 3);
+}
+TEST_CASE("test for reshape&slice", "[test 1]") {
+    Matrix<int32_t> m1 = {{1, 2},
+                          {3, 4},
+                          {5, 6},
+                          {7, 8},
+                          {9, 10},
+                          {11, 12}};
+    Matrix<uint32_t> m2 = {{2, 4, 5, 6, 7, 8},
+                           {9, 1, 3, 4, 0, 2}};
+
+    Matrix<int64_t> m3 = {{3, 4, 7},
+                          {5, 1, 6},
+                          {1, 1, 1},
+                          {9, 8, 2}};
+    Matrix<int_least32_t> m4 = {{2, 2, 8, 6},
+                                {10, 2, 6, 7},
+                                {1, 3, 9, 4}};
+    Matrix<int_fast16_t> m5 = {{1, 1, 1, 1, 1, 1},
+                               {2, 2, 2, 2, 2, 2},
+                               {3, 3, 3, 3, 3, 3},
+                               {1, 1, 1, 1, 1, 1},
+                               {2, 2, 2, 2, 2, 2},
+                               {3, 3, 3, 3, 3, 3}};
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            cout << m1.reshape(3, 4)[i][j] << " ";
+        }
+        cout << endl;
+    }
+    for (int i = 0; i < 4 - 1 + 1; i++) {
+        for (int j = 0; j < 3 - 3 + 1; j++) {
+            cout << m1.slice(1, 3, 4, 3)[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 3; j++) {
+            cout << m2.reshape(4, 3)[i][j] << " ";
+        }
+        cout << endl;
+    }
+    for (int i = 0; i < 2 - 1 + 1; i++) {
+        for (int j = 0; j < 6 - 2 + 1; j++) {
+            cout << m2.slice(1, 2, 2, 6)[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 6; j++) {
+            cout << m3.reshape(2, 6)[i][j] << " ";
+        }
+        cout << endl;
+    }
+    for (int i = 0; i < 2 - 1 + 1; i++) {
+        for (int j = 0; j < 2 - 1 + 1; j++) {
+            cout << m3.slice(1, 1, 2, 2)[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 2; j++) {
+            cout << m4.reshape(6, 2)[i][j] << " ";
+        }
+        cout << endl;
+    }
+    for (int i = 0; i < 3 - 1 + 1; i++) {
+        for (int j = 0; j < 4 - 2 + 1; j++) {
+            cout << m4.slice(1, 2, 3, 4)[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 4; j++) {
+            cout << m5.reshape(9, 4)[i][j] << " ";
+        }
+        cout << endl;
+    }
+    for (int i = 0; i < 4 - 2 + 1; i++) {
+        for (int j = 0; j < 5 - 3 + 1; j++) {
+            cout << m5.slice(2, 3, 4, 5)[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
