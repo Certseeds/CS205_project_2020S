@@ -21,19 +21,21 @@
  * @Date: 2020-05-07 11:30:27 
  * @LastEditors  : nanoseeds
  */
-#include "./../../catch.hpp"
-#include "./Matrix.hpp"
+#include <complex>
 #include <iostream>
+#include <random>
 #include <string>
 #include <vector>
 #include <complex>
 #include <random>
 
+#include "./../../catch.hpp"
+#include "./Matrix.hpp"
+
+using Catch::Matchers::Equals;
 using std::cout;
 using std::endl;
 using std::string;
-using Catch::Matchers::Equals;
-
 
 TEST_CASE("test 0", "[test 0]") {
     auto function = [](const std::vector<int32_t> &t1,
@@ -717,7 +719,6 @@ TEST_CASE("sum & avg", "[test 1]") {
     cout << "average of row5: " << m11.row_avg(5) << endl;
     cout << "sum of column4: " << m11.col_sum(4) << endl;
     cout << "average of column4: " << m11.col_avg(4) << endl;
-
 }
 // TODO vector<vector<T>> test
 TEST_CASE("test for convolution", "[test 7]") {
@@ -730,10 +731,45 @@ TEST_CASE("test for convolution", "[test 7]") {
                           {0, 1, 0},
                           {1, 0, 1}};
     cout << m1.convolution(m2);
-    cout << m1.convolution(m2,0,2);
-    cout << m1.convolution(m2,1);
-    cout << m1.convolution(m2,1,2);
-    cout << m1.convolution(m2,2);
-    cout << m1.convolution(m2,2,2);
-    cout << m1.convolution(m2,2,3);
+    cout << m1.convolution(m2, 0, 2);
+    cout << m1.convolution(m2, 1);
+    cout << m1.convolution(m2, 1, 2);
+    cout << m1.convolution(m2, 2);
+    cout << m1.convolution(m2, 2, 2);
+    cout << m1.convolution(m2, 2, 3);
+}
+
+TEST_CASE("test for reshape&slice", "[test 1]") {
+    Matrix<int32_t> m1 = {{1,  2},
+                          {3,  4},
+                          {5,  6},
+                          {7,  8},
+                          {9,  10},
+                          {11, 12}};
+    Matrix<uint32_t> m2 = {{2, 4, 5, 6, 7, 8},
+                           {9, 1, 3, 4, 0, 2}};
+
+    Matrix<int64_t> m3 = {{3, 4, 7},
+                          {5, 1, 6},
+                          {1, 1, 1},
+                          {9, 8, 2}};
+    Matrix<int_least32_t> m4 = {{2,  2, 8, 6},
+                                {10, 2, 6, 7},
+                                {1,  3, 9, 4}};
+    Matrix<int_fast16_t> m5 = {{1, 1, 1, 1, 1, 1},
+                               {2, 2, 2, 2, 2, 2},
+                               {3, 3, 3, 3, 3, 3},
+                               {1, 1, 1, 1, 1, 1},
+                               {2, 2, 2, 2, 2, 2},
+                               {3, 3, 3, 3, 3, 3}};
+    cout << m1.reshape(3, 4);
+    cout << m1.slice(1, 3, 4, 3);
+    cout << m2.reshape(4, 3);
+    cout << m2.slice(1, 2, 2, 6);
+    cout << m3.reshape(2, 6);
+    cout << m3.slice(1, 2, 1, 2);
+    cout << m4.reshape(6, 2);
+    cout << m4.slice(1, 2, 3, 4);
+    cout << m5.reshape(9, 4);
+    cout << m5.slice(2, 3, 4, 5);
 }

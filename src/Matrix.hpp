@@ -24,17 +24,18 @@
 #ifndef CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
 #define CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
 
-#include <vector>
-#include <cstdint>
-#include <numeric>
 #include <algorithm>
-#include <functional>
 #include <complex>
+#include <cstdint>
+#include <functional>
+#include <numeric>
 #include <utility>
+#include <vector>
+
 #include "./template_helper.h"
 
-using std::vector;
 using std::endl;
+using std::vector;
 
 /** @related: get from https://blog.csdn.net/qq_31175231/article/details/77479692
  */
@@ -43,25 +44,24 @@ template<typename T>
 class Matrix {
 private:
     vector<vector<T>> vec;
-public:
 
-//explicit Matrix() { this->vec = vector<vector<T>>(1, vector<T>(1)); };
+public:
+    //explicit Matrix() { this->vec = vector<vector<T>>(1, vector<T>(1)); };
     explicit Matrix() : Matrix(0, 0) {};
 
     explicit Matrix(int32_t rows, int32_t cols);
 
-// 拷贝构造函数 Copy Constructor
+    // 拷贝构造函数 Copy Constructor
     Matrix(const Matrix<T> &mat);
 
-// 移动构造函数
+    // 移动构造函数
     Matrix(Matrix<T> &&mat) noexcept;
 
-// 拷贝赋值运算符 Copy Assignment operator
+    // 拷贝赋值运算符 Copy Assignment operator
     Matrix<T> &operator=(const Matrix<T> &mat);
 
-// 移动赋值运算符 Move Assignment operator
-    Matrix<T> &operator=(Matrix<T> &&mat)
-    noexcept;
+    // 移动赋值运算符 Move Assignment operator
+    Matrix<T> &operator=(Matrix<T> &&mat) noexcept;
 
     Matrix<T>(const vector<vector<T>> &vec);
 
@@ -69,7 +69,7 @@ public:
 
     Matrix<T>(const std::initializer_list<std::initializer_list<T>> &list);
 
-// only for
+    // only for
     Matrix<T>(const std::initializer_list<T> &list);
 
     inline T get_inside(int32_t rows, int32_t cols) const;
@@ -87,8 +87,8 @@ public:
     static bool inside_equal(const Matrix<T> &mat1, const Matrix<T> &mat2);
 
     friend std::ostream &operator<<(std::ostream &output, const Matrix<T> &mat) {
-        for (const auto &i: mat.vec) {
-            for (const auto &j:i) {
+        for (const auto &i : mat.vec) {
+            for (const auto &j : i) {
                 output << j << " ";
             }
             output << endl;
@@ -118,7 +118,6 @@ public:
     typename vector<T>::const_iterator get_row_iter_begin(int32_t rows) const;
 
     typename vector<T>::const_iterator get_row_iter_end(int32_t rows) const;
-
 
     /**@related: https://stackoverflow.com/questions/30736951/templated-class-check-if-complex-at-compile-time
      * */
@@ -162,7 +161,7 @@ public:
             return -1;
         }
         return this->row_sum(row) / static_cast<double_t>(this->cols());
-//        return 1;
+        //        return 1;
     }
 
     template<typename T1 = T, MY_IF(is_complex<T1>())>
@@ -194,7 +193,7 @@ public:
         return T1{sums.real() / size, sums.imag() / size};
     }
 
-// Matrix_n_m, Matrix_n_m, result is Matrix_N_M
+    // Matrix_n_m, Matrix_n_m, result is Matrix_N_M
     Matrix<T> mul(const Matrix<T> &mat2);
 
     T dot(const Matrix<T> &mat2);
@@ -204,42 +203,41 @@ public:
     T determinant() const;
 
     Matrix<T> convolution(const Matrix<T> &mat, int32_t padding = 0, int32_t stride = 1) const;
-};
 
+    Matrix<T> reshape(int32_t row, int32_t col) const;  //重整
+    Matrix<T> slice(int32_t row1, int32_t row2) const;  //切片
+    Matrix<T> slice(int32_t row1, int32_t row2, int32_t col1, int32_t col2) const;  //切片
+};
 
 template<typename T>
 Matrix<T>::Matrix(const Matrix &mat) {
-    this->vec = vector<vector<T >>(mat.vec);
+    this->vec = vector<vector<T>>(mat.vec);
 }
 
 template<typename T>
 Matrix<T>::Matrix(int32_t rows, int32_t cols) {
     rows = rows > 0 ? rows : 0;
     cols = cols > 0 ? cols : 0;
-    this->vec = vector<vector<T >>(rows, vector<T>(cols));
+    this->vec = vector<vector<T>>(rows, vector<T>(cols));
 }
 
 template<typename T>
-Matrix<T>::Matrix(Matrix &&mat)
-noexcept {
-    this->
-            vec = std::move(mat.vec);
+Matrix<T>::Matrix(Matrix &&mat) noexcept {
+    this->vec = std::move(mat.vec);
 }
 
 template<typename T>
 Matrix<T> &Matrix<T>::operator=(const Matrix<T> &mat) {
     if (this != &mat) {
-        this->vec = vector<vector<T >>(mat.vec);
+        this->vec = vector<vector<T>>(mat.vec);
     }
     return *this;
 }
 
 template<typename T>
-Matrix<T> &Matrix<T>::operator=(Matrix &&mat)
-noexcept {
+Matrix<T> &Matrix<T>::operator=(Matrix &&mat) noexcept {
     if (this != &mat) {
-        this->
-                vec = std::move(mat.vec);
+        this->vec = std::move(mat.vec);
     }
     return *this;
 }
@@ -256,21 +254,21 @@ Matrix<T>::Matrix(vector<vector<T>> &&vec) {
 
 template<typename T>
 Matrix<T>::Matrix(const std::initializer_list<T> &list) {
-    this->vec = vector<vector<T >>(1);
+    this->vec = vector<vector<T>>(1);
     this->vec[0] = list;
 }
 
 template<typename T>
 Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>> &list) {
-    this->vec = vector<vector<T >>(0);
+    this->vec = vector<vector<T>>(0);
     for (auto i = list.begin(); i < list.end() - 1; i++) {
         if ((*i).size() != (*(i + 1)).size()) {
             return;
         }
     }
-    this->vec = vector<vector<T >>(list.size());
+    this->vec = vector<vector<T>>(list.size());
     uint32_t row = 0;
-    for (const auto &i:list) {
+    for (const auto &i : list) {
         this->vec[row++] = i;
     }
 }
@@ -314,7 +312,7 @@ Matrix<T> Matrix<T>::ones(int32_t rows, int32_t cols) {
 template<typename T>
 Matrix<T> Matrix<T>::values(int32_t rows, int32_t cols, T t) {
     Matrix<T> will_return(rows, cols);
-    for (auto &i:will_return.vec) {
+    for (auto &i : will_return.vec) {
         i = vector<T>(cols, t);
     }
     return will_return;
@@ -373,7 +371,6 @@ inline int32_t Matrix<T>::cols() const {
     }
     return this->vec.front().size();
 }
-
 
 template<typename T>
 Matrix<T> Matrix<T>::transpose() const {
@@ -442,8 +439,7 @@ auto operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_
     if (mat1.cols() != t2.size()) {
         // TODO
     }
-    vector<vector<Multiply_Result_t<T1, T2>>> temp(1, vector<Multiply_Result_t<T1, T2>>
-            (mat1.rows()));
+    vector<vector<Multiply_Result_t<T1, T2>>> temp(1, vector<Multiply_Result_t<T1, T2>>(mat1.rows()));
     for (uint32_t i = 0; i < temp.size(); ++i) {
         temp[0][i] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i), t2.cbegin(),
                                         static_cast<Multiply_Result_t<T1, T2>>(0));
@@ -485,7 +481,7 @@ Matrix<T> operator*(const Matrix<T> &mat1, const Matrix<T> &mat2) {
         // TODO
     }
     Matrix<T> temp = mat2.transpose();
-    vector<vector<T >> will_return(mat1.rows(), vector<T>(mat2.cols()));
+    vector<vector<T>> will_return(mat1.rows(), vector<T>(mat2.cols()));
     for (int32_t i = 0; i < mat1.rows(); ++i) {
         for (int32_t j = 0; j < mat2.cols(); ++j) {
             will_return[i][j] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i),
@@ -525,8 +521,7 @@ T Matrix<T>::dot(const Matrix<T> &mat2) {
 template<typename T1, typename T2>
 auto kron(const Matrix<T1> &mat1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t<T1, T2>> {
     vector<vector<Multiply_Result_t<T1, T2>>> will_return(
-            mat1.rows() * mat2.rows(), vector<Multiply_Result_t<T1, T2>>
-                    (mat1.cols() * mat2.cols()));
+            mat1.rows() * mat2.rows(), vector<Multiply_Result_t<T1, T2>>(mat1.cols() * mat2.cols()));
     for (int32_t i = 0; i < mat1.rows(); ++i) {
         for (int32_t j = 0; j < mat1.cols(); ++j) {
             for (int32_t k = 0; k < mat2.rows(); ++k) {
@@ -564,9 +559,7 @@ auto cross(const vector<T1> &vec1, const vector<T2> &vec2) -> vector<Multiply_Re
  */
 template<typename T1, typename T2>
 bool size_equal(const Matrix<T1> &mat1, const Matrix<T2> &mat2) {
-    return !mat1.is_empty() && !mat2.is_empty()  \
- && mat1.rows() == mat2.rows() \
- && mat1.cols() == mat2.cols();
+    return !mat1.is_empty() && !mat2.is_empty() && mat1.rows() == mat2.rows() && mat1.cols() == mat2.cols();
 }
 
 /** judge is equal
@@ -604,7 +597,7 @@ T determinant_in(const vector<vector<T>> &matrix) {
         return matrix.front().front();
     }
     uint32_t size_m = matrix.size();
-    vector<vector<T >> submatrix(size_m - 1, vector<T>(size_m - 1, static_cast<T>(0)));
+    vector<vector<T>> submatrix(size_m - 1, vector<T>(size_m - 1, static_cast<T>(0)));
     T will_return(0);
     for (uint32_t i = 0; i < size_m; ++i) {
         for (uint32_t j = 0; j < size_m - 1; ++j) {
@@ -630,19 +623,19 @@ T Matrix<T>::determinant() const {
 template<typename T>
 Matrix<T> Matrix<T>::conj() const {
     vector<vector<T>> vvc(this->rows(), vector<T>(this->cols()));
-    if constexpr(is_complex<T>()) {
+    if constexpr (is_complex<T>()) {
         for (int32_t i = 0; i < this->rows(); ++i) {
             for (int32_t j = 0; j < this->cols(); ++j) {
                 vvc[i][j] = std::conj(this->vec[i][j]);
             }
         }
-    } else if constexpr(has_conj<T>()) {
+    } else if constexpr (has_conj<T>()) {
         for (int32_t i = 0; i < this->rows(); ++i) {
             for (int32_t j = 0; j < this->cols(); ++j) {
                 vvc[i][j] = this->vec[i][j].conj();
             }
         }
-    } else if constexpr(!is_complex<T>() && !has_conj<T>()) {
+    } else if constexpr (!is_complex<T>() && !has_conj<T>()) {
         vvc = this->vec;
     }
     return Matrix<T>(std::move(vvc));
@@ -652,7 +645,7 @@ template<typename T>
 T Matrix<T>::max() const {
     if (!this->is_empty()) {
         T will_return = this->vec.front().front();
-        for (const auto &iter:this->vec) {
+        for (const auto &iter : this->vec) {
             will_return = std::max(*std::max_element(std::begin(iter), std::end(iter)), will_return);
         }
         return will_return;
@@ -665,7 +658,7 @@ template<typename T>
 T Matrix<T>::min() const {
     if (!this->is_empty()) {
         T will_return = this->vec.front().front();
-        for (const auto &iter:this->vec) {
+        for (const auto &iter : this->vec) {
             will_return = std::min(*std::min_element(std::begin(iter), std::end(iter)), will_return);
         }
         return will_return;
@@ -758,9 +751,8 @@ T Matrix<T>::col_sum(int32_t col) const {
  * */
 template<typename T>
 Matrix<T> Matrix<T>::convolution(const Matrix<T> &kernel, int32_t padding, int32_t stride) const {
-    if (padding <= 0 || stride <= 0
-        || this->rows() + 2 * padding > kernel.rows()
-        || this->cols() + 2 * padding > kernel.cols()) {
+    if (padding <= 0 || stride <= 0 || this->rows() + 2 * padding > kernel.rows() ||
+        this->cols() + 2 * padding > kernel.cols()) {
         // TODO
     }
     //padding = std::max(padding, std::max(kernel.rows(), kernel.cols()));
@@ -777,12 +769,53 @@ Matrix<T> Matrix<T>::convolution(const Matrix<T> &kernel, int32_t padding, int32
         for (int i = 0; i < new_col; i++) {
             for (int j = 0; j < kernel.rows(); ++j) {
                 will_return[k][i] += std::inner_product(std::begin(kernel.vec[j]), std::end(kernel.vec[j]),
-                                           std::begin(big_vec[k * stride + j]) + i * stride, static_cast<T>(0));
+                                                        std::begin(big_vec[k * stride + j]) + i * stride,
+                                                        static_cast<T>(0));
             }
         }
     }
     return Matrix<T>(std::move(will_return));
 }
 
+template<typename T>
+Matrix<T> Matrix<T>::reshape(int32_t row, int32_t col) const {
+    int32_t col_num = this->cols();
+    int32_t num = this->rows() * col_num;
+    if (row * col != num || num <= 0) {
+        // TODO, there should be error
+        return Matrix<T>(*this);
+    }
+    vector<vector<T>> res(row, vector<T>(col, static_cast<T>(0)));
+    for (int i = 0; i < num; i++) {
+        res[i / col][i % col] = this->get_inside(i / this->cols(), i % col_num);
+    }
+    return Matrix<T>(std::move(res));
+}
 
-#endif //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
+template<typename T>
+Matrix<T> Matrix<T>::slice(int32_t row1, int32_t row2) const {
+    if (row1 < 0 || row2 >= this->rows()) {
+        return Matrix<T>(*this);
+    }
+    vector<vector<T>> will_return(row2 - row1 + 1, vector<T>(this->cols(), static_cast<T>(0)));
+    for (int i = row1; i < row2; i++) {
+        will_return[i - row1] = this->vec[i];
+    }
+    return Matrix<T>(std::move(will_return));
+}
+
+template<typename T>
+Matrix<T> Matrix<T>::slice(int32_t row1, int32_t row2, int32_t col1, int32_t col2) const {
+    if (row1 < 0 || row2 >= this->rows() || col1 < 0 || col2 >= this->cols() || row1 > row2 || col1 > col2) {
+        return Matrix<T>(*this);
+    }
+    vector<vector<T>> will_return(row2 - row1 + 1, vector<T>(col2 - col1 + 1, 0));
+    for (int i = row1; i < row2; i++) {
+        for (int j = col1; j < col2; j++) {
+            will_return[i - row1][j - col1] = vec[i][j];
+        }
+    }
+    return Matrix<T>(std::move(will_return));
+}
+
+#endif  //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
