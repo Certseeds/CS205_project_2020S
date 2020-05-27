@@ -801,6 +801,77 @@ vector<vector<int>> Matrix<T>::reshape(uint32_t row, uint32_t col) const {
     return res;
 }
 
+template<typename T>
+T Matrix<T>::col_sum(int32_t col) const {
+    if (col <= 0 || col > vec[0].size()) {
+        return -1;
+    }
+    T sum(0);
+    for (int32_t i = 0; i < this->rows(); ++i) {
+        sum += vec[i][col - 1];
+    }
+    return sum;
+}
+
+/**get convolution of Matrix and kernel
+ * @param1: this: Matrix: m_n T
+ * @param2: mat2: Matrix: f1_f2 T, addvise f1=f2 and they are odd.
+ * @param3: padding: int32_t the size of padding.<br> default = 0
+ * @param4: stride: int32_t the stride of each step.<br> default = 1
+ * @return: Matrix: x1_x2 T</br>
+ * <br>x1 = ⌊(m+2p-f_1)/s⌋+1</br>
+ * <br>x2 = ⌊(n+2p-f_2)/s⌋+1</br>
+ * */
+template<typename T>
+Matrix<T> Matrix<T>::convolution(const Matrix<T> &kernel, int32_t padding, int32_t stride) const {
+    if (padding <= 0 || stride <= 0
+        || this->rows() + 2 * padding > kernel.rows()
+        || this->cols() + 2 * padding > kernel.cols()) {
+        // TODO
+    }
+    //padding = std::max(padding, std::max(kernel.rows(), kernel.cols()));
+    int32_t new_row = floor((this->rows() + 2 * padding - kernel.rows()) / stride) + 1;
+    int32_t new_col = floor((this->cols() + 2 * padding - kernel.cols()) / stride) + 1;
+    vector<vector<T>> will_return(new_row, vector<T>(new_col, static_cast<T>(0)));
+    vector<vector<T>> big_vec(this->rows() + padding * 2, vector<T>(this->cols() + padding * 2, static_cast<T>(0)));
+    for (int i = padding; i < this->rows() + padding; ++i) {
+        for (int j = padding; j < this->cols() + padding; ++j) {
+            big_vec[i][j] = this->vec[i - padding][j - padding];
+        }
+    }
+    for (int k = 0; k < new_row; k++) {
+        for (int i = 0; i < new_col; i++) {
+            for (int j = 0; j < kernel.rows(); ++j) {
+                will_return[k][i] += std::inner_product(std::begin(kernel.vec[j]), std::end(kernel.vec[j]),
+                                           std::begin(big_vec[k * stride + j]) + i * stride, static_cast<T>(0));
+            }
+        }
+    }
+    return Matrix<T>(std::move(will_return));
+}
+vector<vector<int>> Matrix<T>::reshape(uint32_t row, uint32_t col) const{
+    int num = vec.size()*vec[0].size();
+    if(row*col != num||num<=0)
+        return -1;
+    vector<vector<int>> res(row,vector<int>(col,0));
+    for(int i = 0;i<num;i++){
+        res[i/col][i%col] = vec[i/vec[0].size()][i%vec[0].size()];
+    }
+    return res;
+}
+vector<vector<int>> Matrix<T>::slice(uint32_t row1,uint32_t col1, uint32_t row2,uint32_t col2) const{
+    int r=row2-row1+1;
+    int c=col2-col1+1;
+    if(r<1||c<1||row1<=0||col1<=0||row2>vec.size()||col2>vec[0].size())
+        return -1;
+    vector<vector<int>> res(r,vector<int>(c,0));
+    for(int i=0;i<r;i++){
+        for(int j=0;j<c;j++){
+            res[i][j]=vec[i+row1-1][j+col1-1];
+        }
+    }
+    return res;
+}
 
 template<typename T>
 vector<vector<int>> Matrix<T>::slice(uint32_t row1, uint32_t col1, uint32_t row2, uint32_t col2) const {
