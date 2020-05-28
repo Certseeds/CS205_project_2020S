@@ -26,7 +26,7 @@
 
 #include <type_traits>
 
-#define Multiply_Result_t_Macro decltype(std::declval<T1>() * std::declval<T2>())
+// #define Multiply_Result_t_Macro decltype(std::declval<T1>() * std::declval<T2>())
 
 template<typename T1, typename T2>
 constexpr bool is_same() { return std::is_same<T1, T2>::value; }

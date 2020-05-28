@@ -11,16 +11,18 @@ message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 
+include_directories(
+        ${PROJECT_SOURCE_DIR}
+        /usr/local/include/opencv2
+)
+
 add_executable(${PROJECT_NAME}
         ./../../catch_main.cpp
         ./test_matrix_1.cpp
         ./Matrix.hpp
         )
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
-include_directories(
-        ${PROJECT_SOURCE_DIR}
-        /usr/local/include/opencv2
-)
 add_executable(${PROJECT_NAME}_test_opencv ./opencv_matrix.cpp)
 target_link_libraries(${PROJECT_NAME}_test_opencv ${OpenCV_LIBS})
 #include_directories(${OpenCV_INCLUDE_DIRS})

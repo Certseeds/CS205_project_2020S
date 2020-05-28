@@ -32,6 +32,7 @@
 #include "./../../catch.hpp"
 #include "./Matrix.hpp"
 
+using namespace Mat_pro;
 using Catch::Matchers::Equals;
 using std::cout;
 using std::endl;
@@ -739,7 +740,7 @@ TEST_CASE("test for convolution", "[test 7]") {
     cout << m1.convolution(m2, 2, 3);
 }
 
-TEST_CASE("test for reshape&slice", "[test 1]") {
+TEST_CASE("test for reshape&slice", "[test 6]") {
     Matrix<int32_t> m1 = {{1,  2},
                           {3,  4},
                           {5,  6},
@@ -763,13 +764,25 @@ TEST_CASE("test for reshape&slice", "[test 1]") {
                                {2, 2, 2, 2, 2, 2},
                                {3, 3, 3, 3, 3, 3}};
     cout << m1.reshape(3, 4);
+    cout << m1.slice(1, 3);
     cout << m1.slice(1, 3, 4, 3);
     cout << m2.reshape(4, 3);
+    cout << m2.slice(1, 2);
     cout << m2.slice(1, 2, 2, 6);
     cout << m3.reshape(2, 6);
+    cout << m3.slice(1, 2);
     cout << m3.slice(1, 2, 1, 2);
     cout << m4.reshape(6, 2);
+    cout << m4.slice(1, 2);
     cout << m4.slice(1, 2, 3, 4);
     cout << m5.reshape(9, 4);
+    cout << m5.slice(2, 3);
     cout << m5.slice(2, 3, 4, 5);
+}
+
+TEST_CASE("test for cv_matrix", "[test 8]") {
+    auto type = cv_to_mat<int>(Mat::ones(2, 3, 0));
+    cout << cv_to_mat<int>(Mat::zeros(2, 3, 1));
+    cout << cv_to_mat<int>(Mat::zeros(2, 3, CV_8SC2));
+    cout << CV_8SC2;
 }

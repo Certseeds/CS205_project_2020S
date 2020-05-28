@@ -25,6 +25,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/eigen.hpp>
 
 using namespace std;
 using namespace cv;
@@ -35,9 +36,9 @@ int main() {
     cout << temp.imag() << endl;
     Mat mat1 = Mat(3, 4, CV_8U);
     Mat mat2 = Mat(3, 4, CV_8U);
-    Mat mat3 = Mat().zeros(3, 4, CV_8U);
-    Mat mat4 = Mat().ones(3, 4, CV_8U);
-    Mat mat5 = Mat().ones(3, 5, CV_8UC(2));
+    Mat mat3 = Mat::zeros(3, 4, CV_8U);
+    Mat mat4 = Mat::ones(3, 4, CV_8U);
+    Mat mat5 = Mat::ones(3, 5, CV_8UC(2));
     cout << mat1 << endl;
     cout << mat2 << endl;
     cout << mat3 << endl;
@@ -48,5 +49,8 @@ int main() {
     double temp3 = 3.0f;
     cout << std::complex<double>(2.0f, 3.0f) / temp3 << "\n";
     cout << std::complex<int32_t>(2, 3) * 3 << "\n";
+    cout << mat1.type() << "\n";
+    cout << mat5.type() << "\n";
+    cout << mat5.depth();
     return 0;
 }
