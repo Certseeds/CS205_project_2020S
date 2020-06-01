@@ -102,6 +102,7 @@ namespace Mat_pro {
             return output;
         }
 
+
         [[nodiscard]] inline int32_t rows() const;
 
         [[nodiscard]] inline int32_t cols() const;
@@ -828,17 +829,64 @@ namespace Mat_pro {
 
     template<typename T>
     Matrix<T> cv_to_mat(const Mat &m) {
-        // TODO
-        if (m.channels() == 1) {
-            vector<vector<T>> will_return(m.rows, vector<T>(m.cols));
-            for (auto i = m.begin<T>(); i != m.end<T>(); ++i) {
-
+        vector<vector<T>> will_return(m.rows, vector<T>(m.cols * m.channels()));
+        for (int i = 0; i < m.rows; ++i) {
+            auto temp_head = m.ptr(i);
+            for (int j = 0; j < m.cols * m.channels(); ++j) {
+                switch (m.type() % 8) {
+                    case 5: {
+                        will_return[i][j] = *(float *) (temp_head + j * m.elemSize1());
+                        break;
+                    }
+                    case 6: {
+                        will_return[i][j] = *(double *) (temp_head + j * m.elemSize1());
+                        break;
+                    }
+                    default: {
+                        will_return[i][j] = temp_head[j * m.elemSize1()];
+                        break;
+                    }
+                }
             }
-        } else {
-            vector<vector<valarray<T>>> will_return(m.rows, vector<valarray<T>>(m.cols, valarray<T>(m.channels())));
         }
-        return Matrix<T>();
+        return Matrix<T>(std::move(will_return));
     }
 
+    template<typename T, MY_IF(
+            is_same<T, uint8_t>()
+            || is_same<T, int8_t>()
+            || is_same<T, uint16_t>()
+            || is_same<T, int16_t>()
+            || is_same<T, int32_t>()
+            || is_same<T, float>()
+            || is_same<T, double>())>
+    Mat mat_to_cv(const Matrix<T> &matrix, int32_t demen) {
+        int type = 7;
+        if constexpr(is_same<T, uint8_t>()) {
+            type = 0;
+        } else if constexpr(is_same<T, int8_t>()) {
+            type = 1;
+        } else if constexpr(is_same<T, uint16_t>()) {
+            type = 2;
+        } else if constexpr(is_same<T, int16_t>()) {
+            type = 3;
+        } else if constexpr(is_same<T, int32_t>()) {
+            type = 4;
+        } else if constexpr(is_same<T, float>()) {
+            type = 5;
+        } else if constexpr(is_same<T, double>()) {
+            type = 6;
+        }
+        if (matrix.cols() % demen != 0){
+            // TODO
+        }
+        Mat will_return(matrix.rows(), matrix.cols() / demen, type + (demen - 1) * 8);
+        for (int i = 0; i < matrix.rows(); ++i) {
+            for (int j = 0; j < matrix.cols(); ++j) {
+                will_return.at<T>(i, j) = matrix.get_inside(i, j);
+            }
+        }
+        return will_return;
+    }
 }
 #endif  //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
