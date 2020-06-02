@@ -802,10 +802,6 @@ TEST_CASE("test for cv_matrix", "[test 8]") {
     cout << temp4 << endl;
     cout << cv_to_mat<float>(temp4);
 
-
-    int temp_dou = sizeof(double_t);
-    int temp_int32 = sizeof(int32_t);
-
     Mat temp5 = Mat::ones(6, 7, CV_64FC4);
     full_random<double_t>(temp5);
     cout << temp5 << endl;
@@ -869,3 +865,80 @@ void full_random(Mat &temp) {
         }
     }
 }
+
+TEST_CASE("eigenvalue", "[test 5]") {
+    double_t *eigenvalues;
+    Matrix<int32_t> m3 = {{5, -3, 2},
+                          {6, -4, 4},
+                          {4, -4, 5}};
+    eigenvalues = m3.eigenvalue();
+
+    cout << m3.Hessenberg().Givens(1, 1, 2);
+
+    cout << "eigenvalues of m3: \n";
+    for (int i = 0; i < 3; ++i) {
+        cout << eigenvalues[i] << " ";
+    }
+    cout << endl;
+
+    Matrix<int32_t> m1 = {{1, 1, 1, 1},
+                          {1, 1, 1, 1},
+                          {1, 1, 1, 1},
+                          {1, 1, 1, 1}};
+    cout << "Hessenberg of m1: \n";
+    cout << m1.Hessenberg();
+    cout << "eigenvalues of m1: \n";
+    eigenvalues = m1.eigenvalue();
+    for (int i = 0; i < 4; ++i) {
+        cout << eigenvalues[i] << " ";
+    }
+    cout << endl;
+    cout << "m1's eigenvector:\n";
+
+
+    Matrix<int32_t> m2 = {{9, 3, 5},
+                          {2, 6, 7},
+                          {4, 8, 1}};
+    cout << endl << m2.Householder(1, 2);
+    cout << m2.Hessenberg();
+    cout << "eigenvalues of m2: \n";
+    eigenvalues = m2.eigenvalue();
+    for (int j = 0; j < 3; ++j) {
+        cout << eigenvalues[j] << " ";
+    }
+    delete[] eigenvalues;
+}
+
+TEST_CASE("eigenvector", "[test 5]") {
+    Matrix<int32_t> m1 = {{2, 1},
+                          {1, 2}};
+
+    Matrix<int32_t> m2 = {{-2, 1, 1},
+                          {0,  2, 0},
+                          {-4, 1, 3}};
+    Matrix<int32_t> m3 = {{1, 1, 1, 1},
+                          {1, 1, 1, 1},
+                          {1, 1, 1, 1},
+                          {1, 1, 1, 1}};
+    double_t *eigenvalues;
+    eigenvalues = m1.eigenvalue();
+    cout << "m1's eigenvalues:" << endl;
+    for (int j = 0; j < 2; ++j) {
+        cout << eigenvalues[j] << " ";
+    }
+    cout << endl << "m1's eigenvectors:" << endl << m1.eigenvector();
+    eigenvalues = m2.eigenvalue();
+    cout << "m2's eigenvalues:" << endl;
+    for (int j = 0; j < 3; ++j) {
+        cout << eigenvalues[j] << " ";
+    }
+    cout << endl << "m2's eigenvectors:" << endl << m2.eigenvector();
+    eigenvalues = m3.eigenvalue();
+    cout << "m3's eigenvalues:" << endl;
+    for (int j = 0; j < 4; ++j) {
+        cout << eigenvalues[j] << " ";
+    }
+    cout << endl << "m3's eigenvectors:" << endl << m3.eigenvector();
+    delete[] eigenvalues;
+}
+
