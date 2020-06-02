@@ -173,12 +173,12 @@ namespace Mat_pro {
 
         template<typename T1 = T, MY_IF(is_complex<T1>())>
         T1 row_avg(int32_t row) const {
-            if (row > this->rows()) {
+            if (row > this->rows() || this->is_empty()) {
                 return static_cast<T1>(-1);
             }
             T1 sums = this->row_sum(row);
-            double_t size = static_cast<double_t>(this->cols());
-            return T1{sums.real() / size, sums.imag() / size};
+            double_t col = static_cast<double_t>(this->cols());
+            return T1{sums.real() / col, sums.imag() / col};
             // return std::complex(static_cast<double>(2), static_cast<double >(3));
         }
 
@@ -877,9 +877,10 @@ namespace Mat_pro {
         } else if constexpr(is_same<T, double>()) {
             type = 6;
         }
-        if (matrix.cols() % demen != 0){
+        if (matrix.cols() % demen != 0) {
             // TODO
         }
+
         Mat will_return(matrix.rows(), matrix.cols() / demen, type + (demen - 1) * 8);
         for (int i = 0; i < matrix.rows(); ++i) {
             for (int j = 0; j < matrix.cols(); ++j) {
