@@ -33,14 +33,18 @@
 #include <utility>
 #include <valarray>
 #include <vector>
-
+#include <cmath>
 #include "./template_helper.h"
+
+const double_t eps = std::pow(10, -5);
 
 namespace Mat_pro {
     using cv::Mat;
     using std::endl;
     using std::valarray;
     using std::vector;
+    using std::pow;
+
 
 /** @related: get from https://blog.csdn.net/qq_31175231/article/details/77479692
  */
@@ -125,7 +129,7 @@ namespace Mat_pro {
         typename vector<T>::const_iterator get_row_iter_end(int32_t rows) const;
 
         /**@related: https://stackoverflow.com/questions/30736951/templated-class-check-if-complex-at-compile-time
-             * */
+                 * */
         Matrix<T> conj() const;
 
         T max() const;
@@ -140,7 +144,6 @@ namespace Mat_pro {
             return sums / static_cast<double_t>(this->rows() * this->cols());
         }
 
-        //template< class T1 = T ,typename std::enable_if<is_complex<T1>(),int>::type = 0>
         template<typename T1 = T, MY_IF(is_complex<T1>())>
         T1 avg() const {
             T1 sums = this->sum();
@@ -214,9 +217,6 @@ namespace Mat_pro {
         Matrix<T> slice(int32_t row1, int32_t row2) const;                              //切片
         Matrix<T> slice(int32_t row1, int32_t row2, int32_t col1, int32_t col2) const;  //切片
 
-        void set_inside(int32_t row, int32_t col, T ele);
-
-        void set_element(T ele);
 
         vector<vector<double_t>> transform() const;
 
@@ -228,7 +228,7 @@ namespace Mat_pro {
 
         Matrix<double_t> QR_iteration() const;
 
-        double_t *eigenvalue() const;
+        vector<double_t> eigenvalue() const;
 
         // Matrix<double_t> LU_decomposition() const;
 
@@ -242,7 +242,7 @@ namespace Mat_pro {
 
         Matrix<double_t> Elimination() const;
 
-        Matrix<double_t> Nullspace() const;
+        inline Matrix<double_t> Nullspace() const;
 
         Matrix<double_t> eigenvector() const;
 
@@ -331,9 +331,9 @@ namespace Mat_pro {
     template<typename T>
     typename vector<T>::const_iterator Matrix<T>::get_row_iter_end(int32_t rows) const {
         if (rows >= this->rows()) {
-            return this->vec.back().end();
+            return this->vec.back().cend();
         }
-        return this->vec[rows].end();
+        return this->vec[rows].cend();
     }
 
     template<typename T>
@@ -402,7 +402,7 @@ namespace Mat_pro {
         return this->vec.size();
     }
 
-    /**
+/**
  * if the it's empty,then is_empty is true,
  * */
     template<typename T>
@@ -427,7 +427,7 @@ namespace Mat_pro {
         return will_return;
     }
 
-    /**
+/**
  * matrix + matrix, must equal.
  *  * input mat1,mat2 and will_return's type is same.
  * */
@@ -437,7 +437,7 @@ namespace Mat_pro {
         // [](const T &t1, const T &t2) -> T { return t1 + t2; }
     }
 
-    /**
+/**
  * matrix - matrix, must equal.
  * input mat1,mat2 and will_return's type is same.
  * */
@@ -446,7 +446,7 @@ namespace Mat_pro {
         return Matrix<T>::operator_table(mat1, mat2, std::minus<>());
     }
 
-    /**
+/**
  * Matrix / number, return a Matrix.
  * same type.
  * */
@@ -455,7 +455,7 @@ namespace Mat_pro {
         return Matrix<T>::operator_table(mat1, [t2](const T &t1) { return t1 / t2; });
     }
 
-    /**
+/**
  * matrix * number, need T1 can * T2
  * */
     template<typename T1, typename T2>
@@ -470,7 +470,7 @@ namespace Mat_pro {
                 (std::move(temp));
     }
 
-    /**
+/**
  * matrix * vector
  * @param1: Matrix<T1> m_n
  * @Param2; vector<T2> length is n
@@ -483,13 +483,13 @@ namespace Mat_pro {
         }
         vector<vector<Multiply_Result_t<T1, T2>>> temp(1, vector<Multiply_Result_t<T1, T2>>(mat1.rows()));
         for (uint32_t i = 0; i < temp.size(); ++i) {
-            temp[0][i] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i), t2.cbegin(),
+            temp[0][i] = std::inner_product(mat1.get_row_iter_begin(i), mat1.get_row_iter_end(i), t2.begin(),
                                             static_cast<Multiply_Result_t<T1, T2>>(0));
         }
         return Matrix<Multiply_Result_t<T1, T2>>(std::move(temp));
     }
 
-    /**
+/**
  * matrix * vector
  * @Param1; vector<T1> length is m
  * @param2: Matrix<T2> m_n
@@ -509,7 +509,7 @@ namespace Mat_pro {
         return Matrix<Multiply_Result_t<T1, T2>>(std::move(temp));
     }
 
-    /**
+/**
  *  number * matrix , need T1 can * T2
  * */
     // used to  -> Matrix<Multiply_Result_t_Macro> ;
@@ -555,7 +555,7 @@ namespace Mat_pro {
         return will_return;
     }
 
-    /**
+/**
  * kron
  * @param1: Matrix_m_n T1
  * @param2: Matrix_k_p T2
@@ -578,7 +578,7 @@ namespace Mat_pro {
         return Matrix<Multiply_Result_t<T1, T2>>(std::move(will_return));
     }
 
-    /**
+/**
  * kron
  * @param1: vector_1_3 T1
  * @param2: vector_1_3 T2
@@ -595,17 +595,17 @@ namespace Mat_pro {
         return std::move(will_return);
     }
 
-    /**
- * Equal must use to compare two un_empty matrix,
- * so, if one of the matrix is empty , it will be false.
- * only un_empty, rows and columns both equal can be equal.
- */
+/**
+    * Equal must use to compare two un_empty matrix,
+    * so, if one of the matrix is empty , it will be false.
+    * only un_empty, rows and columns both equal can be equal.
+    */
     template<typename T1, typename T2>
     bool size_equal(const Matrix<T1> &mat1, const Matrix<T2> &mat2) {
         return !mat1.is_empty() && !mat2.is_empty() && mat1.rows() == mat2.rows() && mat1.cols() == mat2.cols();
     }
 
-    /** judge is equal
+/** judge is equal
  * @param1: Matrix_m_n T
  * @param2: Matrix_m_n T
  * @return: bool
@@ -783,7 +783,7 @@ namespace Mat_pro {
         return sum;
     }
 
-    /**get convolution of Matrix and kernel
+/**get convolution of Matrix and kernel
  * @param1: this: Matrix: m_n T
  * @param2: mat2: Matrix: f1_f2 T, addvise f1=f2 and they are odd.
  * @param3: padding: int32_t the size of padding.<br> default = 0
@@ -926,75 +926,54 @@ namespace Mat_pro {
             square += pow(vec[i][col - 1], 2);
         }
         double_t mod = vec[ele - 1][col - 1] > 0 ? pow(square, 0.5) : -pow(square, 0.5);
-
         double_t modulus = mod * (mod + vec[ele - 1][col - 1]);
-        Matrix<double_t> U(vec.size(), 1);
-        for (int j = 0; j < vec.size(); ++j) {
+        vector<vector<double_t>> U(this->rows(), vector<double_t>(1));
+        for (int j = 0; j < this->rows(); ++j) {
             if (j > ele - 1) {
-                U.set_inside(j, 0, vec[j][col - 1]);
+                U[j][0] = this->get_inside(j, col - 1);
             } else {
-                U.set_inside(j, 0, 0);
+                U[j][0] = 0;
             }
         }
-        U.set_inside(ele - 1, 0, vec[ele - 1][col - 1] + mod);
-
-        Matrix<double_t> H = Matrix<double_t>::eye(vec.size()) - U * U.transpose() / modulus;
-
-        return H;
+        U[ele - 1][0] = this->get_inside(ele - 1, col - 1) + mod;
+        return Matrix<double_t>::eye(this->rows()) - Matrix<double_t>(U) * Matrix<double_t>(U).transpose() / modulus;
     }
 
     template<typename T>
     Matrix<double_t> Matrix<T>::Hessenberg() const {
-        if (vec.size() != vec[0].size()) {
-            return Matrix<double_t>::eye_value(vec.size(), 0);
+        if (!this->is_square()) {
+            // todo
+            return Matrix<double_t>::eye_value(this->rows(), 0);
         }
-
-        Matrix<double_t> left_H = Matrix<double_t>::eye(vec.size());
-        Matrix<double_t> right_H = Matrix<double_t>::eye(vec.size());
+        Matrix<double_t> left_H = Matrix<double_t>::eye(this->rows());
+        Matrix<double_t> right_H = Matrix<double_t>::eye(this->rows());
         vector<vector<double_t>> v = this->transform();
-
         Matrix<double_t> H = left_H * Matrix<double_t>(v) * right_H;
-
-        for (int i = 1; i < vec.size() - 1; ++i) {
-            if (H.get_inside(i + 1, i - 1) == 0) {
-                continue;
+        for (int i = 1; i < this->rows() - 1; ++i) {
+            if (abs(H.get_inside(i + 1, i - 1)) > eps) {
+                left_H = left_H * H.Householder(i, i + 1);
+                right_H = H.Householder(i, i + 1) * right_H;
+                H = left_H * Matrix<double_t>(v) * right_H;
             }
-            left_H = left_H * H.Householder(i, i + 1);
-            right_H = H.Householder(i, i + 1) * right_H;
-            H = left_H * Matrix<double_t>(v) * right_H;
         }
         return H;
     }
 
-    template<typename T>
-    void Matrix<T>::set_inside(int32_t row, int32_t col, T ele) {
-        vec[row][col] = ele;
-    }
-
-    template<typename T>
-    void Matrix<T>::set_element(T ele) {
-        for (int i = 0; i < vec.size(); ++i) {
-            for (int j = 0; j < vec[0].size(); ++j) {
-                vec[i][j] = ele;
-            }
-        }
-    }
 
     template<typename T>
     Matrix<double_t> Matrix<T>::Givens(int32_t col, int32_t begin, int32_t end) const {
-        Matrix<double_t> R = Matrix<double_t>::eye(vec.size());
+        Matrix<double_t> R = Matrix<double_t>::eye(this->rows());
         double_t r = pow(pow(vec[begin - 1][col - 1], 2) + pow(vec[end - 1][col - 1], 2), 0.5);
         double_t c = 1;
         double_t s = 0;
-        if (r != 0) {
+        if (abs(r) > eps ) {
             c = vec[begin - 1][col - 1] / r;
             s = vec[end - 1][col - 1] / r;
         }
-
-        R.set_inside(begin - 1, begin - 1, c);
-        R.set_inside(begin - 1, end - 1, s);
-        R.set_inside(end - 1, begin - 1, -s);
-        R.set_inside(end - 1, end - 1, c);
+        R.vec[begin - 1][begin - 1] = c;
+        R.vec[begin - 1][end - 1] = s;
+        R.vec[end - 1][begin - 1] = -s;
+        R.vec[end - 1][end - 1] = c;
         return R;
     }
 
@@ -1007,22 +986,21 @@ namespace Mat_pro {
             R = temp_R * R;
             Q = Q * temp_R.transpose();
         }
-        Matrix<double_t> H = R * Q;
-        return H;
+        return R * Q;
     }
 
     template<typename T>
-    double_t *Matrix<T>::eigenvalue() const {
-        if (vec.size() != vec[0].size()) {
-            return nullptr;
+    vector<double_t> Matrix<T>::eigenvalue() const {
+        if (!this->is_square()) {
+            return vector<double_t>(1);
         }
-        auto *eigenvalues = new double_t[vec.size()];
-        int32_t iter_times = 150;
+        vector<double_t> eigenvalues(this->rows());
+        constexpr int32_t iter_times = 150;
         Matrix<double_t> H = this->QR_iteration();
         for (int i = 0; i < iter_times; ++i) {
             H = H.QR_iteration();
         }
-        for (int j = 0; j < vec.size(); ++j) {
+        for (int j = 0; j < this->rows(); ++j) {
             eigenvalues[j] = H.get_inside(j, j);
         }
         return eigenvalues;
@@ -1030,75 +1008,47 @@ namespace Mat_pro {
 
     template<typename T>
     Matrix<double_t> Matrix<T>::eigenvector() const {
-        double_t *eigenvalues = this->eigenvalue();
+        vector<double_t> eigenvalues = this->eigenvalue();
         vector<vector<double_t>> v = this->transform();
-        std::sort(eigenvalues, eigenvalues + vec.size());
-
+        std::sort(eigenvalues.begin(), eigenvalues.end());
         int32_t begin = 0;
-        int32_t end = 1;
         int32_t repeat = 0;
-        while (end < vec.size()) {
+        for (int end = 1; end < this->rows(); ++end) {
             if (round(eigenvalues[begin] * 10) / 10 == round(eigenvalues[end] * 10) / 10) {
-                end++;
                 repeat++;
             } else {
                 eigenvalues[begin + 1] = eigenvalues[end];
                 begin++;
-                end++;
             }
         }
-
-        Matrix<double_t> vectors(vec.size(), vec.size());
+        Matrix<double_t> vectors(this->rows(), this->rows());
         int32_t size = vec.size() - repeat;
         for (int i = 0; i < size; ++i) {
-            Matrix<double_t> eigenmatrix(v);
+            vector<vector<double_t>> eigenmatrix = this->transform();
             double_t eigenvalue = eigenvalues[i];
             for (int j = 0; j < vec.size(); ++j) {
-                eigenmatrix.set_inside(j, j, round((eigenmatrix.get_inside(j, j) - eigenvalue) * 10) / 10);
+                eigenmatrix[j][j] = round((eigenmatrix[j][j] - eigenvalue) * 10) / 10;
             }
             if (i == 0) {
-                vectors = eigenmatrix.Nullspace();
+                vectors = Matrix<double_t>(eigenmatrix).Nullspace();
             } else {
-                vectors = vectors.joint(eigenmatrix.Nullspace());
+                vectors = vectors.joint(Matrix<double_t>(eigenmatrix).Nullspace());
             }
         }
-        delete[] eigenvalues;
         return vectors;
     }
 
-    template<typename T>
-    Matrix<T> Matrix<T>::joint(Matrix<T> matrix) const {
-        if (vec.size() != matrix.rows() && vec.size() != 0) {
-            return *this;
-        }
-        int32_t row_size = matrix.rows();
-        int32_t col_size = vec[0].size() + matrix.cols();
-        Matrix<T> joint(row_size, col_size);
-
-        for (int i = 0; i < row_size; ++i) {
-            for (int j = 0; j < col_size; ++j) {
-                if (j < vec[0].size()) {
-                    joint.set_inside(i, j, vec[i][j]);
-                } else {
-                    joint.set_inside(i, j, matrix.get_inside(i, j - vec[0].size()));
-                }
-            }
-        }
-        return joint;
-    }
 
     template<typename T>
     Matrix<double_t> Matrix<T>::Gauss() const {
         vector<vector<double_t>> v = this->transform();
         Matrix<double_t> REF(v);
-        int32_t row = 0;
-        int32_t find = 0;
-
-        while (row < vec.size()) {
+        //int32_t row = 0;
+        for (int32_t row = 0, find = 0; row < this->rows(); ++row) {
             double_t element = 1;
             bool flag = false;
             for (int i = find; i < vec.size(); ++i) {
-                if (REF.get_inside(i, row) != 0) {
+                if (abs(REF.get_inside(i, row)) > eps) {
                     element = REF.get_inside(i, row);
                     REF = REF.row_exchange(i, find);
                     flag = true;
@@ -1112,7 +1062,6 @@ namespace Mat_pro {
                 }
                 find++;
             }
-            row++;
         }
         return REF;
     }
@@ -1161,7 +1110,7 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
         Matrix<double_t> R = this->Gauss();
         for (int i = 0; i < vec.size(); ++i) {
             for (int j = 0; j < vec[0].size(); ++j) {
-                if (R.get_inside(i, j) != 0) {
+                if (abs(R.get_inside(i, j)) > eps ) {
                     for (int k = i - 1; k >= 0; --k) {
                         R = R.row_elimination(k, j, i);
                     }
@@ -1173,30 +1122,26 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
     }
 
     template<typename T>
-    Matrix<double_t> Matrix<T>::Nullspace() const {
+    inline Matrix<double_t> Matrix<T>::Nullspace() const {
         Matrix<double_t> matrix = this->Elimination();
-        int32_t pivots[vec[0].size()];
-        memset(pivots, 0, sizeof(pivots));
-        int32_t null_num = vec[0].size();
-
-        for (int i = 0; i < vec.size(); ++i) {
-            for (int j = 0; j < vec[0].size(); ++j) {
-                if (matrix.get_inside(i, j) != 0) {
+        vector<int32_t> pivots(this->cols(), 0);
+        int32_t null_num = this->cols();
+        for (int i = 0; i < this->rows(); ++i) {
+            for (int j = 0; j < this->cols(); ++j) {
+                if (abs(matrix.get_inside(i, j)) > eps) {
                     pivots[j] = 1;
                     null_num--;
                     break;
                 }
             }
         }
-
-        Matrix<double_t> vectors(vec[0].size(), null_num);
-        vectors.set_element(0);
+        vector<vector<double_t>> vectors(this->rows(), vector<double_t>(null_num, 0));
         int32_t col = 0;
         for (int i = 0; i < vec[0].size(); ++i) {
             if (pivots[i] == 0) {
                 for (int j = 0; j < null_num; ++j) {
                     if (j == col) {
-                        vectors.set_inside(i, j, 1);
+                        vectors[i][j] = 1;
                     }
                 }
                 col++;
@@ -1204,45 +1149,53 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
                 for (int k = 0; k < vec[0].size(); ++k) {
                     if (pivots[k] == 0) {
                         for (int j = 0; j < null_num; ++j) {
-                            vectors.set_inside(i, j, 0 - matrix.get_inside(i, k));
+                            vectors[i][j] = -matrix.get_inside(i, k);
                         }
                     }
                 }
             }
         }
-        return vectors;
+        return Matrix<double_t>(vectors);
     }
 
     template<typename T>
     vector<vector<double_t>> Matrix<T>::transform() const {
-        vector<vector<double_t>> v(vec.size());
-        for (int i = 0; i < vec.size(); ++i) {
-            v[i] = vector<double_t>(vec[0].size());
-            for (int j = 0; j < vec[0].size(); ++j) {
-                v[i][j] = vec[i][j];
-            }
+        vector<vector<double_t>> v(this->rows());
+        for (int i = 0; i < this->rows(); ++i) {
+            v[i] = vector<double_t>(this->get_row_iter_begin(i), this->get_row_iter_end(i));
         }
         return v;
     }
 
     template<typename T>
     Matrix<T> Matrix<T>::row_exchange(int32_t row1, int32_t row2) const {
-        Matrix<T> matrix(vec);
-        for (int i = 0; i < vec[0].size(); ++i) {
-            matrix.set_inside(row1, i, vec[row2][i]);
-            matrix.set_inside(row2, i, vec[row1][i]);
+        Matrix<T> will_return(*this);
+        if (row1 != row2) {
+            std::swap(will_return.vec[row1], will_return.vec[row2]);
         }
-        return matrix;
+        return will_return;
+    }
+
+    template<typename T>
+    Matrix<T> Matrix<T>::joint(Matrix<T> matrix) const {
+        if (this->rows() != matrix.rows() && !this->is_empty()) {
+            return Matrix<T>(*this);
+        }
+        vector<vector<T>> will_return(this->vec);
+        for (int i = 0; i < this->rows(); ++i) {
+            will_return[i].insert(will_return[i].end(), matrix.get_row_iter_begin(i), matrix.get_row_iter_end(i));
+        }
+        return Matrix<T>(std::move(will_return));
     }
 
     template<typename T>
     Matrix<double_t> Matrix<T>::row_elimination(int32_t row, double_t ele) const {
         Matrix<double_t> matrix(this->transform());
         for (int i = 0; i < vec[0].size(); ++i) {
-            if (ele <= pow(10, -5) && ele >= 0 - pow(10, -5)) {
-                matrix.set_inside(row, i, 0);
+            if (std::abs(ele) <= eps) {
+                matrix.vec[row][i] = 0;
             } else {
-                matrix.set_inside(row, i, (double_t) this->get_inside(row, i) / ele);
+                matrix.vec[row][i] = (double_t) this->get_inside(row, i) / ele;
             }
         }
         return matrix;
@@ -1253,11 +1206,10 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
         Matrix<double_t> matrix(this->transform());
         double_t temp = vec[row][col];
         for (int i = 0; i < vec[0].size(); ++i) {
-            matrix.set_inside(row, i, this->get_inside(row, i) - temp * vec[remove_row][i]);
+            matrix.vec[row][i] = this->get_inside(row, i) - temp * vec[remove_row][i];
         }
         return matrix;
     }
-
 }
 
 #endif  //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP

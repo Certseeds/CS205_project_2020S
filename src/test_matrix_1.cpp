@@ -866,8 +866,17 @@ void full_random(Mat &temp) {
     }
 }
 
+TEST_CASE("test for row_exchange in test 5") {
+    Matrix<double_t> matrix = {{1, 2},
+                               {3, 4}};
+    Matrix<double_t> result1 = {{3, 4},
+                                {1, 2}};
+    CHECK(Matrix<double_t>::inside_equal(result1, matrix.row_exchange(0,1)));
+    CHECK(!Matrix<double_t>::inside_equal(result1, matrix));
+}
+
 TEST_CASE("eigenvalue", "[test 5]") {
-    double_t *eigenvalues;
+    vector<double_t> eigenvalues;
     Matrix<int32_t> m3 = {{5, -3, 2},
                           {6, -4, 4},
                           {4, -4, 5}};
@@ -906,7 +915,6 @@ TEST_CASE("eigenvalue", "[test 5]") {
     for (int j = 0; j < 3; ++j) {
         cout << eigenvalues[j] << " ";
     }
-    delete[] eigenvalues;
 }
 
 TEST_CASE("eigenvector", "[test 5]") {
@@ -920,7 +928,7 @@ TEST_CASE("eigenvector", "[test 5]") {
                           {1, 1, 1, 1},
                           {1, 1, 1, 1},
                           {1, 1, 1, 1}};
-    double_t *eigenvalues;
+    vector<double_t> eigenvalues;
     eigenvalues = m1.eigenvalue();
     cout << "m1's eigenvalues:" << endl;
     for (int j = 0; j < 2; ++j) {
@@ -939,6 +947,5 @@ TEST_CASE("eigenvector", "[test 5]") {
         cout << eigenvalues[j] << " ";
     }
     cout << endl << "m3's eigenvectors:" << endl << m3.eigenvector();
-    delete[] eigenvalues;
 }
 
