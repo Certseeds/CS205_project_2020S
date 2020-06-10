@@ -45,6 +45,17 @@ namespace Mat_pro {
     using std::vector;
     using std::pow;
 
+    struct Matrix_Shape_Not_Match_Exception : public std::exception {
+        char will_return[300] = "\0";
+
+        explicit Matrix_Shape_Not_Match_Exception(const char *message, const char *file_name, int32_t Line) {
+            sprintf(will_return, "%s,Shape not Match in %d line , %s file", message, Line, file_name);
+        }
+
+        [[nodiscard]] const char *what() const noexcept override {
+            return will_return;
+        }
+    };
 
 /** @related: get from https://blog.csdn.net/qq_31175231/article/details/77479692
  */
@@ -378,7 +389,7 @@ namespace Mat_pro {
     inline Matrix<T> Matrix<T>::operator_table(const Matrix<T> &mat1, const Matrix<T> &mat2,
                                                const std::function<T(const T &t1, const T &t2)> &func) {
         if (!size_equal(mat1, mat2)) {
-            exit(0);
+            throw Matrix_Shape_Not_Match_Exception("two matrix do not equal size", __FILE__, __LINE__);
         }
         Matrix<T> will_return(mat1.rows(), mat1.cols());
         for (int32_t i = 0; i < mat1.rows(); ++i) {
@@ -478,8 +489,9 @@ namespace Mat_pro {
  * */
     template<typename T1, typename T2>
     auto operator*(const Matrix<T1> &mat1, const vector<T2> &t2) -> Matrix<Multiply_Result_t<T1, T2>> {
-        if (mat1.cols() != t2.size()) {
-            // TODO
+        if (static_cast<unsigned >(mat1.cols()) != t2.size()) {
+            throw Matrix_Shape_Not_Match_Exception(
+                    "shape not match,matrix can not multiply vector", __FILE__, __LINE__);
         }
         vector<vector<Multiply_Result_t<T1, T2>>> temp(1, vector<Multiply_Result_t<T1, T2>>(mat1.rows()));
         for (uint32_t i = 0; i < temp.size(); ++i) {
@@ -497,8 +509,9 @@ namespace Mat_pro {
  * */
     template<typename T1, typename T2>
     auto operator*(const vector<T1> &t1, const Matrix<T2> &mat2) -> Matrix<Multiply_Result_t<T1, T2>> {
-        if (t1.size() != mat2.rows()) {
-            // TODO
+        if (t1.size() != static_cast<unsigned >(mat2.rows())) {
+            throw Matrix_Shape_Not_Match_Exception(
+                    "shape not match,vector can not multiply matrix", __FILE__, __LINE__);
         }
         vector<vector<Multiply_Result_t<T1, T2>>> temp(mat2.cols(), vector<Multiply_Result_t<T1, T2>>(1));
         auto transfor = mat2.transpose();
@@ -521,7 +534,8 @@ namespace Mat_pro {
     template<typename T>
     Matrix<T> operator*(const Matrix<T> &mat1, const Matrix<T> &mat2) {
         if (mat1.cols() != mat2.rows()) {
-            // TODO
+            throw Matrix_Shape_Not_Match_Exception(
+                    "shape not match,matrix1 & 2 can not multiply", __FILE__, __LINE__);
         }
         Matrix<T> temp = mat2.transpose();
         vector<vector<T>> will_return(mat1.rows(), vector<T>(mat2.cols()));
@@ -541,11 +555,12 @@ namespace Mat_pro {
         return Matrix<T>::operator_table(*this, mat2, std::multiplies<>());
     }
 
-    // TODO T1 and T2
+    // UNTODO T1 and T2
     template<typename T>
     T Matrix<T>::dot(const Matrix<T> &mat2) {
         if (!size_equal(*this, mat2)) {
-            // TODO
+            throw Matrix_Shape_Not_Match_Exception(
+                    "size do not equal bewtween this and Mat2", __FILE__, __LINE__);
         }
         T will_return(0);
         for (int32_t i = 0; i < mat2.rows(); ++i) {
@@ -657,7 +672,8 @@ namespace Mat_pro {
     T Matrix<T>::determinant() const {
         T will_return(0);
         if (!this->is_square()) {
-            // TODO
+            throw Matrix_Shape_Not_Match_Exception(
+                    "this Matrix is not Squre, can not get determinant", __FILE__, __LINE__);
             return will_return;
         }
         return determinant_in(this->vec);
@@ -693,7 +709,6 @@ namespace Mat_pro {
             }
             return will_return;
         }
-        // TODO False;
         return static_cast<T>(0);
     }
 
@@ -706,7 +721,6 @@ namespace Mat_pro {
             }
             return will_return;
         }
-        // TODO False;
         return static_cast<T>(0);
     }
 
@@ -722,8 +736,7 @@ namespace Mat_pro {
     template<typename T>
     T Matrix<T>::row_max(int32_t row) const {
         if (row <= 0 || row > this->rows()) {
-            // TODO;
-            return -1;
+            throw std::invalid_argument("row out of range(it begin at 1)");
         }
         return *std::max_element(this->get_row_iter_begin(row - 1),
                                  this->get_row_iter_end(row - 1));
@@ -732,8 +745,7 @@ namespace Mat_pro {
     template<typename T>
     T Matrix<T>::row_min(int32_t row) const {
         if (row <= 0 || row > this->rows()) {
-            // TODO;
-            return -1;
+            throw std::invalid_argument("row out of range(it begin at 1)");
         }
         return *std::min_element(this->get_row_iter_begin(row - 1),
                                  this->get_row_iter_end(row - 1));
@@ -742,7 +754,7 @@ namespace Mat_pro {
     template<typename T>
     T Matrix<T>::row_sum(int32_t row) const {
         if (row <= 0 || row > this->rows()) {
-            return -1;
+            throw std::invalid_argument("row out of range(it begin at 1)");
         }
         return std::accumulate(this->get_row_iter_begin(row - 1), this->get_row_iter_end(row - 1), static_cast<T>(0));
     }
@@ -750,7 +762,7 @@ namespace Mat_pro {
     template<typename T>
     T Matrix<T>::col_max(int32_t col) const {
         if (col <= 0 || col > this->cols()) {
-            return -1;
+            throw std::invalid_argument("col out of range(it begin at 1)");
         }
         T max_v = vec.front()[col - 1];
         for (int i = 0; i < this->rows(); ++i) {
@@ -762,7 +774,7 @@ namespace Mat_pro {
     template<typename T>
     T Matrix<T>::col_min(int32_t col) const {
         if (col <= 0 || col > this->cols()) {
-            return -1;
+            throw std::invalid_argument("col out of range(it begin at 1)");
         }
         T min_v = vec.front()[col - 1];
         for (int i = 0; i < this->rows(); ++i) {
@@ -774,7 +786,7 @@ namespace Mat_pro {
     template<typename T>
     T Matrix<T>::col_sum(int32_t col) const {
         if (col <= 0 || col > this->cols()) {
-            return -1;
+            throw std::invalid_argument("col out of range(it begin at 1)");
         }
         T sum(0);
         for (int32_t i = 0; i < this->rows(); ++i) {
@@ -794,9 +806,10 @@ namespace Mat_pro {
  * */
     template<typename T>
     Matrix<T> Matrix<T>::convolution(const Matrix<T> &kernel, int32_t padding, int32_t stride) const {
-        if (padding <= 0 || stride <= 0 || this->rows() + 2 * padding > kernel.rows() ||
-            this->cols() + 2 * padding > kernel.cols()) {
-            // TODO
+        if (padding < 0 || stride < 0
+            || this->rows() + 2 * padding < kernel.rows()
+            || this->cols() + 2 * padding < kernel.cols()) {
+            throw std::invalid_argument("input parameter happen error");
         }
         //padding = std::max(padding, std::max(kernel.rows(), kernel.cols()));
         int32_t new_row = floor((this->rows() + 2 * padding - kernel.rows()) / stride) + 1;
@@ -826,7 +839,7 @@ namespace Mat_pro {
         int32_t col_num = this->cols();
         int32_t num = this->rows() * col_num;
         if (row * col != num || num <= 0) {
-            // TODO, there should be error
+            throw std::invalid_argument("can not reshape to rectangle");
             return Matrix<T>(*this);
         }
         vector<vector<T>> res(row, vector<T>(col, static_cast<T>(0)));
@@ -919,10 +932,14 @@ namespace Mat_pro {
         return will_return;
     }
 
+/**
+ * Householder reduces elements after ele in col column to zero
+ * this function is to reduce one column in the matrix
+ */
     template<typename T>
     Matrix<double_t> Matrix<T>::Householder(int32_t col, int32_t ele) const {
         double_t square = 0;
-        for (int i = ele - 1; i < vec.size(); ++i) {
+        for (uint32_t i = ele - 1; i < vec.size(); ++i) {
             square += pow(vec[i][col - 1], 2);
         }
         double_t mod = vec[ele - 1][col - 1] > 0 ? pow(square, 0.5) : -pow(square, 0.5);
@@ -939,10 +956,14 @@ namespace Mat_pro {
         return Matrix<double_t>::eye(this->rows()) - Matrix<double_t>(U) * Matrix<double_t>(U).transpose() / modulus;
     }
 
+/**
+ * every column is reduced by Householder
+ * after reduction, this function returns a Hessenberg matrix
+ */
     template<typename T>
     Matrix<double_t> Matrix<T>::Hessenberg() const {
         if (!this->is_square()) {
-            // todo
+            throw std::invalid_argument("Need to ensure matrix is sequre");
             return Matrix<double_t>::eye_value(this->rows(), 0);
         }
         Matrix<double_t> left_H = Matrix<double_t>::eye(this->rows());
@@ -959,14 +980,17 @@ namespace Mat_pro {
         return H;
     }
 
-
+/**
+ * Givens transformation is to set Hessenberg matrix to upper triangular matrix
+ * this function carries out one rotation to one column
+ */
     template<typename T>
     Matrix<double_t> Matrix<T>::Givens(int32_t col, int32_t begin, int32_t end) const {
         Matrix<double_t> R = Matrix<double_t>::eye(this->rows());
         double_t r = pow(pow(vec[begin - 1][col - 1], 2) + pow(vec[end - 1][col - 1], 2), 0.5);
         double_t c = 1;
         double_t s = 0;
-        if (abs(r) > eps ) {
+        if (abs(r) > eps) {
             c = vec[begin - 1][col - 1] / r;
             s = vec[end - 1][col - 1] / r;
         }
@@ -977,11 +1001,16 @@ namespace Mat_pro {
         return R;
     }
 
+/**
+ * try Givens to Hessenberg matrix several times and reduce the matrix to upper triangular matrix
+ * then we realize QR decomposition
+ * return R*Q matrix, the next Hessenberg matrix to reduce
+ */
     template<typename T>
     Matrix<double_t> Matrix<T>::QR_iteration() const {
         Matrix<double_t> R = this->Hessenberg();
         Matrix<double_t> Q = Matrix<double_t>::eye(vec.size());
-        for (int i = 1; i < vec.size(); ++i) {
+        for (uint32_t i = 1; i < vec.size(); ++i) {
             Matrix<double_t> temp_R = R.Givens(i, i, i + 1);
             R = temp_R * R;
             Q = Q * temp_R.transpose();
@@ -989,6 +1018,12 @@ namespace Mat_pro {
         return R * Q;
     }
 
+/**
+ * continue to reduce the Hessenberg matrix returned by QR_iteration
+ * iterate QR decomposition several times and the diagonal elements approach to elgenvalues
+ * specific algorithm can refer to
+ * https://www.cnblogs.com/chenying99/articles/4967960.html
+ */
     template<typename T>
     vector<double_t> Matrix<T>::eigenvalue() const {
         if (!this->is_square()) {
@@ -1006,6 +1041,12 @@ namespace Mat_pro {
         return eigenvalues;
     }
 
+/**
+ * firstly sort eigenvalues to check repeat eigenvalues
+ * only calculate the nullspace of repeat eigenvalues for one time
+ * joint every nullspace of non-repeat eigenmatrices to get eigenvector matrix
+ * algorithm for calculating eigenvectors is similar to normal calculation from eigenmatrices
+ */
     template<typename T>
     Matrix<double_t> Matrix<T>::eigenvector() const {
         vector<double_t> eigenvalues = this->eigenvalue();
@@ -1026,7 +1067,7 @@ namespace Mat_pro {
         for (int i = 0; i < size; ++i) {
             vector<vector<double_t>> eigenmatrix = this->transform();
             double_t eigenvalue = eigenvalues[i];
-            for (int j = 0; j < vec.size(); ++j) {
+            for (uint32_t j = 0; j < vec.size(); ++j) {
                 eigenmatrix[j][j] = round((eigenmatrix[j][j] - eigenvalue) * 10) / 10;
             }
             if (i == 0) {
@@ -1038,7 +1079,10 @@ namespace Mat_pro {
         return vectors;
     }
 
-
+/**
+ * this function is to realize Gaussian elimination
+ * return Row-Echelon Form and eliminate every pivot to one
+ */
     template<typename T>
     Matrix<double_t> Matrix<T>::Gauss() const {
         vector<vector<double_t>> v = this->transform();
@@ -1047,7 +1091,7 @@ namespace Mat_pro {
         for (int32_t row = 0, find = 0; row < this->rows(); ++row) {
             double_t element = 1;
             bool flag = false;
-            for (int i = find; i < vec.size(); ++i) {
+            for (uint32_t i = find; i < vec.size(); ++i) {
                 if (abs(REF.get_inside(i, row)) > eps) {
                     element = REF.get_inside(i, row);
                     REF = REF.row_exchange(i, find);
@@ -1057,7 +1101,7 @@ namespace Mat_pro {
             }
             if (flag) {
                 REF = REF.row_elimination(find, element);
-                for (int i = find + 1; i < vec.size(); ++i) {
+                for (uint32_t i = find + 1; i < vec.size(); ++i) {
                     REF = REF.row_elimination(i, row, find);
                 }
                 find++;
@@ -1066,51 +1110,16 @@ namespace Mat_pro {
         return REF;
     }
 
-/*
-template<typename T>
-Matrix<double_t> Matrix<T>::LU_decomposition() const{
-    Matrix<double_t > L = Matrix<double_t >::eye(vec.size());
-    Matrix<double_t > U = Matrix<double_t >::eye_value(vec.size(),0);
-    if(vec.size() != vec[0].size()){
-        return U;
-    }
-
-    if(vec[0][0] != 0){
-        for (int i = 0; i < vec.size(); ++i) {
-            L.set_inside(i,0,(double_t)vec[i][0]/vec[0][0]);
-        }
-    }
-    for (int j = 0; j < vec[0].size(); ++j) {
-        U.set_inside(0,j,vec[0][j]);
-    }
-
-    for (int k = 1; k < vec.size(); ++k) {
-        for (int j = k; j < vec.size(); ++j) {
-            double_t temp = 0;
-            for (int t = 0; t < k; ++t) {
-                temp += L.get_inside(k,t) * U.get_inside(t,j);
-            }
-            U.set_inside(k,j,vec[k][j] - temp);
-        }
-        for (int i = k + 1; i < vec.size(); ++i) {
-            double_t temp = 0;
-            for (int t = 0; t < k; ++t) {
-                temp += L.get_inside(i,t) * U.get_inside(t,k);
-            }
-            if(U.get_inside(k,k) != 0){
-            L.set_inside(i,k,(vec[i][k]-temp)/U.get_inside(k,k));
-            }
-        }
-    }
-    return U;
-}*/
-
+/**
+ * this function carries out elimination based on Gaussian elimination
+ * return least line matrix
+ */
     template<typename T>
     Matrix<double_t> Matrix<T>::Elimination() const {
         Matrix<double_t> R = this->Gauss();
-        for (int i = 0; i < vec.size(); ++i) {
-            for (int j = 0; j < vec[0].size(); ++j) {
-                if (abs(R.get_inside(i, j)) > eps ) {
+        for (uint32_t i = 0; i < vec.size(); ++i) {
+            for (uint32_t j = 0; j < vec[0].size(); ++j) {
+                if (abs(R.get_inside(i, j)) > eps) {
                     for (int k = i - 1; k >= 0; --k) {
                         R = R.row_elimination(k, j, i);
                     }
@@ -1121,6 +1130,10 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
         return R;
     }
 
+/**
+ * after reducing the matrix to least line matrix
+ * this function returns its nullspace matrix
+ */
     template<typename T>
     inline Matrix<double_t> Matrix<T>::Nullspace() const {
         Matrix<double_t> matrix = this->Elimination();
@@ -1137,7 +1150,7 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
         }
         vector<vector<double_t>> vectors(this->rows(), vector<double_t>(null_num, 0));
         int32_t col = 0;
-        for (int i = 0; i < vec[0].size(); ++i) {
+        for (uint32_t i = 0; i < vec[0].size(); ++i) {
             if (pivots[i] == 0) {
                 for (int j = 0; j < null_num; ++j) {
                     if (j == col) {
@@ -1146,7 +1159,7 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
                 }
                 col++;
             } else {
-                for (int k = 0; k < vec[0].size(); ++k) {
+                for (uint32_t k = 0; k < vec[0].size(); ++k) {
                     if (pivots[k] == 0) {
                         for (int j = 0; j < null_num; ++j) {
                             vectors[i][j] = -matrix.get_inside(i, k);
@@ -1158,6 +1171,9 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
         return Matrix<double_t>(vectors);
     }
 
+/**
+ * transform T matrix to double matrix
+ */
     template<typename T>
     vector<vector<double_t>> Matrix<T>::transform() const {
         vector<vector<double_t>> v(this->rows());
@@ -1167,6 +1183,9 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
         return v;
     }
 
+/**
+ * exchange row1 with row2
+ */
     template<typename T>
     Matrix<T> Matrix<T>::row_exchange(int32_t row1, int32_t row2) const {
         Matrix<T> will_return(*this);
@@ -1176,6 +1195,10 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
         return will_return;
     }
 
+/**
+ * joint every nullspace of each eigenmatrix
+ * finally get an eigenvector matrix
+ */
     template<typename T>
     Matrix<T> Matrix<T>::joint(Matrix<T> matrix) const {
         if (this->rows() != matrix.rows() && !this->is_empty()) {
@@ -1188,10 +1211,13 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
         return Matrix<T>(std::move(will_return));
     }
 
+/**
+ * divide ele from every element of this row except zero
+ */
     template<typename T>
     Matrix<double_t> Matrix<T>::row_elimination(int32_t row, double_t ele) const {
         Matrix<double_t> matrix(this->transform());
-        for (int i = 0; i < vec[0].size(); ++i) {
+        for (uint32_t i = 0; i < vec[0].size(); ++i) {
             if (std::abs(ele) <= eps) {
                 matrix.vec[row][i] = 0;
             } else {
@@ -1201,11 +1227,18 @@ Matrix<double_t> Matrix<T>::LU_decomposition() const{
         return matrix;
     }
 
+/**
+ * reduce the col of row to zero by reducing remove_row
+ * example:
+ * row elements: 1 2 3 4  col: 2 (start form index 0)
+ * remove_row elements: 0 1 3 4
+ * after reducing from remove_row: 1 1 0 0
+ */
     template<typename T>
     Matrix<double_t> Matrix<T>::row_elimination(int32_t row, int32_t col, int32_t remove_row) const {
         Matrix<double_t> matrix(this->transform());
         double_t temp = vec[row][col];
-        for (int i = 0; i < vec[0].size(); ++i) {
+        for (uint32_t i = 0; i < vec[0].size(); ++i) {
             matrix.vec[row][i] = this->get_inside(row, i) - temp * vec[remove_row][i];
         }
         return matrix;
