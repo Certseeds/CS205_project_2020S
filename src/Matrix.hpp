@@ -131,7 +131,6 @@ namespace Mat_pro {
         operator_table(const Matrix<T> &mat1, const Matrix<T> &mat2,
                        const std::function<T(const T &t1, const T &t2)> &func);
 
-
         inline static Matrix<T>
         operator_table(const Matrix<T> &mat1, const std::function<T(const T &t1)> &func);
 
@@ -224,6 +223,9 @@ namespace Mat_pro {
 
         Matrix<T> convolution(const Matrix<T> &kernel, int32_t padding = 0, int32_t stride = 1) const;
 
+        Matrix<T>
+        convolution_mul(const Matrix<T> &kernel, int32_t padding = 0, int32_t stride = 1, int32_t demension = 1) const;
+
         Matrix<T> reshape(int32_t row, int32_t col) const;                              //重整
         Matrix<T> slice(int32_t row1, int32_t row2) const;                              //切片
         Matrix<T> slice(int32_t row1, int32_t row2, int32_t col1, int32_t col2) const;  //切片
@@ -258,6 +260,7 @@ namespace Mat_pro {
         Matrix<double_t> eigenvector() const;
 
         Matrix<T> joint(Matrix<T> matrix) const;
+
     };                                                                              // namespace Mat_pro
 
 
@@ -466,6 +469,38 @@ namespace Mat_pro {
         return Matrix<T>::operator_table(mat1, [t2](const T &t1) { return t1 / t2; });
     }
 
+    template<typename T1, typename T2>
+    auto operator+(const Matrix<T1> &mat1, const T2 &t2) {
+        vector<vector<Add_Result_t<T1, T2>>> temp(mat1.rows(), vector<Add_Result_t<T1, T2>>(mat1.cols()));
+        for (uint32_t i = 0; i < temp.size(); ++i) {
+            for (uint32_t j = 0; j < temp[i].size(); ++j) {
+                temp[i][j] = mat1.get_inside(i, j) + t2;
+            }
+        }
+        return Matrix<Add_Result_t<T1, T2>>(std::move(temp));
+    }
+
+    template<typename T1, typename T2>
+    auto operator+(const T1 &t1, const Matrix<T2> &mat2) {
+        return mat2 + t1;
+    }
+
+    template<typename T1, typename T2>
+    auto operator-(const Matrix<T1> &mat1, const T2 &t2) {
+        vector<vector<Minus_Result_t<T1, T2>>> temp(mat1.rows(), vector<Minus_Result_t<T1, T2>>(mat1.cols()));
+        for (uint32_t i = 0; i < temp.size(); ++i) {
+            for (uint32_t j = 0; j < temp[i].size(); ++j) {
+                temp[i][j] = mat1.get_inside(i, j) - t2;
+            }
+        }
+        return Matrix<Minus_Result_t<T1, T2>>(std::move(temp));
+    }
+
+    template<typename T1, typename T2>
+    auto operator-(const T1 &t1, const Matrix<T2> &mat2) {
+        return -1 * mat2 + t1;
+    }
+
 /**
  * matrix * number, need T1 can * T2
  * */
@@ -477,8 +512,12 @@ namespace Mat_pro {
                 temp[i][j] = mat1.get_inside(i, j) * t2;
             }
         }
-        return Matrix<Multiply_Result_t<T1, T2>>
-                (std::move(temp));
+        return Matrix<Multiply_Result_t<T1, T2>>(std::move(temp));
+    }
+
+    template<typename T1, typename T2>
+    auto operator*(const T1 &t1, const Matrix<T2> &mat2) {
+        return mat2 * t1;
     }
 
 /**
@@ -526,10 +565,7 @@ namespace Mat_pro {
  *  number * matrix , need T1 can * T2
  * */
     // used to  -> Matrix<Multiply_Result_t_Macro> ;
-    template<typename T1, typename T2>
-    auto operator*(const T1 &t1, const Matrix<T2> &mat2) {
-        return mat2 * t1;
-    }
+
 
     template<typename T>
     Matrix<T> operator*(const Matrix<T> &mat1, const Matrix<T> &mat2) {
@@ -808,9 +844,11 @@ namespace Mat_pro {
     Matrix<T> Matrix<T>::convolution(const Matrix<T> &kernel, int32_t padding, int32_t stride) const {
         if (padding < 0 || stride < 0
             || this->rows() + 2 * padding < kernel.rows()
-            || this->cols() + 2 * padding < kernel.cols()) {
+            || this->cols() + 2 * padding < kernel.cols()
+            || !kernel.is_square()) {
             throw std::invalid_argument("input parameter happen error");
         }
+        padding = std::max(padding, kernel.rows() - 1);
         //padding = std::max(padding, std::max(kernel.rows(), kernel.cols()));
         int32_t new_row = floor((this->rows() + 2 * padding - kernel.rows()) / stride) + 1;
         int32_t new_col = floor((this->cols() + 2 * padding - kernel.cols()) / stride) + 1;
@@ -832,6 +870,34 @@ namespace Mat_pro {
             }
         }
         return Matrix<T>(std::move(will_return));
+    }
+
+    template<typename T>
+    Matrix<T>
+    Matrix<T>::convolution_mul(const Matrix<T> &kernel, int32_t padding, int32_t stride, int32_t demension) const {
+        vector<Matrix<T>> mats;
+        if (this->cols() % demension != 0) {
+            throw std::invalid_argument("Demension not match matrix size");
+        }
+        for (int i = 0; i < demension; ++i) {
+            vector<vector<T>> temp(this->rows(), vector<T>(this->cols() / demension));
+            for (int j = 0; j < this->rows(); ++j) {
+                for (int k = 0; k < this->cols() / demension; ++k) {
+                    temp[j][k] = this->get_inside(j, k * demension + i);
+                }
+            }
+            mats.emplace_back(temp);
+        }
+        for (int i = 0; i < demension; ++i) {
+            mats[i] = mats[i].convolution(kernel, padding, stride);
+        }
+        vector<vector<T>> will_return(this->rows(), vector<T>(this->cols()));
+        for (int j = 0; j < this->rows(); ++j) {
+            for (int k = 0; k < this->cols(); ++k) {
+                will_return[j][k] = mats[k % demension].get_inside(j, k / demension);
+            }
+        }
+        return Matrix<T>(will_return);
     }
 
     template<typename T>
@@ -923,12 +989,19 @@ namespace Mat_pro {
         if (matrix.cols() % demen != 0) {
             // TODO
         }
-        Mat will_return(matrix.rows(), matrix.cols() / demen, type + (demen - 1) * 8);
+        Mat will_return(matrix.rows(), matrix.cols() / demen, type + (demen - 1) * 7);
+        vector<Mat> mats;
+        for (int k = 0; k < demen; ++k) {
+            mats.push_back(Mat(matrix.rows(), matrix.cols() / demen, type));
+        }
         for (int i = 0; i < matrix.rows(); ++i) {
-            for (int j = 0; j < matrix.cols(); ++j) {
-                will_return.at<T>(i, j) = matrix.get_inside(i, j);
+            for (int j = 0; j < matrix.cols() / demen; ++j) {
+                for (int k = 0; k < demen; ++k) {
+                    mats.at(k).at<T>(i, j) = matrix.get_inside(i, j * demen + k);
+                }
             }
         }
+        cv::merge(mats, will_return);
         return will_return;
     }
 

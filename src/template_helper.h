@@ -44,6 +44,24 @@ constexpr bool is_complex() {
 }
 
 template<typename T1, typename T2>
+struct Minus_Result {
+    using Type = decltype(std::declval<T1>() - std::declval<T2>());
+};
+
+template<typename T1, typename T2>
+using Minus_Result_t = typename Minus_Result<T1, T2>::Type;
+
+
+template<typename T1, typename T2>
+struct Add_Result {
+    using Type = decltype(std::declval<T1>() + std::declval<T2>());
+};
+
+template<typename T1, typename T2>
+using Add_Result_t = typename Add_Result<T1, T2>::Type;
+
+
+template<typename T1, typename T2>
 struct Multiply_Result {
     using Type = decltype(std::declval<T1>() * std::declval<T2>());
 };
