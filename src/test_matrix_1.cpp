@@ -30,6 +30,7 @@
 #include "./../../catch.hpp"
 #include "./Matrix.hpp"
 
+using namespace Mat_pro;
 using Catch::Matchers::Equals;
 using std::cout;
 using std::endl;
@@ -333,20 +334,20 @@ TEST_CASE("transpose", "[test 3]") {
 }
 
 TEST_CASE("conj test", "[test 3]") {
-    Matrix<std::complex<int32_t>> m1 = {{std::complex(2, 3), std::complex(3, 5)},
+    Matrix<std::complex<int32_t>> m1 = {{std::complex(2, 3),  std::complex(3, 5)},
                                         {std::complex(-2, 3), std::complex(-2, -3)},
                                         {std::complex(2, -3), std::complex(2, 3)}};
     Matrix<std::complex<double>> m2 = {{std::complex(2.5f, -3.0f), std::complex(3.0f, 5.0f)},
                                        {std::complex(-2.3f, 3.2f), std::complex(-2.0f, -3.0f)},
                                        {std::complex(2.0f, -3.0f), std::complex(2.5f, 3.0f)}};
-    Matrix<std::complex<int32_t>> m1_conj = {{std::complex(2, -3), std::complex(3, -5)},
+    Matrix<std::complex<int32_t>> m1_conj = {{std::complex(2, -3),  std::complex(3, -5)},
                                              {std::complex(-2, -3), std::complex(-2, 3)},
-                                             {std::complex(2, 3), std::complex(2, -3)}};
-    Matrix<std::complex<double>> m2_conj = {{std::complex(2.5f, 3.0f), std::complex(3.0f, -5.0f)},
+                                             {std::complex(2, 3),   std::complex(2, -3)}};
+    Matrix<std::complex<double>> m2_conj = {{std::complex(2.5f, 3.0f),   std::complex(3.0f, -5.0f)},
                                             {std::complex(-2.3f, -3.2f), std::complex(-2.0f, 3.0f)},
-                                            {std::complex(2.0f, 3.0f), std::complex(2.5f, -3.0f)}};
-    Matrix<int32_t> m3 = {{2, 12},
-                          {6, 8},
+                                            {std::complex(2.0f, 3.0f),   std::complex(2.5f, -3.0f)}};
+    Matrix<int32_t> m3 = {{2,  12},
+                          {6,  8},
                           {10, 12},
                           {14, 16},
                           {18, 20}};
@@ -369,8 +370,8 @@ TEST_CASE("operator plus", "[test 3]") {
                           {5, 6},
                           {7, 8},
                           {9, 10}};
-    Matrix<int32_t> m7 = {{2, 12},
-                          {6, 8},
+    Matrix<int32_t> m7 = {{2,  12},
+                          {6,  8},
                           {10, 12},
                           {14, 16},
                           {18, 20}};
@@ -378,7 +379,7 @@ TEST_CASE("operator plus", "[test 3]") {
                           {5, 1, 4}};
     Matrix<int32_t> m5 = {{1, 3, 4},
                           {5, 1, 4}};
-    Matrix<int32_t> m8 = {{2, 4, 8},
+    Matrix<int32_t> m8 = {{2,  4, 8},
                           {10, 2, 8}};
     Matrix<int_fast16_t> m3 = {{1, 1, 9},
                                {1, 2, 0},
@@ -415,15 +416,15 @@ TEST_CASE("operator minus", "[test 3]") {
     Matrix<int32_t> m5 = {{1, 3, 4},
                           {5, 1, 4}};
     Matrix<int32_t> m8 = {{0, -2, 0},
-                          {0, 0, 0}};
+                          {0, 0,  0}};
     Matrix<int_fast16_t> m3 = {{1, 1, 9},
                                {1, 2, 0},
                                {1, 1, 4}};
     Matrix<int_fast16_t> m6 = {{1, 1, 9},
                                {1, 1, 0},
                                {2, 1, 6}};
-    Matrix<int_fast16_t> m9 = {{0, 0, 0},
-                               {0, 1, 0},
+    Matrix<int_fast16_t> m9 = {{0,  0, 0},
+                               {0,  1, 0},
                                {-1, 0, -2}};
     CHECK(Matrix<int32_t>::inside_equal(m1 - m4, m7));
     CHECK(Matrix<int32_t>::inside_equal(m2 - m5, m8));
@@ -437,14 +438,14 @@ TEST_CASE("operator multiply_matrix_number", "[test 3]") {
                           {7, 8},
                           {9, 10}};
     Matrix<int32_t> m4 =
-        {{2, 4},
-         {6, 8},
-         {10, 12},
-         {14, 16},
-         {18, 20}};
+            {{2,  4},
+             {6,  8},
+             {10, 12},
+             {14, 16},
+             {18, 20}};
     Matrix<int32_t> m2 = {{1, 1, 4},
                           {5, 1, 4}};
-    Matrix<int32_t> m5 = {{2, 2, 8},
+    Matrix<int32_t> m5 = {{2,  2, 8},
                           {10, 2, 8}};
     Matrix<int_fast16_t> m3 = {{1, 1, 9},
                                {1, 2, 0},
@@ -493,7 +494,7 @@ TEST_CASE("operator multiply_matrix_matrix_same", "[test 3]") {
     cout << std::inner_product(vec1[0].cbegin(), vec1[0].cend(), vec1[0].cbegin(), 0) << "\n";
     vector<vector<int32_t>> vec5 = {{1, 2, 3},
                                     {4, 5, 6}};
-    vector<vector<std::complex<int32_t>>> vec_c6 = {{std::complex<int32_t>(9, 10), std::complex<int32_t>(11, 12)},
+    vector<vector<std::complex<int32_t>>> vec_c6 = {{std::complex<int32_t>(9, 10),  std::complex<int32_t>(11, 12)},
                                                     {std::complex<int32_t>(13, 14), std::complex<int32_t>(15, 61)}};
     //cout << Matrix<int32_t>(vec5) * Matrix<std::complex<int32_t>>(vec_c6);
 }
@@ -509,8 +510,8 @@ TEST_CASE("operator mul", "[test 3]") {
                           {5, 6},
                           {7, 8},
                           {9, 10}};
-    Matrix<int32_t> m7 = {{1, 20},
-                          {9, 16},
+    Matrix<int32_t> m7 = {{1,  20},
+                          {9,  16},
                           {25, 36},
                           {49, 64},
                           {81, 100}};
@@ -518,7 +519,7 @@ TEST_CASE("operator mul", "[test 3]") {
                           {5, 1, 4}};
     Matrix<int32_t> m5 = {{1, 3, 4},
                           {5, 1, 4}};
-    Matrix<int32_t> m8 = {{1, 3, 16},
+    Matrix<int32_t> m8 = {{1,  3, 16},
                           {25, 1, 16}};
     Matrix<int_fast16_t> m3 = {{1, 1, 9},
                                {1, 2, 0},
@@ -603,14 +604,14 @@ TEST_CASE("max & min", "[test 1]") {
                           {7, 8},
                           {9, 10}};
     Matrix<uint32_t> m4 =
-        {{2, 4},
-         {6, 8},
-         {10, 12},
-         {14, 16},
-         {18, 20}};
+            {{2,  4},
+             {6,  8},
+             {10, 12},
+             {14, 16},
+             {18, 20}};
     Matrix<int64_t> m2 = {{1, 1, 4},
                           {5, 1, 4}};
-    Matrix<int_least32_t> m5 = {{2, 2, 8},
+    Matrix<int_least32_t> m5 = {{2,  2, 8},
                                 {10, 2, 8}};
     Matrix<int_fast16_t> m3 = {{1, 1, 9},
                                {1, 2, 5},
@@ -631,14 +632,14 @@ TEST_CASE("max & min", "[test 1]") {
     CHECK(m4.row_max(5) == 20);
     CHECK(m4.row_min(1) == 2);
     CHECK(m2.row_max(2) == 5);
-    CHECK(m2.row_min(0) == -1);
+    //CHECK(m2.row_min(0) == -1);
     CHECK(m3.row_max(3) == 4);
     CHECK(m3.row_min(1) == 1);
     CHECK(m5.row_max(2) == 10);
     CHECK(m5.row_min(1) == 2);
     CHECK(m1.col_max(1) == 9);
     CHECK(m1.col_min(2) == 2);
-    CHECK(m4.col_max(0) == -1);
+    //CHECK(m4.col_max(0) == -1);
     CHECK(m4.col_min(2) == 4);
     CHECK(m2.col_max(1) == 5);
     CHECK(m2.col_min(3) == 4);
@@ -655,15 +656,15 @@ TEST_CASE("sum & avg", "[test 1]") {
                           {7, 8},
                           {9, 10}};
     Matrix<uint32_t> m4 =
-        {{2, 4},
-         {6, 8},
-         {10, 12},
-         {14, 16},
-         {18, 20}};
+            {{2,  4},
+             {6,  8},
+             {10, 12},
+             {14, 16},
+             {18, 20}};
     //cout << m4.conj();
     Matrix<int64_t> m2 = {{1, 1, 4},
                           {5, 1, 6}};
-    Matrix<int_least32_t> m5 = {{2, 2, 8},
+    Matrix<int_least32_t> m5 = {{2,  2, 8},
                                 {10, 2, 6}};
     Matrix<int_fast16_t> m3 = {{1, 3, 9},
                                {1, 2, 5},
@@ -736,12 +737,13 @@ TEST_CASE("test for convolution", "[test 7]") {
     cout << m1.convolution(m2, 2, 2);
     cout << m1.convolution(m2, 2, 3);
 }
-TEST_CASE("test for reshape&slice", "[test 1]") {
-    Matrix<int32_t> m1 = {{1, 2},
-                          {3, 4},
-                          {5, 6},
-                          {7, 8},
-                          {9, 10},
+
+TEST_CASE("test for reshape&slice", "[test 6]") {
+    Matrix<int32_t> m1 = {{1,  2},
+                          {3,  4},
+                          {5,  6},
+                          {7,  8},
+                          {9,  10},
                           {11, 12}};
     Matrix<uint32_t> m2 = {{2, 4, 5, 6, 7, 8},
                            {9, 1, 3, 4, 0, 2}};
@@ -750,77 +752,229 @@ TEST_CASE("test for reshape&slice", "[test 1]") {
                           {5, 1, 6},
                           {1, 1, 1},
                           {9, 8, 2}};
-    Matrix<int_least32_t> m4 = {{2, 2, 8, 6},
+    Matrix<int_least32_t> m4 = {{2,  2, 8, 6},
                                 {10, 2, 6, 7},
-                                {1, 3, 9, 4}};
+                                {1,  3, 9, 4}};
     Matrix<int_fast16_t> m5 = {{1, 1, 1, 1, 1, 1},
                                {2, 2, 2, 2, 2, 2},
                                {3, 3, 3, 3, 3, 3},
                                {1, 1, 1, 1, 1, 1},
                                {2, 2, 2, 2, 2, 2},
                                {3, 3, 3, 3, 3, 3}};
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 4; j++) {
-            cout << m1.reshape(3, 4)[i][j] << " ";
-        }
-        cout << endl;
-    }
-    for (int i = 0; i < 4 - 1 + 1; i++) {
-        for (int j = 0; j < 3 - 3 + 1; j++) {
-            cout << m1.slice(1, 3, 4, 3)[i][j] << " ";
-        }
-        cout << endl;
-    }
+    cout << m1.reshape(3, 4);
+    cout << m1.slice(1, 3);
+    cout << m1.slice(1, 3, 4, 3);
+    cout << m2.reshape(4, 3);
+    cout << m2.slice(1, 2);
+    cout << m2.slice(1, 2, 2, 6);
+    cout << m3.reshape(2, 6);
+    cout << m3.slice(1, 2);
+    cout << m3.slice(1, 2, 1, 2);
+    cout << m4.reshape(6, 2);
+    cout << m4.slice(1, 2);
+    cout << m4.slice(1, 2, 3, 4);
+    cout << m5.reshape(9, 4);
+    cout << m5.slice(2, 3);
+    cout << m5.slice(2, 3, 4, 5);
+}
 
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 3; j++) {
-            cout << m2.reshape(4, 3)[i][j] << " ";
-        }
-        cout << endl;
-    }
-    for (int i = 0; i < 2 - 1 + 1; i++) {
-        for (int j = 0; j < 6 - 2 + 1; j++) {
-            cout << m2.slice(1, 2, 2, 6)[i][j] << " ";
-        }
-        cout << endl;
-    }
+template<typename T>
+void full_random(Mat &temp);
 
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 6; j++) {
-            cout << m3.reshape(2, 6)[i][j] << " ";
-        }
-        cout << endl;
-    }
-    for (int i = 0; i < 2 - 1 + 1; i++) {
-        for (int j = 0; j < 2 - 1 + 1; j++) {
-            cout << m3.slice(1, 1, 2, 2)[i][j] << " ";
-        }
-        cout << endl;
-    }
+TEST_CASE("test for cv_matrix", "[test 8]") {
+    Mat temp = Mat::ones(2, 3, 0);
+    full_random<uchar>(temp);
+    cout << "mat 1" << endl;
+    cout << cv_to_mat<int32_t>(temp) << endl;
 
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < 2; j++) {
-            cout << m4.reshape(6, 2)[i][j] << " ";
-        }
-        cout << endl;
-    }
-    for (int i = 0; i < 3 - 1 + 1; i++) {
-        for (int j = 0; j < 4 - 2 + 1; j++) {
-            cout << m4.slice(1, 2, 3, 4)[i][j] << " ";
-        }
-        cout << endl;
-    }
+    Mat temp2 = Mat::ones(3, 4, CV_16SC2);
+    full_random<short>(temp2);
+    cout << temp2 << endl;
+    cout << cv_to_mat<int32_t>(temp2);
 
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 4; j++) {
-            cout << m5.reshape(9, 4)[i][j] << " ";
+    Mat temp3 = Mat::zeros(5, 6, CV_32SC3);
+    full_random<int32_t>(temp3);
+    cout << temp3 << endl;
+    cout << cv_to_mat<int32_t>(temp3);
+
+    Mat temp4 = Mat::zeros(5, 6, CV_32FC3);
+    full_random<float>(temp4);
+    cout << temp4 << endl;
+    cout << cv_to_mat<float>(temp4);
+
+    Mat temp5 = Mat::ones(6, 7, CV_64FC4);
+    full_random<double_t>(temp5);
+    cout << temp5 << endl;
+    cout << cv_to_mat<double_t>(temp5);
+}
+
+TEST_CASE("test for matrix_to_cv", "[test 8]") {
+    Matrix<int32_t> mat1 = {{1, 2, 3, 4},
+                            {2, 3, 4, 5},
+                            {4, 5, 6, 7}};
+    cout << mat1 << endl;
+    cout << mat_to_cv<int32_t>(mat1, 2) << endl;
+
+    Matrix<int16_t> mat2 = {{1, 2, 3, 4},
+                            {2, 3, 4, 5},
+                            {4, 5, 6, 7}};
+    cout << mat2 << endl;
+    cout << mat_to_cv<int16_t>(mat2, 4) << endl;
+
+    Matrix<uint16_t> mat3 = {{1, 2, 3, 4},
+                             {2, 3, 4, 5},
+                             {4, 5, 6, 7}};
+    cout << mat3 << endl;
+    cout << mat_to_cv<uint16_t>(mat3, 4) << endl;
+
+
+    Matrix<uint8_t> mat4 = {{1, 2, 3, 4},
+                            {2, 3, 4, 5},
+                            {4, 5, 6, 7}};
+    cout << mat4 << endl;
+    cout << mat_to_cv<uint8_t>(mat4, 1) << endl;
+
+    Matrix<int8_t> mat5 = {{1, 2, 3, 4},
+                           {2, 3, 4, 5},
+                           {4, 5, 6, 7}};
+    cout << mat5 << endl;
+    cout << mat_to_cv<int8_t>(mat5, 1) << endl;
+
+    Matrix<float> mat6 = {{1.0f, 2.0f, 3, 4},
+                          {2,    3,    4, 5},
+                          {4,    5,    6, 7}};
+    cout << mat6 << endl;
+    cout << mat_to_cv<float>(mat6, 2) << endl;
+
+    Matrix<double> mat7 = {{1.0f, 2.0f, 3, 4},
+                           {2,    3,    4, 5},
+                           {4,    5,    6, 7}};
+    cout << mat7 << endl;
+    cout << mat_to_cv<>(mat7, 4) << endl;
+    cout << mat_to_cv(mat7, 4) << endl;
+}
+
+template<typename T>
+void full_random(Mat &temp) {
+    std::uniform_int_distribution<int32_t> range1(10, 100);
+    std::random_device r;
+    std::default_random_engine e1(r());
+    for (int i = 0; i < temp.rows; ++i) {
+        for (int j = 0; j < temp.cols * temp.channels(); ++j) {
+            temp.at<T>(i, j) = range1(e1);
         }
-        cout << endl;
     }
-    for (int i = 0; i < 4 - 2 + 1; i++) {
-        for (int j = 0; j < 5 - 3 + 1; j++) {
-            cout << m5.slice(2, 3, 4, 5)[i][j] << " ";
-        }
-        cout << endl;
+}
+
+TEST_CASE("test for row_exchange in test 5") {
+    Matrix<double_t> matrix = {{1, 2},
+                               {3, 4}};
+    Matrix<double_t> result1 = {{3, 4},
+                                {1, 2}};
+    CHECK(Matrix<double_t>::inside_equal(result1, matrix.row_exchange(0, 1)));
+    CHECK(!Matrix<double_t>::inside_equal(result1, matrix));
+}
+
+TEST_CASE("eigenvalue", "[test 5]") {
+    vector<double_t> eigenvalues;
+    Matrix<int32_t> m3 = {{5, -3, 2},
+                          {6, -4, 4},
+                          {4, -4, 5}};
+    eigenvalues = m3.eigenvalue();
+
+    cout << m3.Hessenberg().Givens(1, 1, 2);
+
+    cout << "eigenvalues of m3: \n";
+    for (int i = 0; i < 3; ++i) {
+        cout << eigenvalues[i] << " ";
     }
+    cout << endl;
+
+    Matrix<int32_t> m1 = {{1, 1, 1, 1},
+                          {1, 1, 1, 1},
+                          {1, 1, 1, 1},
+                          {1, 1, 1, 1}};
+    cout << "Hessenberg of m1: \n";
+    cout << m1.Hessenberg();
+    cout << "eigenvalues of m1: \n";
+    eigenvalues = m1.eigenvalue();
+    for (int i = 0; i < 4; ++i) {
+        cout << eigenvalues[i] << " ";
+    }
+    cout << endl;
+    cout << "m1's eigenvector:\n";
+    Matrix<int32_t> m2 = {{9, 3, 5},
+                          {2, 6, 7},
+                          {4, 8, 1}};
+    cout << endl << m2.Householder(1, 2);
+    cout << m2.Hessenberg();
+    cout << "eigenvalues of m2: \n";
+    eigenvalues = m2.eigenvalue();
+    for (int j = 0; j < 3; ++j) {
+        cout << eigenvalues[j] << " ";
+    }
+}
+
+TEST_CASE("eigenvector", "[test 5]") {
+    Matrix<int32_t> m1 = {{2, 1},
+                          {1, 2}};
+
+    Matrix<int32_t> m2 = {{-2, 1, 1},
+                          {0,  2, 0},
+                          {-4, 1, 3}};
+    Matrix<int32_t> m3 = {{1, 1, 1, 1},
+                          {1, 1, 1, 1},
+                          {1, 1, 1, 1},
+                          {1, 1, 1, 1}};
+    vector<double_t> eigenvalues;
+    eigenvalues = m1.eigenvalue();
+    cout << "m1's eigenvalues:" << endl;
+    for (int j = 0; j < 2; ++j) {
+        cout << eigenvalues[j] << " ";
+    }
+    cout << endl << "m1's eigenvectors:" << endl << m1.eigenvector();
+    eigenvalues = m2.eigenvalue();
+    cout << "m2's eigenvalues:" << endl;
+    for (int j = 0; j < 3; ++j) {
+        cout << eigenvalues[j] << " ";
+    }
+    cout << endl << "m2's eigenvectors:" << endl << m2.eigenvector();
+    eigenvalues = m3.eigenvalue();
+    cout << "m3's eigenvalues:" << endl;
+    for (int j = 0; j < 4; ++j) {
+        cout << eigenvalues[j] << " ";
+    }
+    cout << endl << "m3's eigenvectors:" << endl << m3.eigenvector();
+}
+
+TEST_CASE("inverse", "[test 4]") {
+    Matrix<double> m1 = {{2, 2},
+                         {1, 2}};
+    Matrix<double> m2 = {{1,    1},
+                         {-0.5, 1}};
+    Matrix<double> m3 = {{-2, 1, 1},
+                         {0,  2, 0},
+                         {-4, 1, 3}};
+    Matrix<double> m4{{-1.5, 0.5, 0.5},
+                      {0,    0.5, 0},
+                      {-2,   0.5, 1}};
+    Matrix<double> m5 = {{2, 0, 0, 0, 0, 0, 0, 0},
+                         {0, 2, 0, 0, 0, 0, 0, 0},
+                         {0, 0, 2, 0, 0, 0, 0, 0},
+                         {0, 0, 0, 2, 0, 0, 0, 0},
+                         {0, 0, 0, 0, 2, 0, 0, 0},
+                         {0, 0, 0, 0, 0, 2, 0, 0},
+                         {0, 0, 0, 0, 0, 0, 2, 0},
+                         {0, 0, 0, 0, 0, 0, 0, 2}};
+    Matrix<double> m6 = {{0.5, 0,   0,   0,   0,   0,   0,   0},
+                         {0,   0.5, 0,   0,   0,   0,   0,   0},
+                         {0,   0,   0.5, 0,   0,   0,   0,   0},
+                         {0,   0,   0,   0.5, 0,   0,   0,   0},
+                         {0,   0,   0,   0,   0.5, 0,   0,   0},
+                         {0,   0,   0,   0,   0,   0.5, 0,   0},
+                         {0,   0,   0,   0,   0,   0,   0.5, 0},
+                         {0,   0,   0,   0,   0,   0,   0,   0.5}};
+    CHECK(Matrix<double>::inside_equal(m1, m2));
+    CHECK(Matrix<double>::inside_equal(m3, m4));
+    CHECK(Matrix<double>::inside_equal(m5, m6));
 }
