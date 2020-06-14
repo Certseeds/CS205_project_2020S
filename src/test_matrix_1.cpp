@@ -947,3 +947,41 @@ TEST_CASE("eigenvector", "[test 5]") {
     cout << endl << "m3's eigenvectors:" << endl << m3.eigenvector();
 }
 
+TEST_CASE("inverse", "[test 5]") {
+    Matrix<double> m1 = {{2, 2},
+                         {1, 2}};
+    auto temp = m1.inverse();
+    Matrix<double> m2 = {{1,    -1},
+                         {-0.5, 1}};
+    Matrix<double> m3 = {{-2, 1, 1},
+                         {0,  2, 0},
+                         {-4, 1, 3}};
+    auto temp2 = m3.inverse();
+    Matrix<double> m4{{-1.5, 0.5, 0.5},
+                      {0,    0.5, 0},
+                      {-2,   0.5, 1}};
+    Matrix<double> m5 = {{2, 0, 0, 0, 0, 0, 0, 0},
+                         {0, 2, 0, 0, 0, 0, 0, 0},
+                         {0, 0, 2, 0, 0, 0, 0, 0},
+                         {0, 0, 0, 2, 0, 0, 0, 0},
+                         {0, 0, 0, 0, 2, 0, 0, 0},
+                         {0, 0, 0, 0, 0, 2, 0, 0},
+                         {0, 0, 0, 0, 0, 0, 2, 0},
+                         {0, 0, 0, 0, 0, 0, 0, 2}};
+    auto temp3 = m5.inverse();
+    Matrix<double> m6 = {{0.5, 0,   0,   0,   0,   0,   0,   0},
+                         {0,   0.5, 0,   0,   0,   0,   0,   0},
+                         {0,   0,   0.5, 0,   0,   0,   0,   0},
+                         {0,   0,   0,   0.5, 0,   0,   0,   0},
+                         {0,   0,   0,   0,   0.5, 0,   0,   0},
+                         {0,   0,   0,   0,   0,   0.5, 0,   0},
+                         {0,   0,   0,   0,   0,   0,   0.5, 0},
+                         {0,   0,   0,   0,   0,   0,   0,   0.5}};
+    Matrix<double> m7 = {2};
+    auto temp4 = m7.inverse();
+    Matrix<double> m8 = {0.5};
+    CHECK(Matrix<double>::inside_equal(m1.inverse(), m2));
+    CHECK(Matrix<double>::inside_equal(m3.inverse(), m4));
+    CHECK(Matrix<double>::inside_equal(m5.inverse(), m6));
+    CHECK(Matrix<double>::inside_equal(m7.inverse(), m8));
+}

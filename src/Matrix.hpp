@@ -220,6 +220,8 @@ namespace Mat_pro {
 
         T determinant() const;
 
+        Matrix<T> inverse() const;//逆
+
         Matrix<T> convolution(const Matrix<T> &kernel, int32_t padding = 0, int32_t stride = 1) const;
 
         Matrix<T>
@@ -713,6 +715,30 @@ namespace Mat_pro {
         return determinant_in(this->vec);
     }
 
+    template<typename T>
+    Matrix<T> Matrix<T>::inverse() const {
+        if (this->is_square() && this->rows() > 1 && this->determinant() != 0) {//可逆条件
+            vector<vector<T>> res(this->rows(), vector<T>(this->cols(), static_cast<T>(0)));
+            for (int32_t i = 0; i < this->rows(); i++) {
+                for (int32_t j = 0; j < this->cols(); j++) {
+                    //vector<vector<T>> submatrix(this->rows() - 1, vector<T>(this->cols() - 1, static_cast<T>(0)));
+                    vector<vector<T>> submatrix(this->vec);
+                    submatrix.erase(submatrix.begin() + i);
+                    for (int m = 0; m < this->rows() - 1; ++m) {
+                        submatrix[m].erase(submatrix[m].begin() + j);
+                    }
+                    res[j][i] = (((i + j) % 2) ? -1 : 1) * determinant_in(submatrix);//子矩阵展开得到伴随矩阵
+                }
+            }
+            Matrix<T> will_return(res);
+            will_return = will_return / this->determinant();
+            //will_return[i][j] = res[i][j] / this->determinant();//逆
+            return will_return;
+        } else if (this->is_square() && this->rows() == 1 && this->determinant() != 0) {
+            return Matrix<T>::values(1, 1, static_cast<T>(1) / this->vec[0][0]);
+        }
+        return Matrix<T>(1, 1);
+    }
 
     template<typename T>
     Matrix<T> Matrix<T>::conj() const {
