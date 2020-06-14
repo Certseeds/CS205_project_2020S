@@ -871,7 +871,7 @@ TEST_CASE("test for row_exchange in test 5") {
                                {3, 4}};
     Matrix<double_t> result1 = {{3, 4},
                                 {1, 2}};
-    CHECK(Matrix<double_t>::inside_equal(result1, matrix.row_exchange(0,1)));
+    CHECK(Matrix<double_t>::inside_equal(result1, matrix.row_exchange(0, 1)));
     CHECK(!Matrix<double_t>::inside_equal(result1, matrix));
 }
 
@@ -903,8 +903,6 @@ TEST_CASE("eigenvalue", "[test 5]") {
     }
     cout << endl;
     cout << "m1's eigenvector:\n";
-
-
     Matrix<int32_t> m2 = {{9, 3, 5},
                           {2, 6, 7},
                           {4, 8, 1}};

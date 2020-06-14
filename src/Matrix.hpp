@@ -220,7 +220,6 @@ namespace Mat_pro {
 
         T determinant() const;
 
-
         Matrix<T> convolution(const Matrix<T> &kernel, int32_t padding = 0, int32_t stride = 1) const;
 
         Matrix<T>
@@ -706,14 +705,14 @@ namespace Mat_pro {
 
     template<typename T>
     T Matrix<T>::determinant() const {
-        T will_return(0);
         if (!this->is_square()) {
             throw Matrix_Shape_Not_Match_Exception(
                     "this Matrix is not Squre, can not get determinant", __FILE__, __LINE__);
-            return will_return;
+            //return will_return;
         }
         return determinant_in(this->vec);
     }
+
 
     template<typename T>
     Matrix<T> Matrix<T>::conj() const {
