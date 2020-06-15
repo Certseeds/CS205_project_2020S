@@ -36,7 +36,6 @@
 #include <cmath>
 #include "./template_helper.h"
 
-const double_t eps = std::pow(10, -5);
 
 namespace Mat_pro {
     using cv::Mat;
@@ -44,6 +43,8 @@ namespace Mat_pro {
     using std::valarray;
     using std::vector;
     using std::pow;
+
+    const double_t eps = std::pow(10, -5);
 
     struct Matrix_Shape_Not_Match_Exception : public std::exception {
         char will_return[300] = "\0";
@@ -1012,7 +1013,7 @@ namespace Mat_pro {
             type = 6;
         }
         if (matrix.cols() % demen != 0) {
-            // TODO
+            throw std::invalid_argument("demension not match matrix size");
         }
         Mat will_return(matrix.rows(), matrix.cols() / demen, type + (demen - 1) * 7);
         vector<Mat> mats;
@@ -1062,7 +1063,7 @@ namespace Mat_pro {
     Matrix<double_t> Matrix<T>::Hessenberg() const {
         if (!this->is_square()) {
             throw std::invalid_argument("Need to ensure matrix is sequre");
-            return Matrix<double_t>::eye_value(this->rows(), 0);
+            //return Matrix<double_t>::eye_value(this->rows(), 0);
         }
         Matrix<double_t> left_H = Matrix<double_t>::eye(this->rows());
         Matrix<double_t> right_H = Matrix<double_t>::eye(this->rows());
