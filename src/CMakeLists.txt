@@ -16,7 +16,7 @@ include_directories(
         /usr/local/include/opencv2
 )
 
-add_executable(${PROJECT_NAME}
+add_executable(${PROJECT_NAME}_
         ./../../catch_main.cpp
         #./test_matrix_2.cpp
         ./test_matrix_1.cpp
@@ -24,7 +24,7 @@ add_executable(${PROJECT_NAME}
         )
 # test_matrix_1 for unit test
 # test_matrix_2 for demo.
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME}_ ${OpenCV_LIBS})
 
 add_executable(${PROJECT_NAME}_test_opencv ./opencv_matrix.cpp)
 target_link_libraries(${PROJECT_NAME}_test_opencv ${OpenCV_LIBS})

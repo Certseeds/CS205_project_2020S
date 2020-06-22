@@ -975,11 +975,11 @@ namespace Mat_pro {
             for (int j = 0; j < m.cols * m.channels(); ++j) {
                 switch (m.type() % 8) {
                     case 5: {
-                        will_return[i][j] = *(float *) (temp_head + j * m.elemSize1());
+                        will_return[i][j] = from_char_array<float>(temp_head + j * m.elemSize1());
                         break;
                     }
                     case 6: {
-                        will_return[i][j] = *(double *) (temp_head + j * m.elemSize1());
+                        will_return[i][j] = from_char_array<double>(temp_head + j * m.elemSize1());
                         break;
                     }
                     default: {
@@ -1320,7 +1320,7 @@ namespace Mat_pro {
             if (std::abs(ele) <= eps) {
                 matrix.vec[row][i] = 0;
             } else {
-                matrix.vec[row][i] = (double_t) this->get_inside(row, i) / ele;
+                matrix.vec[row][i] = static_cast<double>(this->get_inside(row, i)) / ele;
             }
         }
         return matrix;

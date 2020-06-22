@@ -89,6 +89,14 @@ constexpr bool has_conj() {
     return has_conj_imp<T>();
 }
 
+template<typename T>
+T from_char_array(unsigned char const *buffer) {
+    T will_return;
+    unsigned char *dp = reinterpret_cast<unsigned char *>(&will_return);
+    std::copy(buffer, buffer + sizeof(T), dp);
+    return will_return;
+}
+
 #define MY_IF0(...) typename std::enable_if<(bool)(__VA_ARGS__), int >::type
 #define MY_IF(...) MY_IF0(__VA_ARGS__) = 0
 #endif //CS205_C_CPP_CS205_PROJECT_2020S_SRC_TEMPLATE_HELPER_H
