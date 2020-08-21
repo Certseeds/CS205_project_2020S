@@ -17,7 +17,7 @@ include_directories(
 )
 
 add_executable(${PROJECT_NAME}_
-        ./../../catch_main.cpp
+        ../../include/catch_main.hpp
         #./test_matrix_2.cpp
         ./test_matrix_1.cpp
         ./Matrix.hpp

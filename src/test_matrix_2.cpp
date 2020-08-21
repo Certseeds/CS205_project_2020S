@@ -1,3 +1,11 @@
+/*
+ * @Github: https://github.com/Certseeds/CS205_C_CPP
+ * @Organization: SUSTech
+ * @Author: nanoseeds
+ * @Date: 2020-08-21 16:41:03
+ * @LastEditors: nanoseeds
+ * @LastEditTime: 2020-08-21 17:24:01
+ */
 /*  CS205_C_CPP 
     Copyright (C) 2020  nanoseeds
 
@@ -13,17 +21,11 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-    *//**
- * @Github: https://github.com/Certseeds/CS205_C_CPP
- * @Organization: SUSTech
- * @Author: nanoseeds
- * @Date: 2020-06-12 11:46:21 
- * @LastEditors  : nanoseeds
- */
+    */
 #include <complex>
 #include <iostream>
 
-#include "./../../catch.hpp"
+#include "./../../include/catch_main.hpp"
 #include "./Matrix.hpp"
 
 using namespace Mat_pro;

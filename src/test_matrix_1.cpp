@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "./../../catch.hpp"
+#include "./../../include/catch_main.hpp"
 #include "./Matrix.hpp"
 
 using namespace Mat_pro;

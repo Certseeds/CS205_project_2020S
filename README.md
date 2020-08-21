@@ -16,7 +16,7 @@ details look at `./material/project-matrix.md`
 3. 如果将此project作为子module使用.
   + 确保上层文件夹所在目录下存在
     + `catch.hpp` : Catch2 的头文件
-    + `catch_main.cpp` : 
+    + `catch_main.hpp` : 
       只需要两行
       ``` cpp
       #define CATCH_CONFIG_MAIN  
