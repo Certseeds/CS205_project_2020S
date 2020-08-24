@@ -15,16 +15,18 @@ include_directories(
         ${PROJECT_SOURCE_DIR}
         /usr/local/include/opencv2
 )
+include_directories(./include)
+include_directories(./third_party)
 
-add_executable(${PROJECT_NAME}_
-        ../../include/catch_main.hpp
-        #./test_matrix_2.cpp
-        ./test_matrix_1.cpp
-        ./Matrix.hpp
-        )
+add_executable(${PROJECT_NAME}_unit_test
+        ./test_matrix_1.cpp)
+target_link_libraries(${PROJECT_NAME}_unit_test ${OpenCV_LIBS})
 # test_matrix_1 for unit test
+
+add_executable(${PROJECT_NAME}_demo_test
+        ./test_matrix_2.cpp)
 # test_matrix_2 for demo.
-target_link_libraries(${PROJECT_NAME}_ ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME}_demo_test ${OpenCV_LIBS})
 
 add_executable(${PROJECT_NAME}_test_opencv ./opencv_matrix.cpp)
 target_link_libraries(${PROJECT_NAME}_test_opencv ${OpenCV_LIBS})

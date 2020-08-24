@@ -25,7 +25,7 @@
 #include <complex>
 #include <iostream>
 
-#include "./../../include/catch_main.hpp"
+#include "catch_main.hpp"
 #include "./Matrix.hpp"
 
 using namespace Mat_pro;
