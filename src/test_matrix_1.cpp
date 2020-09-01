@@ -31,6 +31,7 @@
 #include "./Matrix.hpp"
 
 using namespace Mat_pro;
+
 using Catch::Matchers::Equals;
 using std::cout;
 using std::endl;
@@ -778,93 +779,93 @@ TEST_CASE("test for reshape&slice", "[test 6]") {
     cout << m5.slice(2, 3, 4, 5);
 }
 
-template<typename T>
-void full_random(Mat &temp);
+//template<typename T>
+//void full_random(Mat &temp);
+//template<typename T>
+//void full_random(Mat &temp) {
+//    std::uniform_int_distribution<int32_t> range1(10, 100);
+//    std::random_device r;
+//    std::default_random_engine e1(r());
+//    for (int i = 0; i < temp.rows; ++i) {
+//        for (int j = 0; j < temp.cols * temp.channels(); ++j) {
+//            temp.at<T>(i, j) = range1(e1);
+//        }
+//    }
+//}
+//TEST_CASE("test for cv_matrix", "[test 8][.]") {
+//    Mat temp = Mat::ones(2, 3, 0);
+//    full_random<uchar>(temp);
+//    cout << "mat 1" << endl;
+//    cout << cv_to_mat<int32_t>(temp) << endl;
+//
+//    Mat temp2 = Mat::ones(3, 4, CV_16SC2);
+//    full_random<short>(temp2);
+//    cout << temp2 << endl;
+//    cout << cv_to_mat<int32_t>(temp2);
+//
+//    Mat temp3 = Mat::zeros(5, 6, CV_32SC3);
+//    full_random<int32_t>(temp3);
+//    cout << temp3 << endl;
+//    cout << cv_to_mat<int32_t>(temp3);
+//
+//    Mat temp4 = Mat::zeros(5, 6, CV_32FC3);
+//    full_random<float>(temp4);
+//    cout << temp4 << endl;
+//    cout << cv_to_mat<float>(temp4);
+//
+//    Mat temp5 = Mat::ones(6, 7, CV_64FC4);
+//    full_random<double_t>(temp5);
+//    cout << temp5 << endl;
+//    cout << cv_to_mat<double_t>(temp5);
+//}
+//
+//TEST_CASE("test for matrix_to_cv", "[test 8][.]") {
+//    Matrix<int32_t> mat1 = {{1, 2, 3, 4},
+//                            {2, 3, 4, 5},
+//                            {4, 5, 6, 7}};
+//    cout << mat1 << endl;
+//    cout << mat_to_cv<int32_t>(mat1, 2) << endl;
+//
+//    Matrix<int16_t> mat2 = {{1, 2, 3, 4},
+//                            {2, 3, 4, 5},
+//                            {4, 5, 6, 7}};
+//    cout << mat2 << endl;
+//    cout << mat_to_cv<int16_t>(mat2, 4) << endl;
+//
+//    Matrix<uint16_t> mat3 = {{1, 2, 3, 4},
+//                             {2, 3, 4, 5},
+//                             {4, 5, 6, 7}};
+//    cout << mat3 << endl;
+//    cout << mat_to_cv<uint16_t>(mat3, 4) << endl;
+//
+//
+//    Matrix<uint8_t> mat4 = {{1, 2, 3, 4},
+//                            {2, 3, 4, 5},
+//                            {4, 5, 6, 7}};
+//    cout << mat4 << endl;
+//    cout << mat_to_cv<uint8_t>(mat4, 1) << endl;
+//
+//    Matrix<int8_t> mat5 = {{1, 2, 3, 4},
+//                           {2, 3, 4, 5},
+//                           {4, 5, 6, 7}};
+//    cout << mat5 << endl;
+//    cout << mat_to_cv<int8_t>(mat5, 1) << endl;
+//
+//    Matrix<float> mat6 = {{1.0f, 2.0f, 3, 4},
+//                          {2,    3,    4, 5},
+//                          {4,    5,    6, 7}};
+//    cout << mat6 << endl;
+//    cout << mat_to_cv<float>(mat6, 2) << endl;
+//
+//    Matrix<double> mat7 = {{1.0f, 2.0f, 3, 4},
+//                           {2,    3,    4, 5},
+//                           {4,    5,    6, 7}};
+//    cout << mat7 << endl;
+//    cout << mat_to_cv<>(mat7, 4) << endl;
+//    cout << mat_to_cv(mat7, 4) << endl;
+//}
 
-TEST_CASE("test for cv_matrix", "[test 8]") {
-    Mat temp = Mat::ones(2, 3, 0);
-    full_random<uchar>(temp);
-    cout << "mat 1" << endl;
-    cout << cv_to_mat<int32_t>(temp) << endl;
 
-    Mat temp2 = Mat::ones(3, 4, CV_16SC2);
-    full_random<short>(temp2);
-    cout << temp2 << endl;
-    cout << cv_to_mat<int32_t>(temp2);
-
-    Mat temp3 = Mat::zeros(5, 6, CV_32SC3);
-    full_random<int32_t>(temp3);
-    cout << temp3 << endl;
-    cout << cv_to_mat<int32_t>(temp3);
-
-    Mat temp4 = Mat::zeros(5, 6, CV_32FC3);
-    full_random<float>(temp4);
-    cout << temp4 << endl;
-    cout << cv_to_mat<float>(temp4);
-
-    Mat temp5 = Mat::ones(6, 7, CV_64FC4);
-    full_random<double_t>(temp5);
-    cout << temp5 << endl;
-    cout << cv_to_mat<double_t>(temp5);
-}
-
-TEST_CASE("test for matrix_to_cv", "[test 8]") {
-    Matrix<int32_t> mat1 = {{1, 2, 3, 4},
-                            {2, 3, 4, 5},
-                            {4, 5, 6, 7}};
-    cout << mat1 << endl;
-    cout << mat_to_cv<int32_t>(mat1, 2) << endl;
-
-    Matrix<int16_t> mat2 = {{1, 2, 3, 4},
-                            {2, 3, 4, 5},
-                            {4, 5, 6, 7}};
-    cout << mat2 << endl;
-    cout << mat_to_cv<int16_t>(mat2, 4) << endl;
-
-    Matrix<uint16_t> mat3 = {{1, 2, 3, 4},
-                             {2, 3, 4, 5},
-                             {4, 5, 6, 7}};
-    cout << mat3 << endl;
-    cout << mat_to_cv<uint16_t>(mat3, 4) << endl;
-
-
-    Matrix<uint8_t> mat4 = {{1, 2, 3, 4},
-                            {2, 3, 4, 5},
-                            {4, 5, 6, 7}};
-    cout << mat4 << endl;
-    cout << mat_to_cv<uint8_t>(mat4, 1) << endl;
-
-    Matrix<int8_t> mat5 = {{1, 2, 3, 4},
-                           {2, 3, 4, 5},
-                           {4, 5, 6, 7}};
-    cout << mat5 << endl;
-    cout << mat_to_cv<int8_t>(mat5, 1) << endl;
-
-    Matrix<float> mat6 = {{1.0f, 2.0f, 3, 4},
-                          {2,    3,    4, 5},
-                          {4,    5,    6, 7}};
-    cout << mat6 << endl;
-    cout << mat_to_cv<float>(mat6, 2) << endl;
-
-    Matrix<double> mat7 = {{1.0f, 2.0f, 3, 4},
-                           {2,    3,    4, 5},
-                           {4,    5,    6, 7}};
-    cout << mat7 << endl;
-    cout << mat_to_cv<>(mat7, 4) << endl;
-    cout << mat_to_cv(mat7, 4) << endl;
-}
-
-template<typename T>
-void full_random(Mat &temp) {
-    std::uniform_int_distribution<int32_t> range1(10, 100);
-    std::random_device r;
-    std::default_random_engine e1(r());
-    for (int i = 0; i < temp.rows; ++i) {
-        for (int j = 0; j < temp.cols * temp.channels(); ++j) {
-            temp.at<T>(i, j) = range1(e1);
-        }
-    }
-}
 
 TEST_CASE("test for row_exchange in test 5") {
     Matrix<double_t> matrix = {{1, 2},

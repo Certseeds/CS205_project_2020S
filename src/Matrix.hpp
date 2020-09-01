@@ -29,16 +29,16 @@
 #include <cstdint>
 #include <functional>
 #include <numeric>
-#include <opencv2/opencv.hpp>
 #include <utility>
 #include <valarray>
 #include <vector>
 #include <cmath>
 #include "./template_helper.h"
+//#include <opencv2/opencv.hpp>
 
 
 namespace Mat_pro {
-    using cv::Mat;
+    //using cv::Mat;
     using std::endl;
     using std::valarray;
     using std::vector;
@@ -263,7 +263,7 @@ namespace Mat_pro {
 
         Matrix<T> joint(Matrix<T> matrix) const;
 
-    };                                                                              // namespace Mat_pro
+    };// namespace Mat_pro
 
 
     template<typename T>
@@ -273,14 +273,11 @@ namespace Mat_pro {
 
     template<typename T>
     Matrix<T>::Matrix(int32_t rows, int32_t cols) {
-        rows = rows > 0 ? rows : 0;
-        cols = cols > 0 ? cols : 0;
-        this->vec = vector<vector<T >>(rows, vector<T>(cols));
+        this->vec = vector<vector<T >>( std::max(rows,0), vector<T>(std::max(cols,0)));
     }
 
     template<typename T>
-    Matrix<T>::Matrix(Matrix &&mat)
-    noexcept {
+    Matrix<T>::Matrix(Matrix &&mat) noexcept {
         this->vec = std::move(mat.vec);
     }
 
@@ -655,7 +652,9 @@ namespace Mat_pro {
     */
     template<typename T1, typename T2>
     bool size_equal(const Matrix<T1> &mat1, const Matrix<T2> &mat2) {
-        return !mat1.is_empty() && !mat2.is_empty() && mat1.rows() == mat2.rows() && mat1.cols() == mat2.cols();
+        return !mat1.is_empty() && !mat2.is_empty() \
+        && mat1.rows() == mat2.rows() \
+        && mat1.cols() == mat2.cols();
     }
 
 /** judge is equal
@@ -678,7 +677,7 @@ namespace Mat_pro {
 
     template<typename T>
     T Matrix<T>::trace() const {
-        T will_return(0);
+        T will_return{0};
         if (this->is_square()) {
             for (int32_t i = 0; i < this->rows(); ++i) {
                 will_return += this->vec[i][i];
@@ -968,74 +967,74 @@ namespace Mat_pro {
     }
 
     template<typename T>
-    Matrix<T> cv_to_mat(const Mat &m) {
-        vector<vector<T>> will_return(m.rows, vector<T>(m.cols * m.channels()));
-        for (int i = 0; i < m.rows; ++i) {
-            auto temp_head = m.ptr(i);
-            for (int j = 0; j < m.cols * m.channels(); ++j) {
-                switch (m.type() % 8) {
-                    case 5: {
-                        will_return[i][j] = from_char_array<float>(temp_head + j * m.elemSize1());
-                        break;
-                    }
-                    case 6: {
-                        will_return[i][j] = from_char_array<double>(temp_head + j * m.elemSize1());
-                        break;
-                    }
-                    default: {
-                        will_return[i][j] = temp_head[j * m.elemSize1()];
-                        break;
-                    }
-                }
-            }
-        }
-        return Matrix<T>(std::move(will_return));
-    }
-
-    template<typename T, MY_IF(
-            is_same<T, uint8_t>() || is_same<T, int8_t>() || is_same<T, uint16_t>() || is_same<T, int16_t>() ||
-            is_same<T, int32_t>() || is_same<T, float>() || is_same<T, double>())>
-    Mat mat_to_cv(const Matrix<T> &matrix, int32_t demen) {
-        int type = 7;
-        if constexpr (is_same<T, uint8_t>()) {
-            type = 0;
-        } else if constexpr (is_same<T, int8_t>()) {
-            type = 1;
-        } else if constexpr (is_same<T, uint16_t>()) {
-            type = 2;
-        } else if constexpr (is_same<T, int16_t>()) {
-            type = 3;
-        } else if constexpr (is_same<T, int32_t>()) {
-            type = 4;
-        } else if constexpr (is_same<T, float>()) {
-            type = 5;
-        } else if constexpr (is_same<T, double>()) {
-            type = 6;
-        }
-        if (matrix.cols() % demen != 0) {
-            throw std::invalid_argument("demension not match matrix size");
-        }
-        Mat will_return(matrix.rows(), matrix.cols() / demen, type + (demen - 1) * 7);
-        vector<Mat> mats;
-        for (int k = 0; k < demen; ++k) {
-            mats.push_back(Mat(matrix.rows(), matrix.cols() / demen, type));
-        }
-        for (int i = 0; i < matrix.rows(); ++i) {
-            for (int j = 0; j < matrix.cols() / demen; ++j) {
-                for (int k = 0; k < demen; ++k) {
-                    mats.at(k).at<T>(i, j) = matrix.get_inside(i, j * demen + k);
-                }
-            }
-        }
-        cv::merge(mats, will_return);
-        return will_return;
-    }
+//    Matrix<T> cv_to_mat(const Mat &m) {
+//        vector<vector<T>> will_return(m.rows, vector<T>(m.cols * m.channels()));
+//        for (int i = 0; i < m.rows; ++i) {
+//            auto temp_head = m.ptr(i);
+//            for (int j = 0; j < m.cols * m.channels(); ++j) {
+//                switch (m.type() % 8) {
+//                    case 5: {
+//                        will_return[i][j] = from_char_array<float>(temp_head + j * m.elemSize1());
+//                        break;
+//                    }
+//                    case 6: {
+//                        will_return[i][j] = from_char_array<double>(temp_head + j * m.elemSize1());
+//                        break;
+//                    }
+//                    default: {
+//                        will_return[i][j] = temp_head[j * m.elemSize1()];
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        return Matrix<T>(std::move(will_return));
+//    }
+//
+//    template<typename T, MY_IF(
+//            is_same<T, uint8_t>() || is_same<T, int8_t>() || is_same<T, uint16_t>() || is_same<T, int16_t>() ||
+//            is_same<T, int32_t>() || is_same<T, float>() || is_same<T, double>())>
+//    Mat mat_to_cv(const Matrix<T> &matrix, int32_t demen) {
+//        int type = 7;
+//        if constexpr (is_same<T, uint8_t>()) {
+//            type = 0;
+//        } else if constexpr (is_same<T, int8_t>()) {
+//            type = 1;
+//        } else if constexpr (is_same<T, uint16_t>()) {
+//            type = 2;
+//        } else if constexpr (is_same<T, int16_t>()) {
+//            type = 3;
+//        } else if constexpr (is_same<T, int32_t>()) {
+//            type = 4;
+//        } else if constexpr (is_same<T, float>()) {
+//            type = 5;
+//        } else if constexpr (is_same<T, double>()) {
+//            type = 6;
+//        }
+//        if (matrix.cols() % demen != 0) {
+//            throw std::invalid_argument("demension not match matrix size");
+//        }
+//        Mat will_return(matrix.rows(), matrix.cols() / demen, type + (demen - 1) * 7);
+//        vector<Mat> mats;
+//        for (int k = 0; k < demen; ++k) {
+//            mats.push_back(Mat(matrix.rows(), matrix.cols() / demen, type));
+//        }
+//        for (int i = 0; i < matrix.rows(); ++i) {
+//            for (int j = 0; j < matrix.cols() / demen; ++j) {
+//                for (int k = 0; k < demen; ++k) {
+//                    mats.at(k).at<T>(i, j) = matrix.get_inside(i, j * demen + k);
+//                }
+//            }
+//        }
+//        cv::merge(mats, will_return);
+//        return will_return;
+//    }
 
 /**
  * Householder reduces elements after ele in col column to zero
  * this function is to reduce one column in the matrix
  */
-    template<typename T>
+    //template<typename T>
     Matrix<double_t> Matrix<T>::Householder(int32_t col, int32_t ele) const {
         double_t square = 0;
         for (uint32_t i = ele - 1; i < vec.size(); ++i) {

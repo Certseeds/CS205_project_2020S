@@ -21,6 +21,10 @@
  * @Date: 2020-04-27 20:03:38 
  * @LastEditors  : nanoseeds
  */
+#ifndef INCLUDE_CATCH_MAIN_H
+#define INCLUDE_CATCH_MAIN_H
 #define CATCH_CONFIG_MAIN
 
-#include "catch.hpp"
+#include <catch.hpp>
+
+#endif //INCLUDE_CATCH_MAIN_H
