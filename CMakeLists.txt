@@ -1,23 +1,36 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(CS205_project_2020S LANGUAGES CXX)
 
-#set(OpenCV_INCLUDE_DIRS /usr/local/include/opencv2)
-#FIND_PACKAGE(OpenCV REQUIRED)
-#message(STATUS "OpenCV library status:")
-#message(STATUS "    version: ${OpenCV_VERSION}")
-#message(STATUS "    libraries: ${OpenCV_LIBS}")
-#message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
+include(${CMAKE_SOURCE_DIR}/cmake/OpenCVPath.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/CMakeHelper.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 
-#include_directories(
-#        ${PROJECT_SOURCE_DIR}
-#        /usr/local/include/opencv2
-#)
+Output_variable(CMAKE_BUILD_TYPE)
+#set(OpenCV_LIBS "${OpenCV_DIR}/x64/vc16/lib")
+set(OpenCV_BINS "${OpenCV_DIR}/x64/vc16/bin") # work for windows10-2004
+
+Output_variable(OpenCV_FOUND)
+Output_Paths()
+find_package(OpenCV REQUIRED)
+Output_Paths()
+Output_variable(OpenCV_FOUND)
+
+if (OpenCV_FOUND)
+    add_definitions(-D_HAVE_OPENCV_)
+endif ()
+
 include_directories(third_party)
 include_directories(include)
-add_executable(${PROJECT_NAME}_unit_test ./src/test_matrix_1.cpp)
+add_executable(${PROJECT_NAME}_unit_test ${CMAKE_SOURCE_DIR}/src/test_matrix_1.cpp)
+target_link_libraries(${PROJECT_NAME}_unit_test ${OpenCV_LIBS})
+enable_testing()
+add_test(${PROJECT_NAME}_CTest ${PROJECT_NAME}_unit_test)
 
 #target_link_libraries(${PROJECT_NAME}_unit_test ${OpenCV_LIBS})
 # test_matrix_1 for unit test

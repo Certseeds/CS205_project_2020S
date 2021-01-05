@@ -1,4 +1,4 @@
-/*  CS205_C_CPP 
+/*  CS205_C_CPP
     Copyright (C) 2020  nanoseeds
 
     CS205_C_CPP is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * @Github: https://github.com/Certseeds/CS205_C_CPP
  * @Organization: SUSTech
  * @Author: nanoseeds
- * @Date: 2020-05-07 15:46:11 
+ * @Date: 2020-05-07 15:46:11
  * @LastEditors  : nanoseeds
  */
 #ifndef CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
@@ -33,24 +33,31 @@
 #include <valarray>
 #include <vector>
 #include <cmath>
-#include "./template_helper.h"
-//#include <opencv2/opencv.hpp>
+#include "template_helper.hpp"
 
+#ifdef  _HAVE_OPENCV_
+
+#include <opencv2/opencv.hpp>
+
+#endif
 
 namespace Mat_pro {
-    //using cv::Mat;
+#ifdef  _HAVE_OPENCV_
+    using cv::Mat;
+#endif
+
     using std::endl;
     using std::valarray;
     using std::vector;
     using std::pow;
 
-    const double_t eps = std::pow(10, -5);
+    static constexpr double_t eps = 0.000001;
 
     struct Matrix_Shape_Not_Match_Exception : public std::exception {
         char will_return[300] = "\0";
 
         explicit Matrix_Shape_Not_Match_Exception(const char *message, const char *file_name, int32_t Line) {
-            sprintf(will_return, "%s,Shape not Match in %d line , %s file", message, Line, file_name);
+            sprintf_s(will_return, "%s,Shape not Match in %d line , %s file", message, Line, file_name);
         }
 
         [[nodiscard]] const char *what() const noexcept override {
@@ -149,17 +156,21 @@ namespace Mat_pro {
 
         T sum() const;
 
-        template<typename T1 = T, MY_IF(!is_complex<T1>())>
-        auto avg() -> Divide_Result_t<T1, double_t> const {
+        template<typename T1 =T, MY_IF(!is_complex<T1>())>
+        Divide_Result_t<T1, double_t> avg() const {
+            static_assert(!is_complex<T1>(), "Divide_Result_t<T1, double_t> avg()");
             T sums = this->sum();
             return sums / static_cast<double_t>(this->rows() * this->cols());
         }
 
         template<typename T1 = T, MY_IF(is_complex<T1>())>
         T1 avg() const {
+            static_assert(is_complex<T1>(), "T1 avg()");
             T1 sums = this->sum();
-            double_t size = static_cast<double_t>(this->rows() * this->cols());
-            return T1{sums.real() / size, sums.imag() / size};
+            const auto size = static_cast<double_t>(this->rows() * this->cols());
+            const complex_inside_type_t<T1> real = sums.real() / size;
+            const complex_inside_type_t<T1> imag = sums.imag() / size;
+            return T1{real, imag};
         }
 
         T row_max(int32_t row) const;
@@ -189,8 +200,10 @@ namespace Mat_pro {
                 return static_cast<T1>(-1);
             }
             T1 sums = this->row_sum(row);
-            double_t col = static_cast<double_t>(this->cols());
-            return T1{sums.real() / col, sums.imag() / col};
+            const auto col = static_cast<double_t>(this->cols());
+            const complex_inside_type_t<T1> real = sums.real() / col;
+            const complex_inside_type_t<T1> imag = sums.imag() / col;
+            return T1{real, imag};
             // return std::complex(static_cast<double>(2), static_cast<double >(3));
         }
 
@@ -208,8 +221,10 @@ namespace Mat_pro {
                 return -1;
             }
             T1 sums = this->col_sum(col);
-            double_t size = static_cast<double_t>(this->rows());
-            return T1{sums.real() / size, sums.imag() / size};
+            const auto size = static_cast<double_t>(this->rows());
+            const complex_inside_type_t<T1> real = sums.real() / size;
+            const complex_inside_type_t<T1> imag = sums.imag() / size;
+            return T1{real, imag};
         }
 
         // Matrix_n_m, Matrix_n_m, result is Matrix_N_M
@@ -265,20 +280,19 @@ namespace Mat_pro {
 
     };// namespace Mat_pro
 
+    template<typename T>
+    Matrix<T>::Matrix(int32_t rows, int32_t cols) {
+        this->vec = vector<vector<T >>(std::max(rows, 0), vector<T>(std::max(cols, 0)));
+    }
 
     template<typename T>
-    Matrix<T>::Matrix(const Matrix &mat) {
+    Matrix<T>::Matrix(const Matrix<T> &mat) {
         this->vec = vector<vector<T >>(mat.vec);
     }
 
     template<typename T>
-    Matrix<T>::Matrix(int32_t rows, int32_t cols) {
-        this->vec = vector<vector<T >>( std::max(rows,0), vector<T>(std::max(cols,0)));
-    }
-
-    template<typename T>
-    Matrix<T>::Matrix(Matrix &&mat) noexcept {
-        this->vec = std::move(mat.vec);
+    Matrix<T>::Matrix(Matrix<T> &&mat) noexcept: vec(mat.vec) {
+        mat.vec = vector<vector<T>>{0, vector<T>{0, static_cast<T>(0)}};
     }
 
     template<typename T>
@@ -290,9 +304,10 @@ namespace Mat_pro {
     }
 
     template<typename T>
-    Matrix<T> &Matrix<T>::operator=(Matrix &&mat) noexcept {
+    Matrix<T> &Matrix<T>::operator=(Matrix<T> &&mat) noexcept {
         if (this != &mat) {
             this->vec = std::move(mat.vec);
+            mat.vec = vector<vector<T>>{0, vector<T>{0, static_cast<T>(0)}};
         }
         return *this;
     }
@@ -303,8 +318,7 @@ namespace Mat_pro {
     }
 
     template<typename T>
-    Matrix<T>::Matrix
-            (vector<vector<T >> &&vec) {
+    Matrix<T>::Matrix(vector<vector<T>> &&vec) {
         this->vec = std::move(vec);
     }
 
@@ -412,7 +426,7 @@ namespace Mat_pro {
 
     template<typename T>
     inline int32_t Matrix<T>::rows() const {
-        return this->vec.size();
+        return static_cast<int32_t>(this->vec.size());
     }
 
 /**
@@ -423,7 +437,7 @@ namespace Mat_pro {
         if (this->rows() == 0) {
             return 0;
         }
-        return this->vec.front().size();
+        return static_cast<int32_t>(this->vec.front().size());
     }
 
     template<typename T>
@@ -653,8 +667,8 @@ namespace Mat_pro {
     template<typename T1, typename T2>
     bool size_equal(const Matrix<T1> &mat1, const Matrix<T2> &mat2) {
         return !mat1.is_empty() && !mat2.is_empty() \
-        && mat1.rows() == mat2.rows() \
-        && mat1.cols() == mat2.cols();
+ && mat1.rows() == mat2.rows() \
+ && mat1.cols() == mat2.cols();
     }
 
 /** judge is equal
@@ -717,20 +731,24 @@ namespace Mat_pro {
 
     template<typename T>
     Matrix<T> Matrix<T>::inverse() const {
-        if (this->is_square() && this->rows() > 1 && this->determinant() != 0) {//可逆条件
-            vector<vector<T>> res(this->rows(), vector<T>(this->cols(), static_cast<T>(0)));
+        //可逆条件
+        if (this->is_square() && this->rows() > 1 && this->determinant() != 0) {
+            static constexpr T zeroNumber{0};
+            static constexpr T oneElement{1};
+            std::vector<std::vector<T>> result_vector(this->rows(), std::vector<T>(this->cols(), zeroNumber));
             for (int32_t i = 0; i < this->rows(); i++) {
                 for (int32_t j = 0; j < this->cols(); j++) {
                     //vector<vector<T>> submatrix(this->rows() - 1, vector<T>(this->cols() - 1, static_cast<T>(0)));
-                    vector<vector<T>> submatrix(this->vec);
+                    vector<vector<T >> submatrix(this->vec);
                     submatrix.erase(submatrix.begin() + i);
                     for (int m = 0; m < this->rows() - 1; ++m) {
                         submatrix[m].erase(submatrix[m].begin() + j);
                     }
-                    res[j][i] = (((i + j) % 2) ? -1 : 1) * determinant_in(submatrix);//子矩阵展开得到伴随矩阵
+                    result_vector[j][i] =
+                            (((i + j) % 2) ? -1 : 1) * determinant_in(submatrix);//子矩阵展开得到伴随矩阵
                 }
             }
-            Matrix<T> will_return(res);
+            Matrix<T> will_return = Matrix<T>{result_vector};
             will_return = will_return / this->determinant();
             //will_return[i][j] = res[i][j] / this->determinant();//逆
             return will_return;
@@ -799,8 +817,7 @@ namespace Mat_pro {
         if (row <= 0 || row > this->rows()) {
             throw std::invalid_argument("row out of range(it begin at 1)");
         }
-        return *std::max_element(this->get_row_iter_begin(row - 1),
-                                 this->get_row_iter_end(row - 1));
+        return *std::max_element(this->get_row_iter_begin(row - 1), this->get_row_iter_end(row - 1));
     }
 
     template<typename T>
@@ -966,75 +983,79 @@ namespace Mat_pro {
         return Matrix<T>(std::move(will_return));
     }
 
+#ifdef  _HAVE_OPENCV_
+
     template<typename T>
-//    Matrix<T> cv_to_mat(const Mat &m) {
-//        vector<vector<T>> will_return(m.rows, vector<T>(m.cols * m.channels()));
-//        for (int i = 0; i < m.rows; ++i) {
-//            auto temp_head = m.ptr(i);
-//            for (int j = 0; j < m.cols * m.channels(); ++j) {
-//                switch (m.type() % 8) {
-//                    case 5: {
-//                        will_return[i][j] = from_char_array<float>(temp_head + j * m.elemSize1());
-//                        break;
-//                    }
-//                    case 6: {
-//                        will_return[i][j] = from_char_array<double>(temp_head + j * m.elemSize1());
-//                        break;
-//                    }
-//                    default: {
-//                        will_return[i][j] = temp_head[j * m.elemSize1()];
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//        return Matrix<T>(std::move(will_return));
-//    }
-//
-//    template<typename T, MY_IF(
-//            is_same<T, uint8_t>() || is_same<T, int8_t>() || is_same<T, uint16_t>() || is_same<T, int16_t>() ||
-//            is_same<T, int32_t>() || is_same<T, float>() || is_same<T, double>())>
-//    Mat mat_to_cv(const Matrix<T> &matrix, int32_t demen) {
-//        int type = 7;
-//        if constexpr (is_same<T, uint8_t>()) {
-//            type = 0;
-//        } else if constexpr (is_same<T, int8_t>()) {
-//            type = 1;
-//        } else if constexpr (is_same<T, uint16_t>()) {
-//            type = 2;
-//        } else if constexpr (is_same<T, int16_t>()) {
-//            type = 3;
-//        } else if constexpr (is_same<T, int32_t>()) {
-//            type = 4;
-//        } else if constexpr (is_same<T, float>()) {
-//            type = 5;
-//        } else if constexpr (is_same<T, double>()) {
-//            type = 6;
-//        }
-//        if (matrix.cols() % demen != 0) {
-//            throw std::invalid_argument("demension not match matrix size");
-//        }
-//        Mat will_return(matrix.rows(), matrix.cols() / demen, type + (demen - 1) * 7);
-//        vector<Mat> mats;
-//        for (int k = 0; k < demen; ++k) {
-//            mats.push_back(Mat(matrix.rows(), matrix.cols() / demen, type));
-//        }
-//        for (int i = 0; i < matrix.rows(); ++i) {
-//            for (int j = 0; j < matrix.cols() / demen; ++j) {
-//                for (int k = 0; k < demen; ++k) {
-//                    mats.at(k).at<T>(i, j) = matrix.get_inside(i, j * demen + k);
-//                }
-//            }
-//        }
-//        cv::merge(mats, will_return);
-//        return will_return;
-//    }
+    Matrix<T> cv_to_mat(const Mat &m) {
+        vector<vector<T>> will_return(m.rows, vector<T>(m.cols * m.channels()));
+        for (int i = 0; i < m.rows; ++i) {
+            auto temp_head = m.ptr(i);
+            for (int j = 0; j < m.cols * m.channels(); ++j) {
+                switch (m.type() % 8) {
+                    case 5: {
+                        will_return[i][j] = from_char_array<float>(temp_head + j * m.elemSize1());
+                        break;
+                    }
+                    case 6: {
+                        will_return[i][j] = from_char_array<double>(temp_head + j * m.elemSize1());
+                        break;
+                    }
+                    default: {
+                        will_return[i][j] = temp_head[j * m.elemSize1()];
+                        break;
+                    }
+                }
+            }
+        }
+        return Matrix<T>(std::move(will_return));
+    }
+
+    template<typename T, MY_IF(
+            is_same<T, uint8_t>() || is_same<T, int8_t>() || is_same<T, uint16_t>() || is_same<T, int16_t>() ||
+            is_same<T, int32_t>() || is_same<T, float>() || is_same<T, double>())>
+    Mat mat_to_cv(const Matrix<T> &matrix, int32_t demen) {
+        int type = 7;
+        if constexpr (is_same<T, uint8_t>()) {
+            type = 0;
+        } else if constexpr (is_same<T, int8_t>()) {
+            type = 1;
+        } else if constexpr (is_same<T, uint16_t>()) {
+            type = 2;
+        } else if constexpr (is_same<T, int16_t>()) {
+            type = 3;
+        } else if constexpr (is_same<T, int32_t>()) {
+            type = 4;
+        } else if constexpr (is_same<T, float>()) {
+            type = 5;
+        } else if constexpr (is_same<T, double>()) {
+            type = 6;
+        }
+        if (matrix.cols() % demen != 0) {
+            throw std::invalid_argument("demension not match matrix size");
+        }
+        Mat will_return(matrix.rows(), matrix.cols() / demen, type + (demen - 1) * 7);
+        vector<Mat> mats;
+        for (int k = 0; k < demen; ++k) {
+            mats.push_back(Mat(matrix.rows(), matrix.cols() / demen, type));
+        }
+        for (int i = 0; i < matrix.rows(); ++i) {
+            for (int j = 0; j < matrix.cols() / demen; ++j) {
+                for (int k = 0; k < demen; ++k) {
+                    mats.at(k).at<T>(i, j) = matrix.get_inside(i, j * demen + k);
+                }
+            }
+        }
+        cv::merge(mats, will_return);
+        return will_return;
+    }
+
+#endif
 
 /**
  * Householder reduces elements after ele in col column to zero
  * this function is to reduce one column in the matrix
  */
-    //template<typename T>
+    template<typename T>
     Matrix<double_t> Matrix<T>::Householder(int32_t col, int32_t ele) const {
         double_t square = 0;
         for (uint32_t i = ele - 1; i < vec.size(); ++i) {
@@ -1128,7 +1149,7 @@ namespace Mat_pro {
             return vector<double_t>(1);
         }
         vector<double_t> eigenvalues(this->rows());
-        constexpr int32_t iter_times = 150;
+        static constexpr int32_t iter_times = 150;
         Matrix<double_t> H = this->QR_iteration();
         for (int i = 0; i < iter_times; ++i) {
             H = H.QR_iteration();
@@ -1341,8 +1362,6 @@ namespace Mat_pro {
         }
         return matrix;
     }
+
 }
-
 #endif  //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
-
-

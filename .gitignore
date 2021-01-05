@@ -5,7 +5,7 @@
 ## @Date: 2020-05-07 10:59:03
 ## @LastEditors: nanoseeds
 ## @LastEditTime: 2020-05-07 10:59:03
-### 
+###
 # File created using '.gitignore Generator' for Visual Studio Code: https://bit.ly/vscode-gig
 
 # Created by https://www.gitignore.io/api/windows,visualstudiocode,audio,c,c++,cmake,data,docz,haskell,java,jetbrains+all,linux,rust,video,visualstudio,zsh
@@ -719,7 +719,7 @@ MigrationBackup/
 
 # End of https://www.gitignore.io/api/windows,visualstudiocode,audio,c,c++,cmake,data,docz,haskell,java,jetbrains+all,linux,rust,video,visualstudio,zsh
 
-# Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
+# Custom rules (everything added below won't be overriden by 'Generate .gitattributes File' if you use 'Update' option)
 
 *.doc
 *.docx

@@ -1,4 +1,4 @@
-/*  CS205_C_CPP 
+/*  CS205_C_CPP
     Copyright (C) 2020  nanoseeds
 
     CS205_C_CPP is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * @Github: https://github.com/Certseeds/CS205_C_CPP
  * @Organization: SUSTech
  * @Author: nanoseeds
- * @Date: 2020-05-24 17:56:20 
+ * @Date: 2020-05-24 17:56:20
  * @LastEditors  : nanoseeds
  */
 #ifndef CS205_C_CPP_CS205_PROJECT_2020S_SRC_TEMPLATE_HELPER_H
@@ -31,17 +31,30 @@
 template<typename T1, typename T2>
 constexpr bool is_same() { return std::is_same<T1, T2>::value; }
 
-template<typename T>
+
+template<typename T, typename = void>
 struct is_complex_imp : std::false_type {
 };
 template<typename T>
 struct is_complex_imp<std::complex<T>> : std::true_type {
 };
-
 template<typename T>
 constexpr bool is_complex() {
     return is_complex_imp<T>();
 }
+template<typename T>
+struct complex_inside_type: std::false_type {
+    //static_assert(!is_complex<T>(), "complex_inside_type: std::false_type");
+    using Type = T;
+};
+template<typename T>
+struct complex_inside_type<std::complex<T>>: std::true_type  {
+    //static_assert(is_complex<T>(), "complex_inside_type<std::complex<T>>: std::true_type");
+    using Type = T;
+};
+
+template<typename T>
+using complex_inside_type_t = typename complex_inside_type<T>::Type;
 
 template<typename T1, typename T2>
 struct Minus_Result {
@@ -92,7 +105,7 @@ constexpr bool has_conj() {
 template<typename T>
 T from_char_array(unsigned char const *buffer) {
     T will_return;
-    unsigned char *dp = reinterpret_cast<unsigned char *>(&will_return);
+    auto * dp = reinterpret_cast<unsigned char *>(&will_return);
     std::copy(buffer, buffer + sizeof(T), dp);
     return will_return;
 }
