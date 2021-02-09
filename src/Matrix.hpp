@@ -51,13 +51,17 @@ namespace Mat_pro {
     using std::vector;
     using std::pow;
 
-    static constexpr double_t eps = 0.000001;
+    static constexpr const double_t eps = 0.000001;
 
     struct Matrix_Shape_Not_Match_Exception : public std::exception {
         char will_return[300] = "\0";
 
         explicit Matrix_Shape_Not_Match_Exception(const char *message, const char *file_name, int32_t Line) {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
             sprintf_s(will_return, "%s,Shape not Match in %d line , %s file", message, Line, file_name);
+#else
+            sprintf(will_return, "%s,Shape not Match in %d line , %s file", message, Line, file_name);
+#endif
         }
 
         [[nodiscard]] const char *what() const noexcept override {

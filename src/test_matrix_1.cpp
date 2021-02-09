@@ -777,7 +777,7 @@ TEST_CASE("test for reshape&slice", "[test 6]") {
     cout << m5.slice(2, 3);
     cout << m5.slice(2, 3, 4, 5);
 }
-
+#ifdef  _HAVE_OPENCV_
 template<typename T>
 void full_random(Mat &temp);
 
@@ -793,7 +793,7 @@ void full_random(Mat &temp) {
     }
 }
 
-#ifdef  _HAVE_OPENCV_
+
 
 TEST_CASE("test for cv_matrix", "[test 8][.]") {
     Mat temp = Mat::ones(2, 3, 0);
