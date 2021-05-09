@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.16.6)
 project(CS205_project_2020S LANGUAGES CXX)
 
-include(${CMAKE_SOURCE_DIR}/cmake/CMakeHelper.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CMakeHelper.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cross_platform.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
@@ -12,17 +13,20 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_B
 
 Output_variable(CMAKE_BUILD_TYPE)
 #set(OpenCV_LIBS "${OpenCV_DIR}/x64/vc16/lib")
-
+set(USE_OPENCV TRUE)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    include(${CMAKE_SOURCE_DIR}/cmake/windows_OpenCV.cmake)
+    if(USE_OPENCV)
+        include(${CMAKE_SOURCE_DIR}/cmake/windows_OpenCV.cmake)
+    endif()
     MESSAGE("will use opencv")
 else ()
 endif ()
 
 if (OpenCV_FOUND)
     add_definitions(-D_HAVE_OPENCV_)
+    MESSAGE("OPENCv MACRO ADDED")
 endif ()
-
-include_directories(third_party)
-add_subdirectory(include)
-add_subdirectory(src)
+enable_testing()
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)

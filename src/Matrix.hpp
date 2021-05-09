@@ -291,7 +291,7 @@ namespace Mat_pro {
 
     template<typename T>
     Matrix<T>::Matrix(const Matrix<T> &mat) {
-        this->vec = vector<vector<T >>(mat.vec);
+        this->vec = vector<vector<T>>(mat.vec);
     }
 
     template<typename T>
