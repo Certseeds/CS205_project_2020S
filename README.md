@@ -2,7 +2,7 @@
  * @Organization: SUSTech
  * @Author: nanoseeds
  * @Date: 2020-05-07 10:59:03
- * @LastEditTime: 2020-06-18 19:13:35
+ * @LastEditTime: 2021-05-09 20:53:22
  * @License: CC-BY-NC-SA_V4_0 or any later version 
  -->
 ## CS205_C_CPP_2020S_project : matrix  
@@ -13,7 +13,7 @@ details look at `./material/project-matrix.md`
 
 2. All *.md files are based on CC-BY-NC-SA-4.0(or any later version).
 
-3. 如果将此project作为子module使用.
+<!-- 3. 如果将此project作为子module使用.
   + 确保上层文件夹所在目录下存在
     + `catch.hpp` : Catch2 的头文件
     + `catch_main.hpp` : 
@@ -23,18 +23,15 @@ details look at `./material/project-matrix.md`
       #include  "./catch.hpp"
       ```
   + 还不清楚可以参考 https://github.com/Certseeds/CS205_C_CPP 的结构
-  + 然后添加到`CS205_project_2020S/src`到`Cmakelist.txt`中即可.
+  + 然后添加到`CS205_project_2020S/src`到`Cmakelist.txt`中即可. -->
 
-4. 如果单独使用此project
-  + 将上层文件夹,替换为本文件夹内,
-  + 简单的替换一下`CmakeList.txt`中的内容
-  + 替换下述文件中的`./../../*`为`./`
-    + `Matrix.hpp`
-    + `test_matrix_1.cpp`
-    + `test_matrix_2.cpp`
-    + etc 
+3. 由于opencv在github actions构建时间太离谱,默认不需要也没测试有opencv的情况下的构建与测试
 
-5. 
+4. 现在只在wsl,windows,ubuntu环境下进行了测试,没测macos下的情况.
+
+5. 构建过程参考[github actions workflow](./.github/workflows/compile.yaml)内的命令行
+
+6. 
   + 单元测试: test_matrix_1.cpp
   + 整体测试: test_matrix_2.cpp
   + O0,O1,O2,O3下均无异常.
