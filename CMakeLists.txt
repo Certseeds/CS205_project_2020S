@@ -13,14 +13,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_B
 
 Output_variable(CMAKE_BUILD_TYPE)
 #set(OpenCV_LIBS "${OpenCV_DIR}/x64/vc16/lib")
-set(USE_OPENCV TRUE)
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    if(USE_OPENCV)
-        include(${CMAKE_SOURCE_DIR}/cmake/windows_OpenCV.cmake)
-    endif()
+set(USE_OPENCV FALSE)
+if(USE_OPENCV)
+    include(${CMAKE_SOURCE_DIR}/cmake/package_opencv.cmake)
     MESSAGE("will use opencv")
-else ()
-endif ()
+endif()
 
 if (OpenCV_FOUND)
     add_definitions(-D_HAVE_OPENCV_)

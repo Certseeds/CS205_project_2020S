@@ -5,15 +5,11 @@
 #@LastEditTime: 2020-07-28 23:43:03
 # This is a basic workflow to help you get started with Actions
 
-name: just build
+name: Build and CTest
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
-on:
-  push:
-    branches: [ master,test ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -24,17 +20,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-18.04, ubuntu-latest, windows-latest ]
+        os: [ ubuntu-18.04, ubuntu-latest,windows-latest]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: checkout code
         uses: actions/checkout@v2
-
-      # ensure the path and files of project
-      - name: ensure the path and files of project
-        run: sudo apt install tree; tree
 
       - name: ensure the cmake
         run: cmake --version
@@ -51,4 +43,5 @@ jobs:
         run: cmake --build . --config DEBUG --parallel $(nproc)
 
       - name: cmake test
+        working-directory: ./CMAKE_DEBUG_PATH
         run: ctest
