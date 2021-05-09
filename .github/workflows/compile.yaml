@@ -11,7 +11,7 @@ name: just build
 # events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [ master,test ]
   pull_request:
     branches: [ master ]
 
