@@ -48,6 +48,8 @@ details look at [CS205-2020S-Project-matrix](material/README.md)
 
 ![C++](https://img.shields.io/badge/C%2B%2B-17-orange)
 
+![100% Scores Get](https://img.shields.io/badge/Score-100%25-green)
+
 [![Catch2](https://img.shields.io/badge/Catch2-2.12.2-orange)][Catch2_2.12.2]
 
 [![OpenCV](https://img.shields.io/badge/OpenCV-3.4.10-orange)][OpenCV_3.4.10]

@@ -244,7 +244,7 @@ namespace Mat_pro {
 
         Matrix<T> convolution(const Matrix<T> &kernel, int32_t padding = 0, int32_t stride = 1) const;
 
-        Matrix<T>
+        [[nodiscard]] Matrix<T>
         convolution_mul(const Matrix<T> &kernel, int32_t padding = 0, int32_t stride = 1, int32_t demension = 1) const;
 
         Matrix<T> reshape(int32_t row, int32_t col) const;                              //重整
@@ -1240,8 +1240,8 @@ namespace Mat_pro {
     template<typename T>
     Matrix<double_t> Matrix<T>::Elimination() const {
         Matrix<double_t> R = this->Gauss();
-        for (uint32_t i = 0; i < vec.size(); ++i) {
-            for (uint32_t j = 0; j < vec[0].size(); ++j) {
+        for (int32_t i = 0; static_cast<size_t>(i) < vec.size(); ++i) {
+            for (int32_t j = 0; static_cast<size_t>(j) < vec[0].size(); ++j) {
                 if (abs(R.get_inside(i, j)) > eps) {
                     for (int k = i - 1; k >= 0; --k) {
                         R = R.row_elimination(k, j, i);
