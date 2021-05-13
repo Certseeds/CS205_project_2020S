@@ -7,7 +7,7 @@
  -->
 ## CS205_C_CPP_2020S_project : matrix  
 
-details look at `./material/project-matrix.md`  
+details look at [CS205-2020S-Project-matrix](material/README.md)
 
 1. All code(in this project,include *.c,*.cpp,*.h,*.hpp,CMakeLists.txt,etc) based on AGPL3.0(or any later version).
 
