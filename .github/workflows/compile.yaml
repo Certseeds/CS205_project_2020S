@@ -40,7 +40,7 @@ jobs:
 
       - name: cmake compile
         working-directory: ./CMAKE_DEBUG_PATH
-        run: cmake --build . --config DEBUG --parallel $(nproc)
+        run: cmake --build . --config DEBUG --parallel
 
       - name: cmake test
         working-directory: ./CMAKE_DEBUG_PATH
