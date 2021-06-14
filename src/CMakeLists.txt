@@ -10,6 +10,7 @@ IF(OpenCV_FOUND)
             )
     MESSAGE("TARGET LINK OPENCV_LIBS")
 endif()
+add_executable(testttt ./cpp20.cpp)
 add_test(${PROJECT_NAME}_CTest1 ${CMAKE_BINARY_DIR}/${PROJECT_NAME}_unit_test
         COMMAND ${PROJECT_NAME}_unit_test)
 add_test(${PROJECT_NAME}_CTest2 ${CMAKE_BINARY_DIR}/${PROJECT_NAME}_unit_test

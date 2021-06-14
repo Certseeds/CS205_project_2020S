@@ -34,13 +34,13 @@
 #include <vector>
 #include <cmath>
 #include "template_helper.hpp"
+#include <concepts>
 
 #ifdef  _HAVE_OPENCV_
 
 #include <opencv2/opencv.hpp>
 
 #endif
-
 namespace Mat_pro {
 #ifdef  _HAVE_OPENCV_
     using cv::Mat;
@@ -98,10 +98,24 @@ namespace Mat_pro {
 
         explicit Matrix<T>(vector<vector<T>> &&vec);
 
-        Matrix<T>(const std::initializer_list<std::initializer_list<T>> &list);
+        Matrix<T>(std::initializer_list<std::initializer_list<T>> list) {
+            this->vec = vector<vector<T>>(0);
+            for (auto i = list.begin(); i != list.end() - 1; i++) {
+                if ((*i).size() != (*(i + 1)).size()) {
+                    return;
+                }
+            }
+            this->vec = vector<vector<T >>(list.size());
+            for (auto i = list.begin(); i != list.end(); i++) {
+                this->vec[i - list.begin()] = *i;
+            }
+        }
 
         // only for
-        Matrix<T>(const std::initializer_list<T> &list);
+        Matrix<T>(std::initializer_list<T> list) {
+            this->vec = vector<vector<T >>(1);
+            this->vec[0] = list;
+        }
 
         inline T get_inside(int32_t rows, int32_t cols) const;
 
@@ -160,16 +174,18 @@ namespace Mat_pro {
 
         T sum() const;
 
-        template<typename T1 =T, MY_IF(!is_complex<T1>())>
-        Divide_Result_t<T1, double_t> avg() const {
-            static_assert(!is_complex<T1>(), "Divide_Result_t<T1, double_t> avg()");
-            T sums = this->sum();
+        template<typename T1 =T>
+        requires (!is_complex<T1>)
+        auto avg() {
+            static_assert(!is_complex<T1>, "Divide_Result_t<T1, double_t> avg()");
+            T1 sums = this->sum();
             return sums / static_cast<double_t>(this->rows() * this->cols());
         }
 
-        template<typename T1 = T, MY_IF(is_complex<T1>())>
-        T1 avg() const {
-            static_assert(is_complex<T1>(), "T1 avg()");
+        template<typename T1 = T>
+        requires is_complex<T1>
+        auto avg() const {
+            static_assert(is_complex<T1>, "T1 avg()");
             T1 sums = this->sum();
             const auto size = static_cast<double_t>(this->rows() * this->cols());
             const complex_inside_type_t<T1> real = sums.real() / size;
@@ -189,8 +205,10 @@ namespace Mat_pro {
 
         T col_sum(int32_t col) const;
 
-        template<typename T1 = T, MY_IF(!is_complex<T1>())>
-        auto row_avg(int32_t row) -> Divide_Result_t<T1, double_t> const {
+
+        template<typename T1 = T>
+        requires (!is_complex<T1>)
+        auto row_avg(int32_t row) -> divide_t<T1> const {
             if (row > this->rows()) {
                 return -1;
             }
@@ -198,7 +216,8 @@ namespace Mat_pro {
             //        return 1;
         }
 
-        template<typename T1 = T, MY_IF(is_complex<T1>())>
+        template<typename T1 = T>
+        requires is_complex<T1>
         T1 row_avg(int32_t row) const {
             if (row > this->rows() || this->is_empty()) {
                 return static_cast<T1>(-1);
@@ -211,28 +230,27 @@ namespace Mat_pro {
             // return std::complex(static_cast<double>(2), static_cast<double >(3));
         }
 
-        template<typename T1 = T, MY_IF(!is_complex<T1>())>
-        auto col_avg(int32_t col) -> Divide_Result_t<T1, double_t> const {
+        template<typename T1 = T>
+        requires (!is_complex<T1>)
+        auto col_avg(int32_t col) -> divide_t<T1> const {
             if (col <= 0 || col > this->cols()) {
                 return -1;
             }
             return this->col_sum(col) / static_cast<double>(this->rows());
         }
 
-        template<typename T1 = T, MY_IF(is_complex<T1>())>
+        template<typename T1 = T>
+        requires is_complex<T1>
         T1 col_avg(int32_t col) const {
             if (col <= 0 || col > this->cols()) {
                 return -1;
             }
-            T1 sums = this->col_sum(col);
+            const T1 sums = this->col_sum(col);
             const auto size = static_cast<double_t>(this->rows());
             const complex_inside_type_t<T1> real = sums.real() / size;
             const complex_inside_type_t<T1> imag = sums.imag() / size;
             return T1{real, imag};
         }
-
-        // Matrix_n_m, Matrix_n_m, result is Matrix_N_M
-        Matrix<T> mul(const Matrix<T> &mat2);
 
         T dot(const Matrix<T> &mat2);
 
@@ -282,6 +300,7 @@ namespace Mat_pro {
 
         Matrix<T> joint(Matrix<T> matrix) const;
 
+        Matrix<T> mul(const Matrix<T> &mat2);
     };// namespace Mat_pro
 
     template<typename T>
@@ -326,25 +345,6 @@ namespace Mat_pro {
         this->vec = std::move(vec);
     }
 
-    template<typename T>
-    Matrix<T>::Matrix(const std::initializer_list<T> &list) {
-        this->vec = vector<vector<T >>(1);
-        this->vec[0] = list;
-    }
-
-    template<typename T>
-    Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>> &list) {
-        this->vec = vector<vector<T >>(0);
-        for (auto i = list.begin(); i != list.end() - 1; i++) {
-            if ((*i).size() != (*(i + 1)).size()) {
-                return;
-            }
-        }
-        this->vec = vector<vector<T >>(list.size());
-        for (auto i = list.begin(); i != list.end(); i++) {
-            this->vec[i - list.begin()] = *i;
-        }
-    }
 
     template<typename T>
     T Matrix<T>::get_inside(int32_t rows, int32_t cols) const {
@@ -488,7 +488,8 @@ namespace Mat_pro {
 
     template<typename T1, typename T2>
     auto operator+(const Matrix<T1> &mat1, const T2 &t2) {
-        vector<vector<Add_Result_t<T1, T2>>> temp(mat1.rows(), vector<Add_Result_t<T1, T2>>(mat1.cols()));
+        using add_result_t = Add_Result_t<T1, T2>;
+        vector<vector<add_result_t>> temp(mat1.rows(), vector<add_result_t>(mat1.cols()));
         for (uint32_t i = 0; i < temp.size(); ++i) {
             for (uint32_t j = 0; j < temp[i].size(); ++j) {
                 temp[i][j] = mat1.get_inside(i, j) + t2;
@@ -504,13 +505,14 @@ namespace Mat_pro {
 
     template<typename T1, typename T2>
     auto operator-(const Matrix<T1> &mat1, const T2 &t2) {
-        vector<vector<Minus_Result_t<T1, T2>>> temp(mat1.rows(), vector<Minus_Result_t<T1, T2>>(mat1.cols()));
+        using result_t = Minus_Result_t<T1, T2>;
+        vector<vector<result_t>> temp(mat1.rows(), vector<result_t>(mat1.cols()));
         for (uint32_t i = 0; i < temp.size(); ++i) {
             for (uint32_t j = 0; j < temp[i].size(); ++j) {
                 temp[i][j] = mat1.get_inside(i, j) - t2;
             }
         }
-        return Matrix<Minus_Result_t<T1, T2>>(std::move(temp));
+        return Matrix<result_t>(std::move(temp));
     }
 
     template<typename T1, typename T2>
@@ -765,19 +767,19 @@ namespace Mat_pro {
     template<typename T>
     Matrix<T> Matrix<T>::conj() const {
         vector<vector<T>> vvc(this->rows(), vector<T>(this->cols()));
-        if constexpr (is_complex<T>()) {
+        if constexpr (is_complex<T>) {
             for (int32_t i = 0; i < this->rows(); ++i) {
                 for (int32_t j = 0; j < this->cols(); ++j) {
                     vvc[i][j] = std::conj(this->vec[i][j]);
                 }
             }
-        } else if constexpr (has_conj<T>()) {
+        } else if constexpr (has_conj<T>) {
             for (int32_t i = 0; i < this->rows(); ++i) {
                 for (int32_t j = 0; j < this->cols(); ++j) {
                     vvc[i][j] = this->vec[i][j].conj();
                 }
             }
-        } else if constexpr (!is_complex<T>() && !has_conj<T>()) {
+        } else if constexpr (!is_complex<T> && !has_conj<T>) {
             vvc = this->vec;
         }
         return Matrix<T>(std::move(vvc));
