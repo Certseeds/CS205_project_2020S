@@ -35,13 +35,10 @@ template<typename T>
 concept is_complex = requires(T f) {
     f.real();
     f.imag();
+    std::conj(f);
     f /= 1.0f;
     std::constructible_from<T, typename T::value_type, typename T::value_type>;
     std::same_as<std::complex<typename T::value_type>, T>;
-};
-template<typename T>
-concept not_complex = requires(T f) {
-    !is_complex<T>;
 };
 template<typename T>
 struct complex_inside_type : std::false_type {
