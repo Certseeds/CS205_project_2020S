@@ -98,10 +98,10 @@ namespace Mat_pro {
 
         explicit Matrix<T>(vector<vector<T>> &&vec);
 
-        Matrix<T>(const std::initializer_list<std::initializer_list<T>> &list);
+        explicit Matrix<T>(const std::initializer_list<std::initializer_list<T>> &list);
 
         // only for
-        Matrix<T>(const std::initializer_list<T> &list);
+        explicit Matrix<T>(const std::initializer_list<T> &list);
 
         inline T get_inside(int32_t rows, int32_t cols) const;
 
@@ -737,8 +737,7 @@ namespace Mat_pro {
     Matrix<T> Matrix<T>::inverse() const {
         //可逆条件
         if (this->is_square() && this->rows() > 1 && this->determinant() != 0) {
-            static constexpr T zeroNumber{0};
-            static constexpr T oneElement{1};
+            static constexpr T zeroNumber{0}, oneElement{1};
             std::vector<std::vector<T>> result_vector(this->rows(), std::vector<T>(this->cols(), zeroNumber));
             for (int32_t i = 0; i < this->rows(); i++) {
                 for (int32_t j = 0; j < this->cols(); j++) {
@@ -1366,6 +1365,7 @@ namespace Mat_pro {
         }
         return matrix;
     }
+
 
 }
 #endif  //CS205_C_CPP_CS205_PROJECT_2020S_SRC_MATRIX_HPP
