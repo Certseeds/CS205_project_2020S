@@ -143,8 +143,9 @@ TEST_CASE("Move Assignment operator", "[test 1]") {
 }
 
 TEST_CASE("initializer_list", "[test 1]") {
-    Matrix<int64_t> m1{{1, 2, 3, 4, 54},
-                       {5, 2, 3, 3, 41}};
+    Matrix<int64_t> m1
+            {{1, 2, 3, 4, 54},
+             {5, 2, 3, 3, 41}};
     CHECK(!m1.is_empty());
     cout << m1 << endl;
     Matrix<int64_t> m2{{1, 1, 4, 5, 1, 4},
