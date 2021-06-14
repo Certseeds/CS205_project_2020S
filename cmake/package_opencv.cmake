@@ -8,8 +8,4 @@ ELSEIF (UNIX)
     message(FATAL_ERROR "This cmake script have not test opencv in unix-like system")
 ENDIF ()
 
-Output_variable(OpenCV_FOUND)
-Output_Paths()
-find_package(OpenCV REQUIRED)
-Output_Paths()
-Output_variable(OpenCV_FOUND)
+
