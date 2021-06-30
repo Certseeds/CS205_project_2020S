@@ -3,13 +3,13 @@ target_link_libraries(${PROJECT_NAME}_unit_test
         PUBLIC
         Catch
         )
-IF(OpenCV_FOUND)
+IF (OpenCV_FOUND)
     target_link_libraries(${PROJECT_NAME}_unit_test
             PUBLIC
             ${OpenCV_LIBS}
             )
     MESSAGE("TARGET LINK OPENCV_LIBS")
-endif()
+endif ()
 add_test(${PROJECT_NAME}_CTest1 ${CMAKE_BINARY_DIR}/${PROJECT_NAME}_unit_test
         COMMAND ${PROJECT_NAME}_unit_test)
 add_test(${PROJECT_NAME}_CTest2 ${CMAKE_BINARY_DIR}/${PROJECT_NAME}_unit_test

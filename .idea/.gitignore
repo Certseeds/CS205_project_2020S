@@ -1,0 +1,7 @@
+/shelf/
+/workspace.xml
+/dataSources/
+/dataSources.local.xml
+/httpRequests/
+!codeStyles/.gitignore
+!*/.gitignore
