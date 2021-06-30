@@ -2,7 +2,7 @@
  * @Organization: SUSTech
  * @Author: nanoseeds
  * @Date: 2020-05-07 10:59:03
- * @LastEditTime: 2021-05-09 20:53:22
+ * @LastEditTime: 2021-06-30 21:29:08
  * @License: CC-BY-NC-SA_V4_0 or any later version 
  -->
 ## CS205_C_CPP_2020S_project : matrix  
@@ -46,13 +46,14 @@ details look at [CS205-2020S-Project-matrix](material/README.md)
     + max,min,sum,avg and their row/col's version.
   + me: other codes, code review, etc.
 
-![C++](https://img.shields.io/badge/C%2B%2B-17-orange)
+![C++](https://img.shields.io/badge/C%2B%2B-20-orange)
 
 ![100% Scores Get](https://img.shields.io/badge/Score-100%25-green)
 
 [![Catch2](https://img.shields.io/badge/Catch2-2.12.2-orange)][Catch2_2.12.2]
 
-[![OpenCV](https://img.shields.io/badge/OpenCV-3.4.10-orange)][OpenCV_3.4.10]
+[![OpenCV](https://img.shields.io/badge/OpenCV-3.4.10-orange)][OpenCV_3.4.10] [![OpenCV](https://img.shields.io/badge/OpenCV-4.2.0-orange)][OpenCV_4.2.0] 
+
 
 [![AGPL3.0 Licence](https://img.shields.io/badge/License-AGPL_V3-orange)][agpl_3_0]
 
@@ -71,3 +72,5 @@ details look at [CS205-2020S-Project-matrix](material/README.md)
 [Catch2_2.12.2]: https://github.com/catchorg/Catch2/releases/tag/v2.12.2
 
 [OpenCV_3.4.10]: https://github.com/opencv/opencv/releases/tag/3.4.10
+
+[OpenCV_4.2.0]: https://github.com/opencv/opencv/releases/tag/4.2.0
