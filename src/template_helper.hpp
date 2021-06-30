@@ -31,24 +31,22 @@
 template<typename T1, typename T2>
 constexpr bool is_same() { return std::is_same<T1, T2>::value; }
 
-
-template<typename T, typename = void>
-struct is_complex_imp : std::false_type {
+template<typename T>
+concept is_complex = requires(T f) {
+    f.real();
+    f.imag();
+    std::conj(f);
+    f /= 1.0f;
+    std::constructible_from<T, typename T::value_type, typename T::value_type>;
+    std::same_as<std::complex<typename T::value_type>, T>;
 };
 template<typename T>
-struct is_complex_imp<std::complex<T>> : std::true_type {
-};
-template<typename T>
-constexpr bool is_complex() {
-    return is_complex_imp<T>();
-}
-template<typename T>
-struct complex_inside_type: std::false_type {
+struct complex_inside_type : std::false_type {
     //static_assert(!is_complex<T>(), "complex_inside_type: std::false_type");
     using Type = T;
 };
 template<typename T>
-struct complex_inside_type<std::complex<T>>: std::true_type  {
+struct complex_inside_type<std::complex<T>> : std::true_type {
     //static_assert(is_complex<T>(), "complex_inside_type<std::complex<T>>: std::true_type");
     using Type = T;
 };
@@ -86,26 +84,22 @@ template<typename T1, typename T2>
 struct Divide_Result {
     using Type = decltype(std::declval<T1>() / std::declval<T2>());
 };
-
 template<typename T1, typename T2>
 using Divide_Result_t = typename Divide_Result<T1, T2>::Type;
 
-template<typename T, typename = void>
-struct has_conj_imp : std::false_type {
-};
-template<typename T>
-struct has_conj_imp<T, std::void_t<decltype(std::declval<T>().conj())>> : std::true_type {
-};
+template<typename T1>
+using divide_t = decltype(std::declval<T1>() / std::declval<double>());
+
 
 template<typename T>
-constexpr bool has_conj() {
-    return has_conj_imp<T>();
-}
+concept has_conj = requires(T f) {
+    f.conj();
+};
 
 template<typename T>
 T from_char_array(unsigned char const *buffer) {
     T will_return;
-    auto * dp = reinterpret_cast<unsigned char *>(&will_return);
+    auto *dp = reinterpret_cast<unsigned char *>(&will_return);
     std::copy(buffer, buffer + sizeof(T), dp);
     return will_return;
 }
